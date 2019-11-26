@@ -27,6 +27,26 @@
             }
         },
         {
+            "name": ".NET Core Attach (docker)",
+            "type": "coreclr",
+            "request": "attach",
+            "sourceFileMap": {
+                "/src": "${workspaceFolder}/ElectionGuard.WebAPI"
+            },
+            "processId": "${command:pickRemoteProcess}",
+            "pipeTransport": {
+                "pipeProgram": "docker",
+                "pipeArgs": [
+                    "exec",
+                    "-i", 
+                    "electionguard-webapi"
+                ],
+                "debuggerPath": "/vsdbg/vsdbg",
+                "pipeCwd": "${workspaceFolder}/ElectionGuard.WebAPI",
+                "quoteArgs": false
+            }
+        },
+        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach",
