@@ -27,9 +27,9 @@
 					}
 				},
 				"url": {
-					"raw": "{{url}}/election",
+					"raw": "{{scheme}}://{{url}}:{{port}}/election",
 					"host": [
-						"{{url}}"
+						"{{scheme}}://{{url}}:{{port}}"
 					],
 					"path": [
 						"election"
@@ -51,9 +51,9 @@
 					}
 				],
 				"url": {
-					"raw": "{{url}}/election",
+					"raw": "{{scheme}}://{{url}}:{{port}}/election",
 					"host": [
-						"{{url}}"
+						"{{scheme}}://{{url}}:{{port}}"
 					],
 					"path": [
 						"election"
