@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using ElectionGuard.SDK;
+using ElectionGuard.SDK.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ElectionGuard.WebAPI.Models;
@@ -26,7 +27,13 @@ namespace ElectionGuard.WebAPI.Controllers
         [HttpPost]
         public ActionResult<object> CreateElection(ElectionRequest electionRequest)
         {
-            var election = new Election(electionRequest.NumberOfTrustees, electionRequest.Threshold, new ContestFormat());
+            var election = new Election(electionRequest.NumberOfTrustees, electionRequest.Threshold, new ElectionManifest()
+            {
+                Contests = new Contest[]{ new YesNoContest()
+                {
+                    Type = "YesNo"
+                } },
+            });
             return CreatedAtAction(nameof(CreateElection), new
             {
                 election.NumberOfTrustees,
