@@ -14,6 +14,20 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "build (release)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/ElectionGuard.WebAPI/ElectionGuard.WebAPI.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "-c",
+                "Release"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "build docker (debug)",
             "command": "docker",
             "type": "shell",
@@ -70,6 +84,25 @@
                 "${workspaceFolder}/ElectionGuard.WebAPI/ElectionGuard.WebAPI.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish linux (scd)",
+            "command": "dotnet",
+            "type": "process",
+            "dependsOn": ["build (release)"],
+            "args": [
+                "publish",
+                "${workspaceFolder}/ElectionGuard.WebAPI/ElectionGuard.WebAPI.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "-c",
+                "Release",
+                "-r",
+                "linux-x64",
+                "--self-contained",
+                "true"
             ],
             "problemMatcher": "$msCompile"
         },
