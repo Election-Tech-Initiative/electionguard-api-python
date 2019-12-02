@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq;
+using ElectionGuard.SDK;
+using ElectionGuard.SDK.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using ElectionGuard.SDK.KeyCeremony;
+using ElectionGuard.WebAPI.Models;
 
 namespace ElectionGuard.WebAPI.Controllers
 {
@@ -18,18 +21,32 @@ namespace ElectionGuard.WebAPI.Controllers
         [HttpGet]
         public string Get()
         {
-            return "Welcome to the ElectionGuard Web API!";
+            return "Welcome to ElectionGuard";
         }
 
         [HttpPost]
-        [Route("")]
-        [Route("/")]
-        [Route("Create")]
-        // TODO: everything..
-        public string Create([FromBody] object electionCreateConfig)
+        public ActionResult<object> CreateElection(ElectionRequest electionRequest)
         {
-            var testUsingSdk = new KeyCeremonyCoordinator(3, 3);
-            return electionCreateConfig.ToString();
+            var election = new Election(electionRequest.NumberOfTrustees, electionRequest.Threshold, new ElectionManifest()
+            {
+                Contests = new Contest[]{ new YesNoContest()
+                {
+                    Type = "YesNo"
+                } },
+            });
+            return CreatedAtAction(nameof(CreateElection), new
+            {
+                election.NumberOfTrustees,
+                election.Threshold,
+                election.BaseHashCode,
+                election.PublicJointKey,
+                TrusteeKeys = election.TrusteeKeys.Select(x =>
+                    new TrusteeKey()
+                    {
+                        Index = x.Key,
+                        PrivateKey = x.Value
+                    }).ToList()
+            });
         }
     }
 }
