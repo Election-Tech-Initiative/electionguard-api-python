@@ -43,7 +43,14 @@ Explain how to prepare the sample once the user clones or downloads the reposito
 
 ## Runnning the sample
 
-Outline step-by-step instructions to execute the sample and see its output. Include steps for executing the sample from the IDE, starting specific services in the Azure portal or anything related to the overall launch of the code.
+## Debugging from Visual Studio Code
+
+Open the Debug Window and execute: `.NET Core Launch (web)`
+
+## Debugging from Visual studio Code (in Docker)
+
+1. Open the Command Palette and execute: `Tasks: Run Task > run docker (debug)`
+2. Open the Debug Window and execute: `.NET Core Attach (docker)`
 
 ## Key concepts
 
