@@ -52,6 +52,14 @@ Open the Debug Window and execute: `.NET Core Launch (web)`
 1. Open the Command Palette and execute: `Tasks: Run Task > run docker (debug)`
 2. Open the Debug Window and execute: `.NET Core Attach (docker)`
 
+### Running as a Windows Service
+
+On a Windows Machine, from an elevated powershell prompt
+
+```powershell
+pwsh .\scripts\Create-Windows-Service.ps1
+```
+
 ## Key concepts
 
 Provide users with more context on the tools and services used in the sample. Explain some of the code that is being used and how services interact with each other.
