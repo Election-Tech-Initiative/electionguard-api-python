@@ -1,8 +1,10 @@
-﻿namespace ElectionGuard.WebAPI.Models
+﻿using ElectionGuard.SDK.Models;
+
+namespace ElectionGuard.WebAPI.Models
 {
     public class ElectionRequest
     {
-        public int NumberOfTrustees { get; set; }
-        public int Threshold { get; set; }
+        public ElectionGuardConfig Config { get; set; }
+        public ElectionManifest Manifest { get; set; }
     }
 }

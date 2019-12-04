@@ -4,6 +4,7 @@ using ElectionGuard.SDK.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ElectionGuard.WebAPI.Models;
+using System.Collections.Generic;
 
 namespace ElectionGuard.WebAPI.Controllers
 {
@@ -25,28 +26,73 @@ namespace ElectionGuard.WebAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult<object> CreateElection(ElectionRequest electionRequest)
+        public ActionResult<CreateElectionResult> CreateElection(ElectionRequest request)
         {
-            var election = new Election(electionRequest.NumberOfTrustees, electionRequest.Threshold, new ElectionManifest()
+            var election = Election.CreateElection(request.Config, request.Manifest);
+
+            return CreatedAtAction(nameof(CreateElection), election);
+        }
+
+        [HttpPost]
+        [Route(nameof(EncryptBallots))]
+        public ActionResult<EncryptBallotResult[]> EncryptBallots(BallotEncryptRequest request)
+        {
+            var currentBallotCount = 0;
+            if (request.CurrentBallotCount != null) 
             {
-                Contests = new Contest[]{ new YesNoContest()
-                {
-                    Type = "YesNo"
-                } },
-            });
-            return CreatedAtAction(nameof(CreateElection), new
+                currentBallotCount = (int)request.CurrentBallotCount;
+            } else 
             {
-                election.NumberOfTrustees,
-                election.Threshold,
-                election.BaseHashCode,
-                election.PublicJointKey,
-                TrusteeKeys = election.TrusteeKeys.Select(x =>
-                    new TrusteeKey()
-                    {
-                        Index = x.Key,
-                        PrivateKey = x.Value
-                    }).ToList()
-            });
+                //TODO: Get from lib
+            }
+
+            var result = new List<EncryptBallotResult>();
+
+            for (var i = 0; i < request.Selections.Length; i++) 
+            {
+                var encryptedBallot = Election.EncryptBallot(
+                    request.Selections[i], 
+                    request.ExpectedNumberOfSelected, 
+                    request.electionGuardConfig, 
+                    currentBallotCount);
+
+                currentBallotCount = (int)encryptedBallot.CurrentNumberOfBallots;
+                result.Add(encryptedBallot);
+            }
+
+            return CreatedAtAction(nameof(EncryptBallots), result);
+        }
+
+        [HttpPost]
+        [Route(nameof(RecordBallots))]
+        public ActionResult<RecordBallotsResult> RecordBallots(BallotRecordRequest request)
+        {
+            var result = Election.RecordBallots(
+                request.electionGuardConfig, 
+                request.EncryptedBallots, 
+                request.CastBallotIndicies, 
+                request.SpoiledBallotIndicies);
+
+            return CreatedAtAction(nameof(RecordBallots), result);
+        }
+
+        [HttpPost]
+        [Route(nameof(TallyVotes))]
+        public ActionResult<TallyVotesResult> TallyVotes(TallyVotesRequest request)
+        {
+
+            if (request.TrusteeKeys.Count < request.electionGuardConfig.Threshold)
+            {
+                return BadRequest("Trustee count is less than threshold");
+            }
+
+            var result = Election.TallyVotes(
+                request.electionGuardConfig, 
+                request.TrusteeKeys.Values, 
+                request.TrusteeKeys.Count, 
+                request.EncryptedBallotsFileName);
+
+            return CreatedAtAction(nameof(TallyVotes), result);
         }
     }
 }
