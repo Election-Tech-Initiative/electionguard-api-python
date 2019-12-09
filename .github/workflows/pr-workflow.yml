@@ -11,7 +11,7 @@ jobs:
     - name: Build
       run: dotnet build -c Release
     - name: Run
-      run: dotnet run -c Release
+      run: dotnet run --project ./ElectionGuard.WebAPI/ElectionGuard.WebAPI.csproj -c Release
     - name: Postman Test
       run: |
         npm install -g newman
