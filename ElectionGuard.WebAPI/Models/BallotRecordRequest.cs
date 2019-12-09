@@ -11,5 +11,11 @@ namespace ElectionGuard.WebAPI.Models
         public long[] CastBallotIndicies { get; set; }
 
         public long[] SpoiledBallotIndicies { get; set; }
+
+#nullable enable
+        public string? ExportPath { get; set; }
+
+        public string? ExportFileNamePrefix {get; set; }
+#nullable disable
     }
 }
