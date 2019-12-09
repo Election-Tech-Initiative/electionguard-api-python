@@ -10,10 +10,9 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build
       run: dotnet build -c Release
-    - name: Run
-      run: dotnet run --project ./ElectionGuard.WebAPI/ElectionGuard.WebAPI.csproj -c Release
-    - name: Postman Test
-      run: |
-        npm install -g newman
-        # Insecure due to self signed certificate
-        newman run .postman/postman_collection.json -e .postman/postman_environment.local.json --insecure
+    # - name: Postman Test
+    #   run: |
+    #     npm install -g newman
+    #     dotnet run --project ./ElectionGuard.WebAPI/ElectionGuard.WebAPI.csproj -c Release
+    #     # Insecure due to self signed certificate
+    #     newman run .postman/postman_collection.json -e .postman/postman_environment.local.json --insecure
