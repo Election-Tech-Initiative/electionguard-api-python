@@ -28,7 +28,7 @@ namespace ElectionGuard.WebAPI.Controllers
         [HttpPost]
         public ActionResult<CreateElectionResult> CreateElection(ElectionRequest request)
         {
-            var election = Election.CreateElection(request.Config, request.Manifest);
+            var election = ElectionGuardApi.CreateElection(request.Config);
 
             return CreatedAtAction(nameof(CreateElection), election);
         }
@@ -50,7 +50,7 @@ namespace ElectionGuard.WebAPI.Controllers
 
             for (var i = 0; i < request.Selections.Length; i++) 
             {
-                var encryptedBallot = Election.EncryptBallot(
+                var encryptedBallot = ElectionGuardApi.EncryptBallot(
                     request.Selections[i], 
                     request.ExpectedNumberOfSelected, 
                     request.electionGuardConfig, 
@@ -67,11 +67,13 @@ namespace ElectionGuard.WebAPI.Controllers
         [Route(nameof(RecordBallots))]
         public ActionResult<RecordBallotsResult> RecordBallots(BallotRecordRequest request)
         {
-            var result = Election.RecordBallots(
+            var result = ElectionGuardApi.RecordBallots(
                 request.electionGuardConfig, 
                 request.EncryptedBallots, 
                 request.CastBallotIndicies, 
-                request.SpoiledBallotIndicies);
+                request.SpoiledBallotIndicies,
+                request.ExportPath,
+                request.ExportFileNamePrefix);
 
             return CreatedAtAction(nameof(RecordBallots), result);
         }
@@ -86,11 +88,13 @@ namespace ElectionGuard.WebAPI.Controllers
                 return BadRequest("Trustee count is less than threshold");
             }
 
-            var result = Election.TallyVotes(
+            var result = ElectionGuardApi.TallyVotes(
                 request.electionGuardConfig, 
                 request.TrusteeKeys.Values, 
                 request.TrusteeKeys.Count, 
-                request.EncryptedBallotsFileName);
+                request.EncryptedBallotsFileName,
+                request.ExportPath,
+                request.ExportFileNamePrefix);
 
             return CreatedAtAction(nameof(TallyVotes), result);
         }
