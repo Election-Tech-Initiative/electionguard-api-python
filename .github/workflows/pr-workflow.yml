@@ -10,6 +10,8 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build
       run: dotnet build -c Release
+    - name: Test
+      run: dotnet test -c Release
     # - name: Postman Test
     #   run: |
     #     npm install -g newman

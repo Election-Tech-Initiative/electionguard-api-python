@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using ElectionGuard.SDK.Models;
+﻿using System.Collections.Generic;
 
 namespace ElectionGuard.Tools
 {

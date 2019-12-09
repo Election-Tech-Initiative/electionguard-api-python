@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using VotingWorks.Ballot;
-using Election = VotingWorks.Ballot.Election;
 
 namespace ElectionGuard.Tools.Tests
 {

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Contest = VotingWorks.Ballot.Contest;
+using VotingWorks.Ballot;
 
 namespace ElectionGuard.Tools
 {

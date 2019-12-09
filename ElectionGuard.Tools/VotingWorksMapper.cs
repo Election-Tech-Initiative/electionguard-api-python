@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ElectionGuard.SDK;
 using VotingWorks.Ballot;
-// TODO Remove upon with new nuget package refactor
-using Election = VotingWorks.Ballot.Election;
 
 namespace ElectionGuard.Tools
 {
