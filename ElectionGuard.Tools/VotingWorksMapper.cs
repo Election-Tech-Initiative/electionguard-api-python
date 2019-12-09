@@ -8,62 +8,34 @@ using Election = VotingWorks.Ballot.Election;
 
 namespace ElectionGuard.Tools
 {
-    /// <summary>
-    /// Voting Works (VX) specific mapper
-    /// </summary>
-    public static class VXMapper
+    public class VotingWorksMapper : IElectionMapper<Election, Ballot>
     {
-        /// <summary>
-        /// Get the map for election
-        /// </summary>
-        /// <param name="election"></param>
-        /// <returns></returns>
-        public static ElectionMap GetElectionMap(Election election)
+        public ElectionMap GetElectionMap(Election election)
         {
-            // Contest Maps
+            var contestMaps = GetContestMaps(election.Contests);
+            var numberOfSelections = contestMaps.Values.Sum(contestMap => contestMap.NumberOfSelections);
+            var ballotStyleMaps = GetBallotStyleMaps(election.BallotStyles, contestMaps);
+            return new ElectionMap
+            {
+                ContestMaps = contestMaps,
+                NumberOfSelections = numberOfSelections,
+                BallotStyleMaps = ballotStyleMaps
+            };
+        }
+
+        private static Dictionary<string, ContestMap> GetContestMaps(IEnumerable<Contest> contests)
+        {
             var selectionIndex = 0;
             var contestMaps = new Dictionary<string, ContestMap>();
-            foreach (var contest in election.Contests)
+            foreach (var contest in contests)
             {
                 var contestMap = GetContestMap(contest, selectionIndex);
                 contestMaps.Add(contestMap.Contest.Id, contestMap);
                 selectionIndex = contestMap.EndIndex + 1;
             }
-
-            // Number of Selections
-            var numberOfSelections = contestMaps.Values.Sum(contestMap => contestMap.NumberOfSelections);
-
-            // Ballot Styles
-            var ballotStyleMaps = new Dictionary<string, BallotStyleMap>();
-            foreach (var ballotStyle in election.BallotStyles)
-            {
-                var contestMapSubset = contestMaps
-                    .Where(contestMap => ballotStyle.Districts.Contains(contestMap.Value.Contest.DistrictId))
-                    .ToDictionary(dict => dict.Key, dict => dict.Value);
-                var expectedNumberOfSelected = contestMapSubset.Values.Sum(contestMap => contestMap.ExpectedNumberOfSelected);
-                ballotStyleMaps.Add(ballotStyle.Id, new BallotStyleMap
-                {
-                    ExpectedNumberOfSelected = expectedNumberOfSelected,
-                    ContestMaps = contestMapSubset,
-                });
-            }
-
-            return new ElectionMap()
-            {
-                ContestMaps = contestMaps,
-                NumberOfSelections = numberOfSelections,
-                BallotStyleMaps = ballotStyleMaps
-                
-            };
+            return contestMaps;
         }
 
-
-        /// <summary>
-        /// Get the map for a contest
-        /// </summary>
-        /// <param name="contest"></param>
-        /// <param name="startingIndex"></param>
-        /// <returns></returns>
         private static ContestMap GetContestMap(Contest contest, int startingIndex = 0)
         {
             
@@ -103,23 +75,42 @@ namespace ElectionGuard.Tools
             };
         }
 
-        /// <summary>
-        /// Convert voting works ballot to correct number of selections for electionguard
-        /// The number of selections can be passed in to reduce processing
-        /// </summary>
-        /// <param name="ballot"></param>
-        /// <param name="ballotStyleMap"></param>
-        /// <param name="numberOfSelections"></param>
-        /// <returns></returns>
-        public static bool[] ConvertToSelections(Ballot ballot, BallotStyleMap? ballotStyleMap = null, int? numberOfSelections = null)
+        private static Dictionary<string, BallotStyleMap> GetBallotStyleMaps(IEnumerable<BallotStyle> ballotStyles, Dictionary<string, ContestMap> contestMaps)
         {
-            if (ballotStyleMap == null || numberOfSelections ==  null)
+            var ballotStyleMaps = new Dictionary<string, BallotStyleMap>();
+            foreach (var ballotStyle in ballotStyles)
             {
-                var electionMap = GetElectionMap(ballot.Election);
-                numberOfSelections = electionMap.NumberOfSelections;
-                ballotStyleMap = electionMap.BallotStyleMaps[ballot.BallotStyle.Id];
+                ballotStyleMaps.Add(ballotStyle.Id, GetBallotStyleMap(ballotStyle, contestMaps));
             }
-            var selections = new bool[numberOfSelections.Value];
+
+            return ballotStyleMaps;
+        }
+
+        private static BallotStyleMap GetBallotStyleMap(BallotStyle ballotStyle, Dictionary<string, ContestMap> contestMaps)
+        {
+            var contestMapSubset = contestMaps
+                    .Where(contestMap => ballotStyle.Districts.Contains(contestMap.Value.Contest.DistrictId))
+                    .ToDictionary(dict => dict.Key, dict => dict.Value);
+                var expectedNumberOfSelected = contestMapSubset.Values.Sum(contestMap => contestMap.ExpectedNumberOfSelected);
+                return new BallotStyleMap
+                {
+                    ExpectedNumberOfSelected = expectedNumberOfSelected,
+                    ContestMaps = contestMapSubset,
+                };
+        }
+
+        public bool[] ConvertToSelections(Ballot ballot)
+        {
+            return ConvertToSelections(ballot, GetElectionMap(ballot.Election));
+        }
+
+
+        public bool[] ConvertToSelections(Ballot ballot, ElectionMap electionMap)
+        {
+            var numberOfSelections = electionMap.NumberOfSelections;
+            var ballotStyleMap = electionMap.BallotStyleMaps[ballot.BallotStyle.Id];
+
+            var selections = new bool[numberOfSelections];
             foreach (var contestMap in ballotStyleMap.ContestMaps.Values)
             {
                 var voteExists = ballot.Votes.TryGetValue(contestMap.Contest.Id, out var vote);
@@ -127,10 +118,7 @@ namespace ElectionGuard.Tools
                 // No Selection becomes Null Votes
                 if (!voteExists)
                 {
-                    for (var i = contestMap.NullVoteStartIndex; i <= contestMap.EndIndex; i++)
-                    {
-                        selections[i] = true;
-                    }
+                    selections = AddNullProtectionVotes(selections, contestMap);
                     continue;
                 }
 
@@ -138,54 +126,63 @@ namespace ElectionGuard.Tools
                 switch (contestMap.Contest.Type.AsContestType())
                 {
                     case ContestType.Candidate:
-                        var candidateVotes = (Candidate[]) vote;
-                        var writeInIndex = contestMap.WriteInStartIndex;
-                        foreach (var candidateVote in candidateVotes)
-                        {
-                            
-                            var candidateExists = contestMap.SelectionMap.TryGetValue(candidateVote.Id, out var candidateIndex);
-                            if (candidateExists)
-                            {
-                                selections[candidateIndex] = true;
-                            }
-                            else // Write In
-                            {
-                                selections[writeInIndex] = true;
-                                writeInIndex++;
-                            }
-                        }
+                        selections = AddCandidateSelections(selections, (Candidate[]) vote, contestMap);
                         break;
                     case ContestType.YesNo:
-                        var yesNoVote = (string) vote;
-                        var yesNoExists = contestMap.SelectionMap.TryGetValue(yesNoVote, out var yesNoIndex);
-                        if (yesNoExists)
-                        {
-                            selections[yesNoIndex] = true;
-                        }
+                        selections = AddYesNoSelection(selections, (string) vote, contestMap);
                         break;
                 }
 
-                // Handle Null Votes
-                var nullVoteIndex = contestMap.NullVoteStartIndex;
-                while (selections.Count(selected => selected) < contestMap.ExpectedNumberOfSelected && nullVoteIndex <= contestMap.EndIndex)
-                {
-                    for (var i = contestMap.NullVoteStartIndex; i <= contestMap.EndIndex; i++)
-                    {
-                        selections[i] = true;
-                    }
-                }
+                selections = AddNullProtectionVotes(selections, contestMap);
 
             }
 
             return selections;
         }
 
-        /// <summary>
-        /// Calculates the number of selections based on the given election
-        /// </summary>
-        /// <param name="election"></param>
-        /// <returns>number of selections</returns>
-        public static int GetNumberOfSelections(Election election)
+        private static bool[] AddNullProtectionVotes(bool[] selections, ContestMap contestMap)
+        {
+            for (var i = contestMap.NullVoteStartIndex; i <= contestMap.EndIndex; i++)
+            {
+                if (selections
+                        .Where((selection, index) => contestMap.StartIndex <= index && index <= contestMap.EndIndex)
+                        .Count(selected => selected) >= contestMap.ExpectedNumberOfSelected)
+                    return selections;
+                selections[i] = true;
+            }
+            return selections;
+        }
+
+        private static bool[] AddCandidateSelections(bool[] selections, Candidate[] candidateVotes, ContestMap contestMap)
+        {
+            var writeInIndex = contestMap.WriteInStartIndex;
+            foreach (var candidateVote in candidateVotes)
+            {
+                var candidateExists = contestMap.SelectionMap.TryGetValue(candidateVote.Id, out var candidateIndex);
+                if (candidateExists)
+                {
+                    selections[candidateIndex] = true;
+                }
+                else // Write In
+                {
+                    selections[writeInIndex] = true;
+                    writeInIndex++;
+                }
+            }
+            return selections;
+        }
+
+        private static bool[] AddYesNoSelection(bool[] selections, string yesNoVote, ContestMap contestMap)
+        {
+            var yesNoExists = contestMap.SelectionMap.TryGetValue(yesNoVote, out var yesNoIndex);
+            if (yesNoExists)
+            {
+                selections[yesNoIndex] = true;
+            }
+            return selections;
+        }
+
+        public int GetNumberOfSelections(Election election)
         {
             var numberOfSelections = 0;
             foreach (var contest in election.Contests)
@@ -217,14 +214,7 @@ namespace ElectionGuard.Tools
             return numberOfSelections;
         }
 
-        /// <summary>
-        /// Converts the boolean array from ElectionGuard to a list of tallies
-        /// </summary>
-        /// <param name="election"></param>
-        /// <param name="electionMap"></param>
-        /// <param name="tallyResult"></param>
-        /// <returns></returns>
-        public static IList<ContestTally> ConvertToTally(Election election, ElectionMap electionMap, int[] tallyResult)
+        public IList<ContestTally> ConvertToTally(int[] tallyResult, ElectionMap electionMap)
         {
             if (tallyResult.Length != electionMap.NumberOfSelections)
             {
@@ -234,9 +224,9 @@ namespace ElectionGuard.Tools
             foreach (var contestMap in electionMap.ContestMaps.Values)
             {
                 var contestTally = new ContestTally(contestMap.Contest);
-                foreach (var selection in contestMap.SelectionMap)
+                foreach (var (key, value) in contestMap.SelectionMap)
                 {
-                    contestTally.Results.Add(selection.Key, tallyResult[selection.Value]);
+                    contestTally.Results.Add(key, tallyResult[value]);
                 }
 
                 if (contestMap.WriteInStartIndex != contestMap.EndIndex) // Write-Ins Exist
@@ -253,4 +243,6 @@ namespace ElectionGuard.Tools
             return contestTallies;
         }
     }
+
+
 }
