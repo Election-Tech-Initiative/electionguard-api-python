@@ -17,7 +17,7 @@ jobs:
     - name: Build and Publish
       run:  |
         commit="${{ github.sha }}"
-        dotnet publish -c Release -r linux-x64 --self-contained true --version-suffix "v${commit:0:7}"
+        dotnet publish ./ElectionGuard.WebAPI/ElectionGuard.WebAPI.csproj /property:GenerateFullPaths=true -c Release -r linux-x64 --self-contained true --version-suffix "v${commit:0:7}"
     - name: Package
       run: chmod +x ./package/linux-x64/package.sh
     - name: Upload Package
