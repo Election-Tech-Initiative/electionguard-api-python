@@ -21,6 +21,7 @@ jobs:
     - name: Change Package Script Access
       run: chmod +x ./package/linux-x64/package.sh
     - name: Package Linux
+      shell: bash
       run: ./package/linux-x64/package.sh
     - name: Upload Package
       uses: actions/upload-artifact@v1
