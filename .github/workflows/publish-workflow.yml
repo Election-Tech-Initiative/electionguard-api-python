@@ -40,8 +40,6 @@ jobs:
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1.0.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         release_name: Milestone Release
         tag_name: v1.0.0
@@ -56,14 +54,15 @@ jobs:
       with:
         name: install-script-linux-x64
     - name: GZip Linux Artifacts
-      run: tar -zcvf electionguard-api-artifacts-linux-x64.tar.gz linux-x64/electionguard-api.tar.gz install-script-linux-x64/install.sh
+      run: |
+        cp linux-x64/electionguard-api.tar.gz .
+        cp install-script-linux-x64/install.sh .
+        tar -zcvf electionguard-api-artifacts-linux-x64.tar.gz electionguard-api.tar.gz install.sh
     - name: Display Artifacts
       run: ls
     - name: Upload Linux Artifacts
       id: upload-release-asset_1
       uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./electionguard-api-artifacts-linux-x64.tar.gz
