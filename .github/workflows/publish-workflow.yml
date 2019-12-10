@@ -1,10 +1,10 @@
 name: Package
 
 on:
-   milestone:
-     types: [closed]
+    milestone:
+        types: [closed]
     pull_request: 
-      types: [opened, labeled]
+        types: [opened, labeled]
 
 jobs:
   linux_package:
