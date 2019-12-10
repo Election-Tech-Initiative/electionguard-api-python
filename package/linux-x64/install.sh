@@ -2,7 +2,7 @@
 
 SERVICE_NAME='electionguard-api.service'
 
-echo "stopping bin services"
+echo "stopping ElectionGuard services"
 sudo systemctl stop $SERVICE_NAME
 sudo systemctl disable $SERVICE_NAME
 sudo rm -rf /etc/systemd/system/$SERVICE_NAME
@@ -26,7 +26,7 @@ sudo systemctl reset-failed
 echo "enabling services"
 sudo systemctl enable $SERVICE_NAME
 
-echo "starting bin services"
+echo "starting ElectionGuard services"
 sudo systemctl start $SERVICE_NAME
 systemctl status $SERVICE_NAME
 
