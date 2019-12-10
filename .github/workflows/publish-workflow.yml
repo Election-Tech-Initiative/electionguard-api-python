@@ -18,18 +18,20 @@ jobs:
       run:  |
         commit="${{ github.sha }}"
         dotnet publish ./ElectionGuard.WebAPI/ElectionGuard.WebAPI.csproj /property:GenerateFullPaths=true -c Release -r linux-x64 --self-contained true --version-suffix "v${commit:0:7}"
-    - name: Package
+    - name: Change Package Script Access
       run: chmod +x ./package/linux-x64/package.sh
+    - name: Package Linux
+      run: ./package/linux-x64/package.sh
     - name: Upload Package
       uses: actions/upload-artifact@v1
       with:
         name: linux-x64
-        path: package/linux-x64/bin/electionguard-api.tar.gz
+        path: ./package/linux-x64/bin/electionguard-api.tar.gz
     - name: Upload Install Script
       uses: actions/upload-artifact@v1
       with:
         name: install-script-linux-x64
-        path: package/linux-x64/install.sh
+        path: ./package/linux-x64/install.sh
   linux_release:
     name: Upload Release
     needs: [linux_package]
