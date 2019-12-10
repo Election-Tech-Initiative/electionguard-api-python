@@ -28,12 +28,12 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: linux-x64
-        path: ./package/linux-x64/bin/electionguard-api.tar.gz
+        path: package/linux-x64/electionguard-api.tar.gz
     - name: Upload Install Script
       uses: actions/upload-artifact@v1
       with:
         name: install-script-linux-x64
-        path: ./package/linux-x64/install.sh
+        path: package/linux-x64/install.sh
   linux_release:
     name: Upload Release
     needs: [linux_package]
