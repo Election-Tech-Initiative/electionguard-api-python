@@ -3,6 +3,7 @@ name: Package
 on:
    milestone:
      types: [closed]
+     pull_request: [opened]
 
 jobs:
   linux_package:
