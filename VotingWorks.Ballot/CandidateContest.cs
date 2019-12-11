@@ -4,7 +4,7 @@
     {
         public CandidateContest()
         {
-            Type = "candidate";
+            Type = ContestType.Candidate;
         }
 
         public int Seats { get; set; }
