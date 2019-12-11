@@ -1,8 +1,10 @@
+using ElectionGuard.Tools;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using VotingWorks.Ballot;
 
 namespace ElectionGuard.WebAPI
 {
@@ -20,6 +22,7 @@ namespace ElectionGuard.WebAPI
         {
             services.AddControllers()
                     .AddNewtonsoftJson();
+            services.AddTransient<IElectionMapper<Election, Ballot>, VotingWorksMapper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
