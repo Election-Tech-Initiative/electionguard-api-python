@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\VotingWorks.Ballot\VotingWorks.Ballot.csproj" />
+    <ProjectReference Include="..\ElectionGuard.Tools\ElectionGuard.Tools.csproj" />
   </ItemGroup>
 
 </Project>

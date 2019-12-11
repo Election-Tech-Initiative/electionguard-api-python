@@ -41,7 +41,7 @@ namespace ElectionGuard.Tools
             var nullVotes = 0;
             var writeIns = 0;
             var selectionMap = new Dictionary<string, int>();
-            switch (contest.Type.AsContestType())
+            switch (contest.Type)
             {
                 case ContestType.YesNo:
                     selections = 2;
@@ -121,7 +121,7 @@ namespace ElectionGuard.Tools
                 }
 
                 // Handle Votes
-                switch (contestMap.Contest.Type.AsContestType())
+                switch (contestMap.Contest.Type)
                 {
                     case ContestType.Candidate:
                         selections = AddCandidateSelections(selections, (Candidate[]) vote, contestMap);
@@ -185,7 +185,7 @@ namespace ElectionGuard.Tools
             var numberOfSelections = 0;
             foreach (var contest in election.Contests)
             {
-                switch (contest.Type.AsContestType())
+                switch (contest.Type)
                 {
                     case ContestType.YesNo:
                         numberOfSelections += 3; // Yes + No + Null Vote

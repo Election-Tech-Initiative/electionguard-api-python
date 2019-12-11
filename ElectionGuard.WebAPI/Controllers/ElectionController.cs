@@ -1,10 +1,11 @@
-﻿using System.Linq;
-using ElectionGuard.SDK;
+﻿using ElectionGuard.SDK;
 using ElectionGuard.SDK.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ElectionGuard.WebAPI.Models;
 using System.Collections.Generic;
+using ElectionGuard.Tools;
+using VotingWorks.Ballot;
 
 namespace ElectionGuard.WebAPI.Controllers
 {
@@ -13,10 +14,12 @@ namespace ElectionGuard.WebAPI.Controllers
     public class ElectionController : ControllerBase
     {
         private readonly ILogger<ElectionController> _logger;
+        private readonly IElectionMapper<Election, Ballot> _electionMapper;
 
-        public ElectionController(ILogger<ElectionController> logger)
+        public ElectionController(ILogger<ElectionController> logger, IElectionMapper<Election, Ballot> electionMapper)
         {
             _logger = logger;
+            _electionMapper = electionMapper;
         }
 
         [HttpGet]
@@ -28,9 +31,15 @@ namespace ElectionGuard.WebAPI.Controllers
         [HttpPost]
         public ActionResult<CreateElectionResult> CreateElection(ElectionRequest request)
         {
-            var election = ElectionGuardApi.CreateElection(request.Config);
+            var electionMap = _electionMapper.GetElectionMap(request.Election);
+            request.Config.NumberOfSelections = electionMap.NumberOfSelections;
 
-            return CreatedAtAction(nameof(CreateElection), election);
+            var election = ElectionGuardApi.CreateElection(request.Config);
+            return CreatedAtAction(nameof(CreateElection), new ElectionResponse {
+                ElectionGuardConfig = election.ElectionGuardConfig,
+                TrusteeKeys = election.TrusteeKeys,
+                ElectionMap = electionMap,
+            });
         }
 
         [HttpPost]
