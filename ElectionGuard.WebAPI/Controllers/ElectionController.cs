@@ -1,10 +1,10 @@
-﻿using System.Linq;
-using ElectionGuard.SDK;
+﻿using ElectionGuard.SDK;
 using ElectionGuard.SDK.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ElectionGuard.WebAPI.Models;
 using System.Collections.Generic;
+using ElectionGuard.Tools;
 
 namespace ElectionGuard.WebAPI.Controllers
 {
@@ -28,6 +28,8 @@ namespace ElectionGuard.WebAPI.Controllers
         [HttpPost]
         public ActionResult<CreateElectionResult> CreateElection(ElectionRequest request)
         {
+            var mapper = new VotingWorksMapper();
+            request.Config.NumberOfSelections = mapper.GetNumberOfSelections(request.Election);
             var election = ElectionGuardApi.CreateElection(request.Config);
 
             return CreatedAtAction(nameof(CreateElection), election);
