@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ElectionGuard.SDK;
+using Newtonsoft.Json.Linq;
 using VotingWorks.Ballot;
 
 namespace ElectionGuard.Tools
@@ -124,6 +125,10 @@ namespace ElectionGuard.Tools
                 switch (contestMap.Contest.Type)
                 {
                     case ContestType.Candidate:
+                        if (vote.GetType() == typeof(JArray))
+                        {
+                            vote = ((JArray)vote).Select(x => x.ToObject<Candidate>()).ToArray();
+                        }
                         selections = AddCandidateSelections(selections, (Candidate[]) vote, contestMap);
                         break;
                     case ContestType.YesNo:

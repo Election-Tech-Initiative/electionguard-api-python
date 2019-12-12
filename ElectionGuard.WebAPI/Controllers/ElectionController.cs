@@ -58,12 +58,15 @@ namespace ElectionGuard.WebAPI.Controllers
 
             var result = new List<EncryptBallotResult>();
 
-            foreach (var selections in request.Selections)
+            foreach (var ballot in request.Ballots)
             {
+                var selections = _electionMapper.ConvertToSelections(ballot, request.ElectionMap);
+                var numberOfExpected =
+                    request.ElectionMap.BallotStyleMaps[ballot.BallotStyle.Id].ExpectedNumberOfSelected;
                 var encryptedBallot = ElectionGuardApi.EncryptBallot(
                     selections, 
-                    request.ExpectedNumberOfSelected, 
-                    request.electionGuardConfig, 
+                    numberOfExpected, 
+                    request.ElectionGuardConfig, 
                     currentBallotCount);
 
                 currentBallotCount = (int)encryptedBallot.CurrentNumberOfBallots;
@@ -78,7 +81,7 @@ namespace ElectionGuard.WebAPI.Controllers
         public ActionResult<RecordBallotsResult> RecordBallots(BallotRecordRequest request)
         {
             var result = ElectionGuardApi.RecordBallots(
-                request.electionGuardConfig, 
+                request.ElectionGuardConfig, 
                 request.EncryptedBallots, 
                 request.CastBallotIndicies, 
                 request.SpoiledBallotIndicies,

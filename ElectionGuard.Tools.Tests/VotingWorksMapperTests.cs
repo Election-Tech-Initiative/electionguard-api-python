@@ -142,7 +142,8 @@ namespace ElectionGuard.Tools.Tests
                 TestContext.WriteLine($"- Selections: {contest.Value.NumberOfSelections}");
                 TestContext.WriteLine($"- Selected: {contest.Value.ExpectedNumberOfSelected}");
             }
-
+            Assert.AreEqual(5, electionMap.ContestMaps["NormalContest"].NumberOfSelections);
+            Assert.AreEqual(7, electionMap.ContestMaps["NullVotesContest"].NumberOfSelections);
             Assert.AreEqual(18, electionMap.NumberOfSelections);
             Assert.AreEqual(_candidateElection.Contests.Length, electionMap.ContestMaps.Count);
             Assert.AreEqual(2, electionMap.BallotStyleMaps.Count);
