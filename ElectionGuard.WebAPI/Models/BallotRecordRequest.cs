@@ -4,7 +4,7 @@ namespace ElectionGuard.WebAPI.Models
 {
     public class BallotRecordRequest
     {
-        public ElectionGuardConfig electionGuardConfig { get; set; }
+        public ElectionGuardConfig ElectionGuardConfig { get; set; }
 
         public string[] EncryptedBallots { get; set; }
 
