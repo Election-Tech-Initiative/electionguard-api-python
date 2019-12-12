@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -7,7 +8,7 @@ namespace ElectionGuard.Tools.Tests
 {
     public class VotingWorksMapperTests
     {
-        private IElectionMapper<Election, Ballot> _electionMapper;
+        private IElectionMapper<Election, Ballot, VoteTally> _electionMapper;
         private Election _yesNoElection;
         private Election _candidateElection;
         private Ballot _ballot;
@@ -188,15 +189,16 @@ namespace ElectionGuard.Tools.Tests
             var tallies = _electionMapper.ConvertToTally(tallyResult, electionMap);
             
             // Print Result
-            foreach (var tally in tallies)
+            for (var i = 0; i < _candidateElection.Contests.Length; i++)
             {
-                TestContext.WriteLine($"Contest: {tally.Contest.Id}");
-                foreach (var result in tally.Results)
+                TestContext.WriteLine($"{_candidateElection.Contests[i].Title}");
+                TestContext.WriteLine($"- Candidates : {string.Join(", ", tallies[i].Candidates)}");
+                if (((CandidateContest)_candidateElection.Contests[i]).AllowWriteIns)
                 {
-                    TestContext.WriteLine($"- {result.Key} : {result.Value}");
+                    TestContext.WriteLine($"- Write Ins : {tallies[i].WriteIns[0].Tally}");
                 }
             }
-
+            Assert.AreEqual(new []{1,2,3,4}, tallies[0].Candidates);
             Assert.AreEqual(_candidateElection.Contests.Length, tallies.Count);
         }
     }

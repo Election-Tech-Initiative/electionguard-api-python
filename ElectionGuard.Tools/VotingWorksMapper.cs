@@ -6,7 +6,7 @@ using VotingWorks.Ballot;
 
 namespace ElectionGuard.Tools
 {
-    public class VotingWorksMapper : IElectionMapper<Election, Ballot>
+    public class VotingWorksMapper : IElectionMapper<Election, Ballot, VoteTally>
     {
         public ElectionMap GetElectionMap(Election election)
         {
@@ -212,19 +212,31 @@ namespace ElectionGuard.Tools
             return numberOfSelections;
         }
 
-        public IList<ContestTally> ConvertToTally(int[] tallyResult, ElectionMap electionMap)
+        public IList<VoteTally> ConvertToTally(int[] tallyResult, ElectionMap electionMap)
         {
             if (tallyResult.Length != electionMap.NumberOfSelections)
             {
                 throw new Exception("Tally count does not match number of selections");
             }
-            var contestTallies = new List<ContestTally>();
+            var voteTallies = new List<VoteTally>();
             foreach (var contestMap in electionMap.ContestMaps.Values)
             {
-                var contestTally = new ContestTally(contestMap.Contest);
+                var voteTally = new VoteTally {Candidates = new int[contestMap.SelectionMap.Count]};
                 foreach (var (key, value) in contestMap.SelectionMap)
                 {
-                    contestTally.Results.Add(key, tallyResult[value]);
+                    
+                    switch (key.ToLower())
+                    {
+                        case "yes":
+                            voteTally.Yes = tallyResult[value];
+                            break;
+                        case "no":
+                            voteTally.No = tallyResult[value];
+                            break;
+                        default:
+                            voteTally.Candidates[value - contestMap.StartIndex] = tallyResult[value];
+                            break;
+                    }
                 }
 
                 if (contestMap.WriteInStartIndex != contestMap.EndIndex) // Write-Ins Exist
@@ -234,11 +246,14 @@ namespace ElectionGuard.Tools
                     {
                         writeInTally += tallyResult[i];
                     }
-                    contestTally.Results.Add("write-in", writeInTally);
+                    voteTally.WriteIns = new [] { new WriteInCandidateTally {
+                        Name = "Write In",
+                        Tally = writeInTally,
+                    }};
                 }
-                contestTallies.Add(contestTally);
+                voteTallies.Add(voteTally);
             }
-            return contestTallies;
+            return voteTallies;
         }
     }
 

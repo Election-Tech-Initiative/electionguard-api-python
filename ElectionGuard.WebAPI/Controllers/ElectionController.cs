@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ElectionGuard.WebAPI.Models;
 using System.Collections.Generic;
+using System.Linq;
 using ElectionGuard.Tools;
 using VotingWorks.Ballot;
 
@@ -14,9 +15,9 @@ namespace ElectionGuard.WebAPI.Controllers
     public class ElectionController : ControllerBase
     {
         private readonly ILogger<ElectionController> _logger;
-        private readonly IElectionMapper<Election, Ballot> _electionMapper;
+        private readonly IElectionMapper<Election, Ballot, VoteTally> _electionMapper;
 
-        public ElectionController(ILogger<ElectionController> logger, IElectionMapper<Election, Ballot> electionMapper)
+        public ElectionController(ILogger<ElectionController> logger, IElectionMapper<Election, Ballot, VoteTally> electionMapper)
         {
             _logger = logger;
             _electionMapper = electionMapper;
@@ -57,10 +58,10 @@ namespace ElectionGuard.WebAPI.Controllers
 
             var result = new List<EncryptBallotResult>();
 
-            for (var i = 0; i < request.Selections.Length; i++) 
+            foreach (var selections in request.Selections)
             {
                 var encryptedBallot = ElectionGuardApi.EncryptBallot(
-                    request.Selections[i], 
+                    selections, 
                     request.ExpectedNumberOfSelected, 
                     request.electionGuardConfig, 
                     currentBallotCount);
@@ -92,20 +93,20 @@ namespace ElectionGuard.WebAPI.Controllers
         public ActionResult<TallyVotesResult> TallyVotes(TallyVotesRequest request)
         {
 
-            if (request.TrusteeKeys.Count < request.electionGuardConfig.Threshold)
+            if (request.TrusteeKeys.Count < request.ElectionGuardConfig.Threshold)
             {
                 return BadRequest("Trustee count is less than threshold");
             }
 
             var result = ElectionGuardApi.TallyVotes(
-                request.electionGuardConfig, 
+                request.ElectionGuardConfig, 
                 request.TrusteeKeys.Values, 
                 request.TrusteeKeys.Count, 
                 request.EncryptedBallotsFileName,
                 request.ExportPath,
                 request.ExportFileNamePrefix);
 
-            return CreatedAtAction(nameof(TallyVotes), result);
+            return CreatedAtAction(nameof(TallyVotes), _electionMapper.ConvertToTally(result.TallyResults.ToArray(), request.ElectionMap));
         }
     }
 }
