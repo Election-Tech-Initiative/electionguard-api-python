@@ -1,14 +1,16 @@
 using ElectionGuard.SDK.Models;
+using ElectionGuard.Tools;
+using VotingWorks.Ballot;
 
 namespace ElectionGuard.WebAPI.Models
 {
     public class BallotEncryptRequest
     {
-        public ElectionGuardConfig electionGuardConfig { get; set; }
+        public ElectionGuardConfig ElectionGuardConfig { get; set; }
 
-        public bool[][] Selections { get; set; }
+        public ElectionMap ElectionMap { get; set; }
 
-        public int ExpectedNumberOfSelected { get; set; }
+        public Ballot[] Ballots { get; set; }
 
         public int? CurrentBallotCount { get; set; }
     }

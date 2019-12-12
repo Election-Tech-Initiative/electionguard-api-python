@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "cedfd0f4-ddfb-4ea4-b9ee-b3904390761a",
+		"_postman_id": "973b6975-3a84-4e30-afb5-9936533b88a4",
 		"name": "ElectionGuard API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -42,7 +42,19 @@
 							"var jsonData = pm.response.json();",
 							"pm.environment.set(\"ballot_numberOfSelections\", jsonData.electionGuardConfig.numberOfSelections)",
 							"pm.environment.set(\"jointPublicKey\", jsonData.electionGuardConfig.jointPublicKey);",
-							"pm.environment.set(\"trustee_keys\", JSON.stringify(jsonData.trusteeKeys))"
+							"pm.environment.set(\"trustee_keys\", JSON.stringify(jsonData.trusteeKeys))",
+							"pm.environment.set(\"electionMap\", JSON.stringify(jsonData.electionMap));",
+							"pm.environment.set(\"electionGuardConfig\", JSON.stringify(jsonData.electionGuardConfig));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "af1fa8db-46b5-4db7-8ad3-c00e212bf33e",
+						"exec": [
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -60,7 +72,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"config\": {\n\t\t\"numberOfTrustees\": {{trustee_count}},\n\t\t\"threshold\": {{trustee_threshold}},\n\t\t\"numberOfSelections\": 6,\n\t\t\"subgroupOrder\": 0,\n\t\t\"electionMetadata\": \"some_metadata\"\n\t},\n\t\"election\": {\n\t\t\"title\": \"some_title\",\n\t\t\"state\": \"some state\",\n\t\t\"county\": {\n\t\t\t\"id\": \"some_id\",\n\t\t\t\"name\": \"some_name\"\n\t\t},\n\t\t\"date\": \"some_date_string\",\n\t\t\"ballotTrackerConfig\": {\n\t\t\t\"trackerType\": \"some_string\",\n\t\t\t\"trackerSiteDisplay\": \"some_string\",\n\t\t\t\"trackerUrlTemplate\": \"some/url/template\"\n\t\t},\n\t\t\"districts\": [\n\t\t\t{\n\t\t\t\t\"id\": \"district-1\",\n\t\t\t     \"name\": \"District 1\"\n\t\t\t},\n\t\t\t{\n\t\t\t     \"id\": \"district-2\",\n\t\t\t     \"name\": \"District 2\"\n\t\t\t}\n\t\t],\n\t\t\"parties\": [\n\t\t\t{\n\t\t\t\t\"id\": \"1\",\n\t\t\t     \"name\": \"Federalist\",\n\t\t\t     \"abbrev\": \"F\"\n\t\t\t},\n\t\t\t{\n\t\t\t      \"id\": \"2\",\n\t\t\t      \"name\": \"People's\",\n\t\t\t      \"abbrev\": \"P\"\n\t\t\t}\n\t\t  ],\n\t\t  \"contests\": [\n\t\t\t{\n\t\t\t\t\"id\": \"1\",\n\t\t\t\t\"type\": \"YesNo\"\n\t\t\t}, \n\t\t\t{\n\t\t\t\t\"id\": \"2\",\n\t\t\t\t\"type\": \"YesNo\"\n\t\t\t}\n\t\t  ],\n\t\t  \"precincts\": [\n\t\t  \t{\n\t\t  \t\t\"id\": \"1\",\n\t\t  \t\t\"name\": \"some_precinct_name\"\n\t\t  \t}, \n\t\t  \t{\n\t\t  \t\t\"id\": \"2\",\n\t\t  \t\t\"name\": \"some_precinct_name\"\n\t\t  \t}\n\t\t  \n\t\t  ],\n\t\t  \"ballotStyles\": [\n\t\t  \t{\n\t\t  \t\t\"id\": \"1\",\n\t\t  \t\t\"partyId\": \"1\",\n\t\t  \t\t\"precincts\": [\"1\"],\n\t\t  \t\t\"districts\": [\"district-1\"]\n\t\t  \t},\n\t\t  \t{\n\t\t  \t\t\"id\": \"2\",\n\t\t  \t\t\"partyId\": \"2\",\n\t\t  \t\t\"precincts\": [\"1\", \"2\"],\n\t\t  \t\t\"districts\": [\"district-1\", \"district-2\"]\n\t\t  \t\t\n\t\t  \t}\n\t\t  ],\n\t\t  \"sealUrl\": \"some/url\"\n\t}\n\t\n}"
+					"raw": "{\n\t\"config\": {\n\t\t\"numberOfTrustees\": {{trustee_count}},\n\t\t\"threshold\": {{trustee_threshold}},\n\t},\n\t\"election\": {{election}}\n}"
 				},
 				"url": {
 					"raw": "{{scheme}}://{{host}}:{{port}}/election",
@@ -110,7 +122,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"electionGuardConfig\": {\n        \"numberOfSelections\": {{ballot_numberOfSelections}},\n        \"numberOfTrustees\": {{trustee_count}},\n        \"threshold\": {{trustee_threshold}},\n        \"subgroupOrder\": 0,\n        \"electionMetadata\": \"some_metadata\",\n        \"jointPublicKey\": \"{{jointPublicKey}}\"\n    },\n    \"selections\": [\n    \t[\"false\", \"true\", \"false\", \"false\", \"true\", \"false\"],\n    \t[\"true\", \"false\", \"false\", \"true\", \"false\", \"false\"],\n    \t[\"true\", \"false\", \"false\", \"false\", \"true\", \"false\"],\n    \t[\"false\", \"false\", \"true\", \"false\", \"true\", \"false\"]\n    ],\n    \"expectedNumberOfSelected\": 2,\n    \"currentBallotCount\": 0\n}",
+					"raw": "{\n    \"electionGuardConfig\": {{electionGuardConfig}},\n    \"electionMap\": {{electionMap}},\n    \"ballots\": [\n    \t{\n    \t\telection: {{election}},\n    \t\tballotStyle: {\n    \t\t\tid: \"1\"\n    \t\t},\n    \t\tvotes: {\n    \t\t\t\"supremecourt\" : [\n    \t\t\t\t{\n    \t\t\t\t\tid: \"locke\"\n    \t\t\t\t\t\n    \t\t\t\t}\n    \t\t\t]\n    \t\t}\n    \t},\n    \t{\n    \t\telection: {{election}},\n    \t\tballotStyle: {\n    \t\t\tid: \"1\"\n    \t\t},\n    \t\tvotes: {\n    \t\t\t\"supremecourt\" : [\n    \t\t\t\t{\n    \t\t\t\t\tid: \"locke\"\n    \t\t\t\t\t\n    \t\t\t\t}\n    \t\t\t]\n    \t\t}\n    \t},\n    \t{\n    \t\telection: {{election}},\n    \t\tballotStyle: {\n    \t\t\tid: \"1\"\n    \t\t},\n    \t\tvotes: {\n    \t\t\t\"supremecourt\" : [\n    \t\t\t\t{\n    \t\t\t\t\tid: \"locke\"\n    \t\t\t\t\t\n    \t\t\t\t}\n    \t\t\t]\n    \t\t}\n    \t},\n    \t{\n    \t\telection: {{election}},\n    \t\tballotStyle: {\n    \t\t\tid: \"1\"\n    \t\t},\n    \t\tvotes: {\n    \t\t\t\"supremecourt\" : [\n    \t\t\t\t{\n    \t\t\t\t\tid: \"locke\"\n    \t\t\t\t\t\n    \t\t\t\t}\n    \t\t\t]\n    \t\t}\n    \t}\n    ],\n    \"currentBallotCount\": 0\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -159,7 +171,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"electionGuardConfig\": {\n        \"numberOfSelections\": {{ballot_numberOfSelections}},\n        \"numberOfTrustees\": {{trustee_count}},\n        \"threshold\": {{trustee_threshold}},\n        \"subgroupOrder\": 0,\n        \"electionMetadata\": \"some_metadata\",\n        \"jointPublicKey\": \"{{jointPublicKey}}\"\n    },\n    \"encryptedBallots\": {{encrypted_ballots}},\n    \"castBallotIndicies\": [0, 3],\n    \"spoiledBallotIndicies\": [1, 2],\n    \"exportPath\": \"~/election_results/ballots\",\n    \"exportFileNamePrefix\": \"my_election_ballots\"\n}",
+					"raw": "{\n    \"electionGuardConfig\": {{electionGuardConfig}},\n    \"encryptedBallots\": {{encrypted_ballots}},\n    \"castBallotIndicies\": [0, 3],\n    \"spoiledBallotIndicies\": [1, 2],\n    \"exportPath\": \"~/election_results/ballots\",\n    \"exportFileNamePrefix\": \"my_election_ballots\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -195,7 +207,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"electionGuardConfig\": {\n        \"numberOfSelections\": {{ballot_numberOfSelections}},\n        \"numberOfTrustees\": {{trustee_count}},\n        \"threshold\": {{trustee_threshold}},\n        \"subgroupOrder\": 0,\n        \"electionMetadata\": \"some_metadata\",\n        \"jointPublicKey\": \"{{jointPublicKey}}\"\n    },\n    \"trusteeKeys\": {{trustee_keys}},\n    \"encryptedBallotsFileName\": \"{{ballots_filename}}\",\n    \"exportPath\": \"~/election_results/tallies\",\n    \"exportFileNamePrefix\": \"my_election_tallies\"\n}",
+					"raw": "{\n    \"electionGuardConfig\": {{electionGuardConfig}},\n    \"electionMap\": {{electionMap}},\n    \"trusteeKeys\": {{trustee_keys}},\n    \"encryptedBallotsFileName\": \"{{ballots_filename}}\",\n    \"exportPath\": \"~/election_results/tallies\",\n    \"exportFileNamePrefix\": \"my_election_tallies\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

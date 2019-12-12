@@ -3,7 +3,7 @@
 namespace ElectionGuard.Tools
 {
     // TODO Remove VotingWorks details from mapping models
-    public interface IElectionMapper<TElection, TBallot>
+    public interface IElectionMapper<TElection, TBallot, TVoteTally>
     {
         ElectionMap GetElectionMap(TElection election);
 
@@ -13,7 +13,7 @@ namespace ElectionGuard.Tools
 
         int GetNumberOfSelections(TElection election);
 
-        IList<ContestTally> ConvertToTally(int[] tallyResult, ElectionMap electionMap);
+        IList<TVoteTally> ConvertToTally(int[] tallyResult, ElectionMap electionMap);
 
     }
 }

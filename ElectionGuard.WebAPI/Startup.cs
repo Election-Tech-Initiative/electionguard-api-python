@@ -22,7 +22,7 @@ namespace ElectionGuard.WebAPI
         {
             services.AddControllers()
                     .AddNewtonsoftJson();
-            services.AddTransient<IElectionMapper<Election, Ballot>, VotingWorksMapper>();
+            services.AddTransient<IElectionMapper<Election, Ballot, VoteTally>, VotingWorksMapper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
