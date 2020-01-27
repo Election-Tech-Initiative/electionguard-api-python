@@ -8,9 +8,12 @@ namespace ElectionGuard.WebAPI.Models
     {
         public Ballot Ballot { get; set; }
         public int? CurrentBallotCount { get; set; }
+
 #nullable enable
         public ElectionGuardConfig? ElectionGuardConfig { get; set; }
         public ElectionMap? ElectionMap { get; set; }
+
+        public string? ExportPath { get; set; }
 #nullable disable
     }
 }

@@ -1,0 +1,74 @@
+{
+  "title": "2020 Franklin County Judicial Election Demo",
+  "demo": true,
+  "state": "State of Hamilton",
+  "county": {
+    "id": "franklin-demo",
+    "name": "Franklin County"
+  },
+  "date": "Tuesday, December 17, 2019",
+  "ballotTrackerConfig": {
+    "trackerType": "electionguard",
+    "trackerSiteDisplay": "demo.electionguard.vote",
+    "trackerUrlTemplate": "https://demo.electionguard.vote/track/<tracker_id>"
+  },
+  "districts": [
+    {
+      "id": "district-1",
+      "name": "Franklin"
+    }
+  ],
+  "precincts": [
+    {
+      "id": "1",
+      "name": "Franklin-City"
+    }
+  ],
+  "parties": [
+    {
+      "id": "0",
+      "name": "",
+      "abbrev": "J"
+    }
+  ],
+  "contests": [
+    {
+      "id": "supremecourt",
+      "districtId": "district-1",
+      "type": "candidate",
+      "section": "Judicial",
+      "title": "Justice of the Supreme Court",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "cramer",
+          "name": "Adam Cramer",
+          "partyId": "0"
+        },
+        {
+          "id": "hildebrand",
+          "name": "Ashley Hildebrand",
+          "partyId": "0"
+        },
+        {
+          "id": "locke",
+          "name": "Scott Locke",
+          "partyId": "0"
+        }
+      ],
+      "allowWriteIns": true
+    }
+  ],
+  "ballotStyles": [
+    {
+      "id": "1",
+      "precincts": [
+        "1"
+      ],
+      "districts": [
+        "district-1"
+      ]
+    }
+  ],
+  "sealURL": "/seals/Franklin-County-Seal-Color.svg"
+}

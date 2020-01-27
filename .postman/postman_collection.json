@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "617fbb4e-59e7-4ea1-8d4a-9261b5a587a7",
+		"_postman_id": "6a81cfed-7982-43c9-ac1f-e16e36a93dc0",
 		"name": "ElectionGuard API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -42,7 +42,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{scheme}}://{{host}}:{{port}}/election/InitializeEncryption?electionMapFilePath=C:/temp/election.map.json&electionGuardConfigFilePath=C:/temp/election.config.json",
+							"raw": "{{scheme}}://{{host}}:{{port}}/election/InitializeEncryption?electionFilePath={{electionFilePath}}&electionGuardConfigFilePath={{electionGuardConfigFilePath}}",
 							"protocol": "{{scheme}}",
 							"host": [
 								"{{host}}"
@@ -54,12 +54,12 @@
 							],
 							"query": [
 								{
-									"key": "electionMapFilePath",
-									"value": "C:/temp/election.map.json"
+									"key": "electionFilePath",
+									"value": "{{electionFilePath}}"
 								},
 								{
 									"key": "electionGuardConfigFilePath",
-									"value": "C:/temp/election.config.json"
+									"value": "{{electionGuardConfigFilePath}}"
 								}
 							]
 						}
@@ -132,7 +132,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"electionGuardConfig\": {{electionGuardConfig}},\n    \"electionMap\": {{electionMap}}\n}",
+							"raw": "{\n\t\"election\": {{election}}\n    \"electionGuardConfig\": {{electionGuardConfig}},\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -340,7 +340,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"electionGuardConfig\": {{electionGuardConfig}},\n    \"electionMap\": {{electionMap}},\n    \"ballot\": {\n    \telection: {{election}},\n\t\tballotStyle: {\n\t\t\tid: \"1\"\n\t\t},\n\t\tvotes: {\n\t\t\t\"supremecourt\" : [\n\t\t\t\t{\n\t\t\t\t\tid: \"locke\"\n\t\t\t\t\t\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t},\n    \"currentBallotCount\": 0\n}",
+					"raw": "{\n    \"ballot\": {\n    \tballotId: \"some_ballot_string\",\n\t\tballotStyle: {\n\t\t\tid: \"1\"\n\t\t},\n\t\tvotes: {\n\t\t\t\"supremecourt\" : [\n\t\t\t\t{\n\t\t\t\t\tid: \"locke\"\n\t\t\t\t\t\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t},\n    \"currentBallotCount\": 0\n}",
 					"options": {
 						"raw": {
 							"language": "json"
