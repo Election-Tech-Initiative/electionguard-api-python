@@ -10,6 +10,9 @@ namespace ElectionGuard.Utilities
 {
     public interface IConfigFileService
     {
+        /// <Summary>
+        /// Check the content root and the parent for a folder named `data`
+        /// </Summary>
         string GetDataDirectory();
         
         #nullable enable
@@ -30,6 +33,18 @@ namespace ElectionGuard.Utilities
 
         public string GetDataDirectory()
         {
+            // check the content root for the data directory
+            string dataFromContentRoot = Path.Combine(
+                _environment.ContentRootPath,
+                "data"
+            );
+
+            if (Directory.Exists(dataFromContentRoot))
+            {
+                return dataFromContentRoot;
+            }
+
+            // check the parent of the content root
             string parent = Directory.GetParent(
                     _environment.ContentRootPath).FullName;
 
