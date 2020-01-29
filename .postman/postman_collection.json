@@ -42,17 +42,21 @@
 							}
 						},
 						"url": {
-							"raw": "{{scheme}}://{{host}}:{{port}}/election/InitializeEncryption?electionFilePath={{electionFilePath}}&electionGuardConfigFilePath={{electionGuardConfigFilePath}}",
+							"raw": "{{scheme}}://{{host}}:{{port}}/electionguard/InitializeEncryption?exportPath={{ballotExportPath}}&electionFilePath={{electionFilePath}}&electionGuardConfigFilePath={{electionGuardConfigFilePath}}",
 							"protocol": "{{scheme}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"election",
+								"electionguard",
 								"InitializeEncryption"
 							],
 							"query": [
+								{
+									"key": "exportPath",
+									"value": "{{ballotExportPath}}"
+								},
 								{
 									"key": "electionFilePath",
 									"value": "{{electionFilePath}}"
@@ -140,14 +144,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{scheme}}://{{host}}:{{port}}/election/InitializeEncryption",
+							"raw": "{{scheme}}://{{host}}:{{port}}/electionguard/InitializeEncryption",
 							"protocol": "{{scheme}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"election",
+								"electionguard",
 								"InitializeEncryption"
 							]
 						}
@@ -210,14 +214,14 @@
 					}
 				],
 				"url": {
-					"raw": "{{scheme}}://{{host}}:{{port}}/election",
+					"raw": "{{scheme}}://{{host}}:{{port}}/electionguard",
 					"protocol": "{{scheme}}",
 					"host": [
 						"{{host}}"
 					],
 					"port": "{{port}}",
 					"path": [
-						"election"
+						"electionguard"
 					]
 				}
 			},
@@ -267,14 +271,14 @@
 					"raw": "{\n\t\"config\": {\n\t\t\"numberOfTrustees\": {{trustee_count}},\n\t\t\"threshold\": {{trustee_threshold}},\n\t},\n\t\"election\": {{election}}\n}"
 				},
 				"url": {
-					"raw": "{{scheme}}://{{host}}:{{port}}/election",
+					"raw": "{{scheme}}://{{host}}:{{port}}/electionguard",
 					"protocol": "{{scheme}}",
 					"host": [
 						"{{host}}"
 					],
 					"port": "{{port}}",
 					"path": [
-						"election"
+						"electionguard"
 					]
 				}
 			},
@@ -348,14 +352,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{scheme}}://{{host}}:{{port}}/election/EncryptBallot",
+					"raw": "{{scheme}}://{{host}}:{{port}}/electionguard/EncryptBallot",
 					"protocol": "{{scheme}}",
 					"host": [
 						"{{host}}"
 					],
 					"port": "{{port}}",
 					"path": [
-						"election",
+						"electionguard",
 						"EncryptBallot"
 					]
 				}
@@ -444,14 +448,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{scheme}}://{{host}}:{{port}}/election/EncryptBallots",
+					"raw": "{{scheme}}://{{host}}:{{port}}/electionguard/EncryptBallots",
 					"protocol": "{{scheme}}",
 					"host": [
 						"{{host}}"
 					],
 					"port": "{{port}}",
 					"path": [
-						"election",
+						"electionguard",
 						"EncryptBallots"
 					]
 				}
@@ -533,14 +537,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{scheme}}://{{host}}:{{port}}/election/RecordBallots",
+					"raw": "{{scheme}}://{{host}}:{{port}}/electionguard/RecordBallots",
 					"protocol": "{{scheme}}",
 					"host": [
 						"{{host}}"
 					],
 					"port": "{{port}}",
 					"path": [
-						"election",
+						"electionguard",
 						"RecordBallots"
 					]
 				}
@@ -609,14 +613,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{scheme}}://{{host}}:{{port}}/election/tallyVotes",
+					"raw": "{{scheme}}://{{host}}:{{port}}/electionguard/tallyVotes",
 					"protocol": "{{scheme}}",
 					"host": [
 						"{{host}}"
 					],
 					"port": "{{port}}",
 					"path": [
-						"election",
+						"electionguard",
 						"tallyVotes"
 					]
 				}
