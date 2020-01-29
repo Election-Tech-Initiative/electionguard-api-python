@@ -26,7 +26,7 @@ namespace ElectionGuard.WebAPI.Controllers
 
     [ApiController]
     [Route("[controller]")]
-    public class ElectionController : ControllerBase
+    public class ElectionGuardController : ControllerBase
     {
         private long test_session_ballot_count = 0;
 
@@ -35,7 +35,7 @@ namespace ElectionGuard.WebAPI.Controllers
         private const string EncryptionSetupRequiredMessage = "Encryption is not setup. Election Map and ElectionGuard Config required.";
         private const string ThresholdExceedsTrusteesMessage = "Threshold exceeds count of available trustees.";
 
-        private readonly ILogger<ElectionController> _logger;
+        private readonly ILogger<ElectionGuardController> _logger;
         private readonly IConfigFileService _config;
         private readonly IElectionMapper<Election, Ballot, VoteTally> _electionMapper;
 
@@ -47,7 +47,7 @@ namespace ElectionGuard.WebAPI.Controllers
 
         private static string _exportPath = null;
 
-        public ElectionController(ILogger<ElectionController> logger, IElectionMapper<Election, Ballot, VoteTally> electionMapper, IConfigFileService configService)
+        public ElectionGuardController(ILogger<ElectionGuardController> logger, IElectionMapper<Election, Ballot, VoteTally> electionMapper, IConfigFileService configService)
         {
             _config = configService;
             _logger = logger;
