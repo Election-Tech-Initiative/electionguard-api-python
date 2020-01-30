@@ -62,7 +62,49 @@ pwsh .\scripts\Create-Windows-Service.ps1
 
 ### Interacting with the API
 
-There is a [Postman]() collection and environment included.  Ensure the API is running on your desired port, and import the files in `.postman` into your postman environment.  Execute each of the requests in order.
+There is a [Postman]() collection and environment included.  Ensure the API is running on your desired port, and import the files in `.postman` into your postman environment.  
+
+The API loads `election` and `ElectionGuardConfig` values in diffferent ways.  On startup, the `ElectionGuardController` searches for these files on the file system.  They can also be overwritten bby calling `InitializeEncryption`.  Lastly, these configuration values can be provided with specific request bodies where relevant to override the cached values for that request only.
+
+#### Test the Compl[ete workflow
+
+You can test the entire workflow, which overwrites the sample data with new encryption keys.
+
+To test the primary workflow, which interacts wiht the file system, execute the postman requests in the following order:
+
+- `1. Create Election`
+- `2.a Initialize Encryption via Body` (to override the default election.json and election.cojnfig.json files)
+- `3.a Encrypt Ballot (Individual)`
+- `3.b Encrypt Ballots (Set)`
+- `4.a Load Ballots` (optional, if you wish to test loading the ballots)
+- `5. Record Ballots`
+- `6. Tally Votes`
+
+#### Test Encrypting Ballots
+
+This test simulates encrypting ballots on a Ballot Marking Device.
+
+Encrypting Ballots can be done using the provided sample files in the `data/` folder.
+
+Reset your postman environment variables to the default ones included in the repo, if you ran the previous test.
+
+- `3.a Encrypt Ballot (Individual)`
+- `3.b Encrypt Ballots (Set)`
+- `4.a Load Ballots`
+
+Verify that the loaded ballots match the encrypted ballots.
+
+#### Test Loading and Decrypting Ballots
+
+This test simulates loading ballots from a Ballot Marking Device and decrypting the results.
+
+Reset your postman environment variables to the default ones included in the repo, if you ran the previous test.
+
+- `4.a Load Ballots`
+- `5. Record Ballots`
+- `6. Tally Votes`
+
+Verify that a tally result is returned and matches the data in `data/tallies.sample.response.json`
 
 ## Key concepts
 

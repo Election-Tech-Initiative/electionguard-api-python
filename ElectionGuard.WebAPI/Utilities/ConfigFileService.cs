@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using ElectionGuard.SDK.Models;
 using Newtonsoft.Json;
 using VotingWorks.Ballot;
-
+using System.Threading.Tasks;
+using Newtonsoft.Json.Serialization;
 
 namespace ElectionGuard.Utilities 
 {
@@ -20,6 +21,10 @@ namespace ElectionGuard.Utilities
 
         ElectionGuardConfig? getElectionGuardConfig(string? path = null);
         #nullable disable
+
+        Task<bool> SetElectionAsync(Election election);
+
+        Task<bool> setElectionGuardConfigAsync(ElectionGuardConfig config);
     }
 
     public class ConfigFileService : IConfigFileService
@@ -54,7 +59,35 @@ namespace ElectionGuard.Utilities
             );
         }
 
-        #nullable enable
+        public async Task<bool> SetElectionAsync(Election election)
+        {
+            try 
+            {
+                var path = Path.Combine(GetDataDirectory(), 
+                    "election.json");
+                return await WriteJsonFileAsync(path, election);
+            }
+            catch(Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> setElectionGuardConfigAsync(ElectionGuardConfig config)
+        {
+            try
+            {
+                var path = Path.Combine(GetDataDirectory(), 
+                    "election.config.json");
+                return await WriteJsonFileAsync(path, config);
+            }
+            catch(Exception)
+            {
+                return false;
+            }
+        }
+
+#nullable enable
         public Election? GetElection(string? path = null)
         {
             try 
@@ -82,7 +115,7 @@ namespace ElectionGuard.Utilities
                 return null;
             }
         }
-        #nullable disable
+#nullable disable
 
         private static T LoadJsonFile<T>(string filePath)
         {
@@ -90,6 +123,30 @@ namespace ElectionGuard.Utilities
             var json = reader.ReadToEnd();
             var deserializedJson = JsonConvert.DeserializeObject<T>(json);
             return deserializedJson;
+        }
+
+        private static async Task<bool> WriteJsonFileAsync<T>(string filePath, T serializable)
+        {
+            try 
+            {
+                using var writer = new StreamWriter(filePath);
+                var serializedJson = JsonConvert.SerializeObject(serializable, new JsonSerializerSettings
+                {
+                    ContractResolver = new DefaultContractResolver
+                    {
+                        NamingStrategy = new CamelCaseNamingStrategy()
+                    },
+                    Formatting = Formatting.Indented,
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+                await writer.WriteAsync(serializedJson);
+                
+                return true;
+            }
+            catch(Exception)
+            {
+                return false;
+            }
         }
     }
 }
