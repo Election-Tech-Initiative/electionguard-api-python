@@ -1,4 +1,4 @@
-﻿using ElectionGuard.SDK;
+using ElectionGuard.SDK;
 using ElectionGuard.SDK.Models;
 using ElectionGuard.Utilities;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +18,9 @@ namespace ElectionGuard.WebAPI.Controllers
 
     [ApiController]
     [Route("[controller]")]
+    [DisableRequestSizeLimit]
     public class ElectionGuardController : ControllerBase
     {
-        private long test_session_ballot_count = 0;
-
         private const string WelcomeMessage = "Welcome to ElectionGuard";
         private const string FileLoadErrorMessage = "File(s) not loaded. Check file paths.";
         private const string EncryptionSetupRequiredMessage = "Encryption is not setup. Election Map and ElectionGuard Config required.";

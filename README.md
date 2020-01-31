@@ -66,7 +66,7 @@ There is a [Postman]() collection and environment included.  Ensure the API is r
 
 The API loads `election` and `ElectionGuardConfig` values in diffferent ways.  On startup, the `ElectionGuardController` searches for these files on the file system.  They can also be overwritten bby calling `InitializeEncryption`.  Lastly, these configuration values can be provided with specific request bodies where relevant to override the cached values for that request only.
 
-#### Test the Compl[ete workflow
+#### Test the Complete workflow
 
 You can test the entire workflow, which overwrites the sample data with new encryption keys.
 
