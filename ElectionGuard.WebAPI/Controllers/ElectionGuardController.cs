@@ -1,4 +1,4 @@
-using ElectionGuard.SDK;
+﻿using ElectionGuard.SDK;
 using ElectionGuard.SDK.Models;
 using ElectionGuard.Utilities;
 using Microsoft.AspNetCore.Mvc;
@@ -84,15 +84,23 @@ namespace ElectionGuard.WebAPI.Controllers
         [HttpPost]
         public ActionResult<CreateElectionResult> CreateElection(ElectionRequest request)
         {
-            var electionMap = _electionMapper.GetElectionMap(request.Election);
-            request.Config.NumberOfSelections = electionMap.NumberOfSelections;
+            try
+            {
+                var electionMap = _electionMapper.GetElectionMap(request.Election);
+                request.Config.NumberOfSelections = electionMap.NumberOfSelections;
 
-            var election = ElectionGuardApi.CreateElection(request.Config);
-            return CreatedAtAction(nameof(CreateElection), new ElectionResponse {
-                ElectionGuardConfig = election.ElectionGuardConfig,
-                TrusteeKeys = election.TrusteeKeys,
-                ElectionMap = electionMap,
-            });
+                var election = ElectionGuardApi.CreateElection(request.Config);
+                return CreatedAtAction(nameof(CreateElection), new ElectionResponse {
+                    ElectionGuardConfig = election.ElectionGuardConfig,
+                    TrusteeKeys = election.TrusteeKeys,
+                    ElectionMap = electionMap,
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("CreateElection: ", ex);
+                return StatusCode(500);
+            }
         }
 
         [HttpPost]
@@ -113,8 +121,9 @@ namespace ElectionGuard.WebAPI.Controllers
                     ElectionGuardConfig = electionGuardConfig
                 });
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError("InitializeEncryption: ", ex);
                 return BadRequest(FileLoadErrorMessage);
             }
         }
@@ -123,102 +132,67 @@ namespace ElectionGuard.WebAPI.Controllers
         [Route(nameof(InitializeEncryption))]
         public async Task<ActionResult<InitializeEncryptionResponse>> InitializeEncryption(InitializeEncryptionRequest request)
         {
-            _currentBallotCount = 0;
-            _election = request.Election;
-            _electionMap = _electionMapper.GetElectionMap(request.Election);
-            _electionGuardConfig = request.ElectionGuardConfig;
-            _exportPath = request.ExportPath;
-            _encryptedBallotsExportFileName = request.ExportFileName;
+            try 
+            {
+                _currentBallotCount = 0;
+                _election = request.Election;
+                _electionMap = _electionMapper.GetElectionMap(request.Election);
+                _electionGuardConfig = request.ElectionGuardConfig;
+                _exportPath = request.ExportPath;
+                _encryptedBallotsExportFileName = request.ExportFileName;
 
-            await _config.SetElectionAsync(_election);
-            await _config.setElectionGuardConfigAsync(_electionGuardConfig);
+                await _config.SetElectionAsync(_election);
+                await _config.setElectionGuardConfigAsync(_electionGuardConfig);
 
-            var response = new InitializeEncryptionResponse {
-                Election = request.Election,
-                ElectionGuardConfig = _electionGuardConfig,
-                ElectionMap = _electionMap
-            };
+                var response = new InitializeEncryptionResponse {
+                    Election = request.Election,
+                    ElectionGuardConfig = _electionGuardConfig,
+                    ElectionMap = _electionMap
+                };
 
-            return AcceptedAtAction(nameof(InitializeEncryption), response);
+                return AcceptedAtAction(nameof(InitializeEncryption), response);
+            } 
+            catch (Exception ex)
+            {
+                _logger.LogError("InitializeEncryption: ", ex);
+                return StatusCode(500);
+            }
         }
 
         [HttpPost]
         [Route(nameof(EncryptBallot))]
         public ActionResult<EncryptBallotResponse> EncryptBallot(EncryptBallotRequest request)
         {
-            var exportPath = request.ExportPath ?? _exportPath;
-            var exportFileName = request.ExportFileName ?? _encryptedBallotsExportFileName;
-            var electionMap = request.ElectionMap ?? GetElectionMap(request.Election);
-            var electionGuardConfig = request.ElectionGuardConfig ?? _electionGuardConfig;
-            if (electionMap == null || electionGuardConfig == null)
+            // TODO: cache encrypted ballot id's in memory and disallow encrypting an existing ballot id
+            try
             {
-                return BadRequest(EncryptionSetupRequiredMessage);
-            }
+                var exportPath = request.ExportPath ?? _exportPath;
+                var exportFileName = request.ExportFileName ?? _encryptedBallotsExportFileName;
+                var electionMap = request.ElectionMap ?? GetElectionMap(request.Election);
+                var electionGuardConfig = request.ElectionGuardConfig ?? _electionGuardConfig;
+                if (electionMap == null || electionGuardConfig == null)
+                {
+                    return BadRequest(EncryptionSetupRequiredMessage);
+                }
 
-            if (String.IsNullOrWhiteSpace(request.Ballot.BallotId))
-            {
-                return BadRequest(EncryptMissingIdentifierMessage);
-            }
+                if (String.IsNullOrWhiteSpace(request.Ballot.BallotId))
+                {
+                    return BadRequest(EncryptMissingIdentifierMessage);
+                }
 
-            var selections = _electionMapper.ConvertToSelections(request.Ballot, electionMap);
-            var numberOfExpected = electionMap.BallotStyleMaps[request.Ballot.BallotStyle.Id].ExpectedNumberOfSelected;
-            var encryptedBallot = ElectionGuardApi.EncryptBallot(
-                selections,
-                numberOfExpected,
-                electionGuardConfig,
-                request.Ballot.BallotId,
-                exportPath,
-                exportFileName);
-
-            _currentBallotCount++;
-
-            var response = new EncryptBallotResponse()
-            {
-                Id = encryptedBallot.ExternalIdentifier,
-                EncryptedBallotMessage = encryptedBallot.EncryptedBallotMessage,
-                Tracker = encryptedBallot.Tracker,
-                OutputFileName = encryptedBallot.OutputFileName,
-                CurrentNumberOfBallots = _currentBallotCount
-            };
-
-            return CreatedAtAction(nameof(EncryptBallot), response);
-        }
-
-        [HttpPost]
-        [Route(nameof(EncryptBallots))]
-        public ActionResult<EncryptBallotResponse[]> EncryptBallots(EncryptBallotsRequest request)
-        {
-            var exportPath = request.ExportPath ?? _exportPath;
-            var exportFileName = request.ExportFileName ?? _encryptedBallotsExportFileName;
-            var electionMap = request.ElectionMap ?? GetElectionMap(request.Election);
-            var electionGuardConfig = request.ElectionGuardConfig ?? _electionGuardConfig;
-            if (electionMap == null || electionGuardConfig == null)
-            {
-                return BadRequest(EncryptionSetupRequiredMessage);
-            }
-
-            if (request.Ballots.Any(i => String.IsNullOrWhiteSpace(i.BallotId)))
-            {
-                return BadRequest(EncryptMissingIdentifierMessage);
-            }
-            
-            var response = new List<EncryptBallotResponse>();
-
-            foreach (var ballot in request.Ballots)
-            {
-                var selections = _electionMapper.ConvertToSelections(ballot, electionMap);
-                var numberOfExpected = electionMap.BallotStyleMaps[ballot.BallotStyle.Id].ExpectedNumberOfSelected;
+                var selections = _electionMapper.ConvertToSelections(request.Ballot, electionMap);
+                var numberOfExpected = electionMap.BallotStyleMaps[request.Ballot.BallotStyle.Id].ExpectedNumberOfSelected;
                 var encryptedBallot = ElectionGuardApi.EncryptBallot(
-                    selections, 
-                    numberOfExpected, 
-                    electionGuardConfig, 
-                    ballot.BallotId,
+                    selections,
+                    numberOfExpected,
+                    electionGuardConfig,
+                    request.Ballot.BallotId,
                     exportPath,
                     exportFileName);
 
                 _currentBallotCount++;
 
-                var ballotResponse = new EncryptBallotResponse()
+                var response = new EncryptBallotResponse()
                 {
                     Id = encryptedBallot.ExternalIdentifier,
                     EncryptedBallotMessage = encryptedBallot.EncryptedBallotMessage,
@@ -227,158 +201,266 @@ namespace ElectionGuard.WebAPI.Controllers
                     CurrentNumberOfBallots = _currentBallotCount
                 };
 
-                response.Add(ballotResponse);
+                return CreatedAtAction(nameof(EncryptBallot), response);
             }
+            catch (Exception ex)
+            {
+                _logger.LogError("EncryptBallot: ", ex);
+                return StatusCode(500);
+            }
+        }
 
-            return CreatedAtAction(nameof(EncryptBallots), response);
+        [HttpPost]
+        [Route(nameof(EncryptBallots))]
+        public ActionResult<EncryptBallotResponse[]> EncryptBallots(EncryptBallotsRequest request)
+        {
+            // TODO: cache encrypted ballot id's in memory and disallow encrypting an existing ballot id
+
+            try
+            {
+                var exportPath = request.ExportPath ?? _exportPath;
+                var exportFileName = request.ExportFileName ?? _encryptedBallotsExportFileName;
+                var electionMap = request.ElectionMap ?? GetElectionMap(request.Election);
+                var electionGuardConfig = request.ElectionGuardConfig ?? _electionGuardConfig;
+                if (electionMap == null || electionGuardConfig == null)
+                {
+                    return BadRequest(EncryptionSetupRequiredMessage);
+                }
+
+                if (request.Ballots.Any(i => String.IsNullOrWhiteSpace(i.BallotId)))
+                {
+                    return BadRequest(EncryptMissingIdentifierMessage);
+                }
+                
+                var response = new List<EncryptBallotResponse>();
+
+                foreach (var ballot in request.Ballots)
+                {
+                    var selections = _electionMapper.ConvertToSelections(ballot, electionMap);
+                    var numberOfExpected = electionMap.BallotStyleMaps[ballot.BallotStyle.Id].ExpectedNumberOfSelected;
+                    var encryptedBallot = ElectionGuardApi.EncryptBallot(
+                        selections, 
+                        numberOfExpected, 
+                        electionGuardConfig, 
+                        ballot.BallotId,
+                        exportPath,
+                        exportFileName);
+
+                    _currentBallotCount++;
+
+                    var ballotResponse = new EncryptBallotResponse()
+                    {
+                        Id = encryptedBallot.ExternalIdentifier,
+                        EncryptedBallotMessage = encryptedBallot.EncryptedBallotMessage,
+                        Tracker = encryptedBallot.Tracker,
+                        OutputFileName = encryptedBallot.OutputFileName,
+                        CurrentNumberOfBallots = _currentBallotCount
+                    };
+
+                    response.Add(ballotResponse);
+                }
+
+                return CreatedAtAction(nameof(EncryptBallots), response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("EncryptBallots: ", ex);
+                return StatusCode(500);
+            }
         }
 
 #nullable enable
+
         [HttpDelete]
         [Route(nameof(BallotFile))]
         public ActionResult BallotFile([FromQuery] string? path, [FromQuery] string fileName)
         {
-            var exportPath = path ?? _exportPath;
-
-            if (String.IsNullOrWhiteSpace(exportPath))
+            try
             {
-                return BadRequest(FileLoadErrorMessage);
+                var exportPath = path ?? _exportPath;
+
+                if (String.IsNullOrWhiteSpace(exportPath))
+                {
+                    return BadRequest(FileLoadErrorMessage);
+                }
+
+                var success = ElectionGuardApi.SoftDeleteEncryptedBallotsFile(
+                    exportPath,
+                    fileName
+                );
+
+                return success? Ok() : StatusCode(500);
             }
-
-            var success = ElectionGuardApi.SoftDeleteEncryptedBallotsFile(
-                exportPath,
-                fileName
-            );
-
-            return success? Ok() : StatusCode(500);
+            catch (Exception ex)
+            {
+                _logger.LogError("BallotFile: ", ex);
+                return StatusCode(500);
+            }
         }
+
 #nullable disable
 
         [HttpPost]
         [Route(nameof(LoadBallots))]
         public ActionResult<LoadBallotsResponse[]> LoadBallots(LoadBallotsRequest request)
         {
-            var importPath = request.ImportPath ?? _exportPath;
-
-            if (String.IsNullOrWhiteSpace(importPath))
+            try
             {
-                return BadRequest(FileLoadErrorMessage);
+                var importPath = request.ImportPath ?? _exportPath;
+
+                if (String.IsNullOrWhiteSpace(importPath))
+                {
+                    return BadRequest(FileLoadErrorMessage);
+                }
+
+                var electionGuardConfig = request.ElectionGuardConfig ?? _electionGuardConfig;
+                if (electionGuardConfig == null)
+                {
+                    return BadRequest(EncryptionSetupRequiredMessage);
+                }
+
+                var result = ElectionGuardApi.LoadBallotsFile(
+                    request.StartIndex,
+                    request.Count,
+                    electionGuardConfig.NumberOfSelections,
+                    Path.Combine(
+                        importPath,
+                    request.ImportFileName
+                    )
+                );
+
+                if (result.EncryptedBallotMessages.Count != result.ExternalIdentifiers.Count)
+                {
+                    return StatusCode(500);
+                }
+
+                var response = new List<LoadBallotsResponse>();
+
+                for (int i = 0; i < result.EncryptedBallotMessages.Count; i++)
+                {
+                    var ballot = new LoadBallotsResponse()
+                    {
+                        Id = result.ExternalIdentifiers.ElementAt(i),
+                        EncryptedBallotMessage = result.EncryptedBallotMessages.ElementAt(i)
+                    };
+                    response.Add(ballot);
+                }
+
+                return AcceptedAtAction(nameof(LoadBallots), response);
             }
-
-            var electionGuardConfig = request.ElectionGuardConfig ?? _electionGuardConfig;
-            if (electionGuardConfig == null)
+            catch (Exception ex)
             {
-                return BadRequest(EncryptionSetupRequiredMessage);
-            }
-
-            var result = ElectionGuardApi.LoadBallotsFile(
-                request.StartIndex,
-                request.Count,
-                electionGuardConfig.NumberOfSelections,
-                Path.Combine(
-                    importPath,
-                request.ImportFileName
-                )
-            );
-
-            if (result.EncryptedBallotMessages.Count != result.ExternalIdentifiers.Count)
-            {
+                _logger.LogError("LoadBallots: ", ex);
                 return StatusCode(500);
             }
-
-            var response = new List<LoadBallotsResponse>();
-
-            for (int i = 0; i < result.EncryptedBallotMessages.Count; i++)
-            {
-                var ballot = new LoadBallotsResponse()
-                {
-                    Id = result.ExternalIdentifiers.ElementAt(i),
-                    EncryptedBallotMessage = result.EncryptedBallotMessages.ElementAt(i)
-                };
-                response.Add(ballot);
-            }
-
-            return AcceptedAtAction(nameof(LoadBallots), response);
         }
 
         [HttpPost]
         [Route(nameof(RecordBallots))]
         public ActionResult<RecordBallotsResponse> RecordBallots(RecordBallotsRequest request)
         {
-            // if the exportPath resolves to null, the default will be used
-            var exportPath = request.ExportPath ?? _exportPath;
-            var exportFileNamePrefix = request.ExportFileNamePrefix ?? _registeredBallotsExportFileNamePrefix;
-
-            var electionGuardConfig = request.ElectionGuardConfig ?? _electionGuardConfig;
-            if (electionGuardConfig == null)
+            try
             {
-                return BadRequest(EncryptionSetupRequiredMessage);
+                // if the exportPath resolves to null, the default will be used
+                var exportPath = request.ExportPath ?? _exportPath;
+                var exportFileNamePrefix = request.ExportFileNamePrefix ?? _registeredBallotsExportFileNamePrefix;
+
+                var electionGuardConfig = request.ElectionGuardConfig ?? _electionGuardConfig;
+                if (electionGuardConfig == null)
+                {
+                    return BadRequest(EncryptionSetupRequiredMessage);
+                }
+
+                if (request.Ballots == null)
+                {
+                    return BadRequest("Ballots cannot be null");
+                }
+
+                // HACK: If we receive a list containing more than one ballot for a given Id
+                // just take the first one
+
+                var ballots = request.Ballots.GroupBy(e => new {
+                    Id = e.Id
+                })
+                .Select(g => g.First());
+
+                var identifiers = ballots.Select(i => i.Id).ToList();
+                var ballotMessages = ballots.Select(i => i.EncryptedBallotMessage).ToList();
+
+                if ((request.CastBallotIds.Count() + request.SpoildBallotIds.Count()) != ballots.Count())
+                {
+                    return BadRequest("All ballots must be cast or spoiled");
+                }
+
+                var result = ElectionGuardApi.RecordBallots(
+                    electionGuardConfig,
+                    request.CastBallotIds, 
+                    request.SpoildBallotIds, 
+                    identifiers,
+                    ballotMessages,
+                    exportPath,
+                    exportFileNamePrefix
+                );
+
+                var response = new RecordBallotsResponse()
+                {
+                    RegisteredBallotsFileName = result.EncryptedBallotsFilename,
+                    CastedBallotTrackers = result.CastedBallotTrackers,
+                    SpoiledBallotTrackers = result.SpoiledBallotTrackers
+                };
+
+                return AcceptedAtAction(nameof(RecordBallots), response);
             }
-
-            if (request.Ballots == null)
+            catch (Exception ex)
             {
-                return BadRequest("Ballots cannot be null");
+                _logger.LogError("RecordBallots: ", ex);
+                return StatusCode(500);
             }
-
-            var identifiers = request.Ballots.Select(i => i.Id).ToList();
-            var ballotMessages = request.Ballots.Select(i => i.EncryptedBallotMessage).ToList();
-
-            var result = ElectionGuardApi.RecordBallots(
-                electionGuardConfig,
-                request.CastBallotIds, 
-                request.SpoildBallotIds, 
-                identifiers,
-                ballotMessages,
-                exportPath,
-                exportFileNamePrefix
-            );
-
-            var response = new RecordBallotsResponse()
-            {
-                RegisteredBallotsFileName = result.EncryptedBallotsFilename,
-                CastedBallotTrackers = result.CastedBallotTrackers,
-                SpoiledBallotTrackers = result.SpoiledBallotTrackers
-            };
-
-            return AcceptedAtAction(nameof(RecordBallots), response);
         }
 
         [HttpPost]
         [Route(nameof(TallyVotes))]
         public ActionResult<TallyVotesResponse> TallyVotes(TallyVotesRequest request)
         {
-
-            // if the exportPath resolves to null, the default will be used
-            var exportPath = request.ExportPath ?? _exportPath;
-            var exportFileNamePrefix = request.ExportFileNamePrefix ?? _tallyExportFileNamePrefix;
-
-            var electionMap = request.ElectionMap ?? GetElectionMap(request.Election);
-            var electionGuardConfig = request.ElectionGuardConfig ?? _electionGuardConfig;
-            if (electionGuardConfig == null || electionMap == null)
+            try
             {
-                return BadRequest(EncryptionSetupRequiredMessage);
+                // if the exportPath resolves to null, the default will be used
+                var exportPath = request.ExportPath ?? _exportPath;
+                var exportFileNamePrefix = request.ExportFileNamePrefix ?? _tallyExportFileNamePrefix;
+
+                var electionMap = request.ElectionMap ?? GetElectionMap(request.Election);
+                var electionGuardConfig = request.ElectionGuardConfig ?? _electionGuardConfig;
+                if (electionGuardConfig == null || electionMap == null)
+                {
+                    return BadRequest(EncryptionSetupRequiredMessage);
+                }
+
+                if (request.TrusteeKeys.Count < request.ElectionGuardConfig.Threshold)
+                {
+                    return BadRequest(ThresholdExceedsTrusteesMessage);
+                }
+
+                var result = ElectionGuardApi.TallyVotes(
+                    request.ElectionGuardConfig, 
+                    request.TrusteeKeys.Values, 
+                    request.TrusteeKeys.Count, 
+                    request.RegisteredBallotsFileName,
+                    exportPath,
+                    exportFileNamePrefix);
+
+                var response = new TallyVotesResponse()
+                {
+                    EncryptedTallyFilename = result.EncryptedTallyFilename,
+                    TallyResults = _electionMapper.ConvertToTally(result.TallyResults.ToArray(), electionMap)
+                };
+
+                return CreatedAtAction(nameof(TallyVotes), response);
             }
-
-            if (request.TrusteeKeys.Count < request.ElectionGuardConfig.Threshold)
+            catch (Exception ex)
             {
-                return BadRequest(ThresholdExceedsTrusteesMessage);
+                _logger.LogError("InitializeEncryption: ", ex);
+                return StatusCode(500);
             }
-
-            var result = ElectionGuardApi.TallyVotes(
-                request.ElectionGuardConfig, 
-                request.TrusteeKeys.Values, 
-                request.TrusteeKeys.Count, 
-                request.RegisteredBallotsFileName,
-                exportPath,
-                exportFileNamePrefix);
-
-            var response = new TallyVotesResponse()
-            {
-                EncryptedTallyFilename = result.EncryptedTallyFilename,
-                TallyResults = _electionMapper.ConvertToTally(result.TallyResults.ToArray(), electionMap)
-            };
-
-            return CreatedAtAction(nameof(TallyVotes), response);
         }
 
 #nullable enable
