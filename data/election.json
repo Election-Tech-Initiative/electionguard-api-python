@@ -23,7 +23,7 @@
   ],
   "county": {
     "id": "1",
-    "name": "Franklin County"
+    "name": "Rock County"
   },
   "parties": [
     {
@@ -45,13 +45,13 @@
   "precincts": [
     {
       "id": "1",
-      "name": "Washington Town Hall"
+      "name": "Fulton Town Hall"
     }
   ],
   "districts": [
     {
       "id": "1",
-      "name": "State Of Hamilton"
+      "name": "State Of Wisconsin"
     },
     {
       "id": "2",
@@ -59,7 +59,7 @@
     },
     {
       "id": "3",
-      "name": "Jackson School District"
+      "name": "Milton School District"
     }
   ],
   "contests": [
@@ -90,11 +90,11 @@
       "type": 1
     },
     {
-      "description": "Should the State of Hamilton purchase, from the State of Hancock, the Nothern Territories, for the purchase price of $1 Billion?",
+      "description": "Should the State of Wisconsin purchase, from the State of Michigan, the Upper Peninsula, for the purchase price of $1 Billion?",
       "id": "referendum-michigan-up",
       "districtId": "2",
       "section": "Referenda",
-      "title": "Proposition M: The Hancock Question",
+      "title": "Proposition M: The Michigan Question",
       "type": 2
     },
     {
@@ -127,15 +127,15 @@
         }
       ],
       "allowWriteIns": true,
-      "id": "jacksons-school-board",
+      "id": "milton-school-board",
       "districtId": "3",
-      "section": "Jackson School District",
+      "section": "Milton School District",
       "title": "School Board Member",
       "type": 1
     }
   ],
   "date": "February 6th, 2020",
-  "sealUrl": "/seals/Seal_of_Wisconsin.svg",
-  "state": "State of Wisconsin",
+  "sealUrl": "/seals/Franklin-County-Seal-Color.svg",
+  "state": "State of Hamilton",
   "title": "Spring Primary"
 }

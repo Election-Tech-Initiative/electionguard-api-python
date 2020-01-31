@@ -377,12 +377,12 @@ namespace ElectionGuard.WebAPI.Controllers
                 }
 
                 // HACK: If we receive a list containing more than one ballot for a given Id
-                // just take the first one
+                // just take the last one
 
                 var ballots = request.Ballots.GroupBy(e => new {
                     Id = e.Id
                 })
-                .Select(g => g.First());
+                .Select(g => g.Last());
 
                 var identifiers = ballots.Select(i => i.Id).ToList();
                 var ballotMessages = ballots.Select(i => i.EncryptedBallotMessage).ToList();

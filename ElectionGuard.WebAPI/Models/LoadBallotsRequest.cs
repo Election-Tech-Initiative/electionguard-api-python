@@ -9,7 +9,7 @@ namespace ElectionGuard.WebAPI.Models
 
         public string ImportFileName { get; set; }
 
-        #nullable enable
+#nullable enable
         public ElectionGuardConfig? ElectionGuardConfig { get; set; }
 
         public string? ImportPath { get; set; }
