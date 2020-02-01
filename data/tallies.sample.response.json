@@ -1,0 +1,46 @@
+{
+    "encryptedTallyFilename": "../data/election_results/tallies1580425396",
+    "tallyResults": [
+        {
+            "yes": 0,
+            "no": 0,
+            "candidates": [
+                4,
+                1,
+                1
+            ],
+            "writeIns": [
+                {
+                    "name": "Write In",
+                    "tally": 0
+                }
+            ]
+        },
+        {
+            "yes": 3,
+            "no": 1,
+            "candidates": [
+                0,
+                0
+            ],
+            "writeIns": null
+        },
+        {
+            "yes": 0,
+            "no": 0,
+            "candidates": [
+                1,
+                1,
+                0,
+                0,
+                0
+            ],
+            "writeIns": [
+                {
+                    "name": "Write In",
+                    "tally": 0
+                }
+            ]
+        }
+    ]
+}
