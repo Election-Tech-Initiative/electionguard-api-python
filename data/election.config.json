@@ -1,9 +1,7 @@
 {
-  "numberOfSelections": 5,
-  "numberOfTrustees": 3,
+  "numberOfSelections": 17,
+  "numberOfTrustees": 5,
   "threshold": 3,
   "subgroupOrder": 0,
-  "electionMetadata": "",
-  "jointPublicKey": "BQAAALN/7HuJ58UCkvDw26ii9F2sn6ioc684uSao/Is0pToRXcSddvXl2b8+5fr83+irktCVMxmGG5KfwLPkuMAJv8UJcMf2PTbUTCG/3IoYv/TZth2srqYPpsSi/fr/mS6vqNCtOQxH33nIWQUUcouY8Bayw3PsOoiZCKZZgzfDDxIIRGZtzKMGIp7ibPX83mMEQxfS7MUFP2btj28AF8onkIEn4AU0/Z9MNKlXGJvXQbhl1imlwiAAy7iZ1akUuY8VR1412op+WHpdcEKIPX7Se//LPXVdr5sOeH7C00aAwdTuWzlTVF+MwQYqW+FefiRlhicgh+iSdo/ghYpSwDe983y/yTo+9EW1uzW2zCtCY4y2LkWjnJmxRJJYXypcPhghtRPozlEFUvjxA7RfYL3QjoZ5FbAPcWDK3UNrTzDg28p6p3iFBVMd+cGeQJjD6MNATcK6uwz9k0JPu05gW956cOO5jqpSi8Xmg+y9Na6XfkDvJt4+74fonyDNaNzcXpsqEi0xMcsJWhogBKNy6wpG/spQhhq1XahD3awZ+TVebkrLqMTyQm56AOz0Cvjtjw4cjdrv5XSQ1eVSRzbJewneTYy0C0qSXyq0QTVg+1NRh+8EXhuqZE5IoPYx84W2Ws+TXV09Fb7zXJoAo1dn+gQKDd5ghH3csGWmEgB4sSkQnZiW",
-  "status": 1
+  "jointPublicKey": "BQAAAEM9RbltxfrKPDJrw0fZAWLrQbCGqOJ8nkrRuI+ovW+/UnW+krg2WLSCzRwxG7QjwJDJahr97ExcZrBRxwS0kMq7gPX7bw/Z5m16V5JG/RVrzXriche+wY51E+u5S/J3k6QZgqNOYNZLPrGm842pyiqT0iE7jWM774Z7wjvNaFhYxSa/5kFoaNskPJhB5tdjK0P5d8aw5bxqIPMx72ZrUkfQm3kHR5wTLFVENXXEXTpz1j6nIQE1s6dNU6eaUfsYQ2zqZ+KEqvd0xp3o+M82EDKarTJkFTeUmaIQEKjHA1jUFmWKxFePbadcBrEmI6vDV6u06X8iDFSObEp5AS414oRVUoHYu5zZ8yPEW17Qr7vWDNvfCErDHM9Y0eJ61wbaEaq/xEg+G/6VRhKIMs691Bih0CW0QxUUTlRPwui/zxXUrvLcl9C/zLHVIbnzoFUNChA3bA3A3H3t/SAlCDf12imbNjjvpZ5HuPUAip7rDgSAlOEKBvBdwic0ZJz/qepTgDwiwknTb2NWeHC8wYqfiBzYGgRBpew90Eey0WgMGdmZ4LimWeUbrKnDv9icMelnzpxKT7bre44HmKD2SpXmt+p4bk/EVKavWxvxlgj8kkBY+hxFa+iL1mPuOMgLxov+fL8/+v+JoC7Dvw2F0EDEHyhqpQZc+PWaFwBkHqp1xdt3"
 }

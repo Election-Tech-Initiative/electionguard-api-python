@@ -10,5 +10,6 @@ namespace ElectionGuard.WebAPI.Models
         public ElectionGuardConfig ElectionGuardConfig { get; set; }
         
         public string ExportPath { get; set; }
+        public string ExportFileName { get; set; }
     }
 }

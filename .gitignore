@@ -36,3 +36,5 @@ package/linux-x64/electionguard-api.tar.gz
 election_results/ballots/
 
 election_results/tallies/
+
+data/election_results/
