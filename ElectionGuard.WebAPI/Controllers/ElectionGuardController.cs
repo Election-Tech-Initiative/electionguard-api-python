@@ -333,7 +333,7 @@ namespace ElectionGuard.WebAPI.Controllers
                     electionGuardConfig.NumberOfSelections,
                     Path.Combine(
                         importPath,
-                    request.ImportFileName
+                        request.ImportFileName
                     )
                 );
 

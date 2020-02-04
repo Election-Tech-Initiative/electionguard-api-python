@@ -87,7 +87,7 @@
       "districtId": "1",
       "section": "Judicial",
       "title": "Justice of the Supreme Court",
-      "type": 1
+      "type": "Candidate"
     },
     {
       "description": "Should the State of Wisconsin purchase, from the State of Michigan, the Upper Peninsula, for the purchase price of $1 Billion?",
@@ -95,7 +95,7 @@
       "districtId": "2",
       "section": "Referenda",
       "title": "Proposition M: The Michigan Question",
-      "type": 2
+      "type": "YesNo"
     },
     {
       "seats": 2,
@@ -131,11 +131,11 @@
       "districtId": "3",
       "section": "Milton School District",
       "title": "School Board Member",
-      "type": 1
+      "type": "Candidate"
     }
   ],
   "date": "February 6th, 2020",
-  "sealUrl": "/seals/Franklin-County-Seal-Color.svg",
-  "state": "State of Hamilton",
+  "sealUrl": "/seals/Seal_of_Wisconsin.svg",
+  "state": "State of Wisconsin",
   "title": "Spring Primary"
 }
