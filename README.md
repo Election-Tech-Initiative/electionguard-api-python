@@ -1,19 +1,9 @@
----
-page_type: sample
-languages:
-- csharp
-products:
-- dotnet
-description: "Add 150 character max description"
-urlFragment: "update-this-to-unique-url-stub"
----
-
 ![Microsoft Defending Democracy Program: ElectionGuard](images/electionguard-banner.svg)
 
 #  🗳️ ElectionGuard Web API
 
 ![package](https://github.com/microsoft/electionguard-web-api/workflows/Package/badge.svg)
-[![license](https://img.shields.io/github/license/microsoft/electionguard-web-api)](License)
+[![license](https://img.shields.io/github/license/microsoft/electionguard-web-api)](LICENSE)
 
 This is an API that interacts with admin encrypter devices to perform ballot encryption, casting, spoiling, and tallying. This makes use of the C# Nuget package.
 
