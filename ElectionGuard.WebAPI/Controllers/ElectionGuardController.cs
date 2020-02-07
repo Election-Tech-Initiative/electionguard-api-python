@@ -73,7 +73,7 @@ namespace ElectionGuard.WebAPI.Controllers
             }
             else
             {
-                logger.LogInformation("ElectionController: Coould not find election.config.json");
+                logger.LogInformation("ElectionController: Could not find election.config.json");
             }
 
             var now = DateTime.Now;
