@@ -23,7 +23,7 @@
   ],
   "county": {
     "id": "1",
-    "name": "Boulder County"
+    "name": "Franklin County"
   },
   "parties": [
     {
@@ -59,7 +59,7 @@
     },
     {
       "id": "3",
-      "name": "Milton School District"
+      "name": "Franklin School District"
     }
   ],
   "contests": [
@@ -87,7 +87,7 @@
       "districtId": "1",
       "section": "Judicial",
       "title": "Justice of the Supreme Court",
-      "type": 1
+      "type": "Candidate"
     },
     {
       "description": "Should the State of Hamilton purchase, from the State of Michigan, the Upper Peninsula, for the purchase price of $1 Billion?",
@@ -95,7 +95,7 @@
       "districtId": "2",
       "section": "Referenda",
       "title": "Proposition M: The Michigan Question",
-      "type": 2
+      "type": "YesNo"
     },
     {
       "seats": 2,
@@ -129,9 +129,9 @@
       "allowWriteIns": true,
       "id": "milton-school-board",
       "districtId": "3",
-      "section": "Milton School District",
+      "section": "Franklin School District",
       "title": "School Board Member",
-      "type": 1
+      "type": "Candidate"
     }
   ],
   "date": "February 6th, 2020",

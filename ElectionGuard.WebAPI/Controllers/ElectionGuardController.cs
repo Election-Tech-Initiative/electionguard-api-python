@@ -49,7 +49,7 @@ namespace ElectionGuard.WebAPI.Controllers
             _electionMapper = electionMapper;
 
             _exportPath = Path.Combine(_config.GetDataDirectory(), "election_results");
-            logger.LogInformation($"DATA: resolved at: {_exportPath}");
+            logger.LogInformation($"DATA: resolved at: {_config.GetDataDirectory()}");
 
             // try to load the election config files from the file system
             var election = _config.GetElection();
@@ -60,12 +60,20 @@ namespace ElectionGuard.WebAPI.Controllers
                 _electionMap = _electionMapper.GetElectionMap(_election);
                 
             }
+            else
+            {
+                logger.LogInformation("ElectionController: Could not find election.json");
+            }
 
             var electionguardConfig = _config.getElectionGuardConfig();
             if (electionguardConfig != null)
             {
                 logger.LogInformation("ElectionController: Found ElectionGuard Config");
                 _electionGuardConfig = electionguardConfig;
+            }
+            else
+            {
+                logger.LogInformation("ElectionController: Could not find election.config.json");
             }
 
             var now = DateTime.Now;
@@ -325,7 +333,7 @@ namespace ElectionGuard.WebAPI.Controllers
                     electionGuardConfig.NumberOfSelections,
                     Path.Combine(
                         importPath,
-                    request.ImportFileName
+                        request.ImportFileName
                     )
                 );
 

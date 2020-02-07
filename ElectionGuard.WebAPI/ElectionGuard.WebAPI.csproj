@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ElectionGuard.SDK" Version="1.0.3-v56e110d" />
+    <PackageReference Include="ElectionGuard.SDK" Version="1.0.4-v4c73ce2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.5" />
