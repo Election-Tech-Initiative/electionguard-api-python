@@ -2,7 +2,7 @@ using ElectionGuard.SDK.Models;
 
 namespace ElectionGuard.WebAPI.Models
 {
-    public class BallotRecordRequest
+    public class RecordBallotsRequest
     {
         public ElectionGuardConfig ElectionGuardConfig { get; set; }
 

@@ -60,9 +60,23 @@ On a Windows Machine, from an elevated powershell prompt
 pwsh .\scripts\Create-Windows-Service.ps1
 ```
 
+### Interacting with the API
+
+There is a [Postman]() collection and environment included.  Ensure the API is running on your desired port, and import the files in `.postman` into your postman environment.  Execute each of the requests in order.
+
 ## Key concepts
 
-Provide users with more context on the tools and services used in the sample. Explain some of the code that is being used and how services interact with each other.
+This API is a werapper around the C-Sharp SDK.  All of the interesting code is in `ElectionController.cs`.
+
+### Providing Configuration
+
+In order to encrypt an election, the API must know about the election (`election.json`) and the ElectionGuard configuration (`election.config.json`).  Samples are provided in the `data` folder.  This dataq is also pre-loaded into the postman environment.
+
+Configuration can be provided in multiple ways
+
+1. At Runtime - On the first call to `ElectionController` we search for the configuration files in the `./data` relative path at runtime.
+2. via `InitializeEncryption` - by making the Initialize Encryption request, a json body or a file path can be specified to cache the configuration.
+3. Via `EncryptBallot` - by providing the election configuration with each encrypt ballot request, the provided values will be used to encrypt a specific ballot.
 
 ## Contributing
 
