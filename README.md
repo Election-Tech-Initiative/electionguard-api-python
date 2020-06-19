@@ -1,24 +1,26 @@
-![Microsoft Defending Democracy Program: ElectionGuard](images/electionguard-banner.svg)
+![Microsoft Defending Democracy Program: ElectionGuard](images/electionguard-banner.svg) 
 
-# Note: This repository has been deprecated & transitioned
-As of 06/15/2020, this repository is no longer being actively maintained. ElectionGuard development has transitioned to the [ElectionGuard-Python](https://github.com/microsoft/electionguard-python) Repo.
-
-This repository will remain open sourced and available, but will no longer be actively maintained or updated. Updates will be posted here and on our [Main repository](https://aka.ms/electionguard) Page. This URL will become archived and read-only in Summer of 2020.
-
-##  🗳️ ElectionGuard Web API
+#  🗳️ ElectionGuard Web API (Deprecated)
 
 ![package](https://github.com/microsoft/electionguard-web-api/workflows/Package/badge.svg)
 [![license](https://img.shields.io/github/license/microsoft/electionguard-web-api)](LICENSE)
 
+---------------
+**⚠️ Note:** Repository has been deprecated
+
+As of 06/15/2020, this repository is no longer being actively maintained. For the latest ElectionGuard development, visit the [main repository page](https://aka.ms/electionguard). This repository will remain open sourced and available, but will no longer be actively maintained or updated. The URL will become archived and read-only.
+
+----------------
+
 This is an API that interacts with admin encrypter devices to perform ballot encryption, casting, spoiling, and tallying. This makes use of the C# Nuget package.
 
-## Runnning the sample
+## Running the sample
 
-## Debugging from Visual Studio Code
+### Debugging from Visual Studio Code
 
 Open the Debug Window and execute: `.NET Core Launch (web)`
 
-## Debugging from Visual studio Code (in Docker)
+### Debugging from Visual studio Code (in Docker)
 
 1. Open the Command Palette and execute: `Tasks: Run Task > run docker (debug)`
 2. Open the Debug Window and execute: `.NET Core Attach (docker)`
@@ -37,7 +39,7 @@ There is a [Postman]() collection and environment included.  Ensure the API is r
 
 The API loads `election` and `ElectionGuardConfig` values in diffferent ways.  On startup, the `ElectionGuardController` searches for these files on the file system.  They can also be overwritten bby calling `InitializeEncryption`.  Lastly, these configuration values can be provided with specific request bodies where relevant to override the cached values for that request only.
 
-#### Test the Complete workflow
+## Test the Complete workflow
 
 You can test the entire workflow, which overwrites the sample data with new encryption keys.
 
@@ -51,7 +53,7 @@ To test the primary workflow, which interacts wiht the file system, execute the 
 - `5. Record Ballots`
 - `6. Tally Votes`
 
-#### Test Encrypting Ballots
+### Test Encrypting Ballots
 
 This test simulates encrypting ballots on a Ballot Marking Device.
 
@@ -65,7 +67,7 @@ Reset your postman environment variables to the default ones included in the rep
 
 Verify that the loaded ballots match the encrypted ballots.
 
-#### Test Loading and Decrypting Ballots
+### Test Loading and Decrypting Ballots
 
 This test simulates loading ballots from a Ballot Marking Device and decrypting the results.
 
