@@ -1,7 +1,7 @@
 ![Microsoft Defending Democracy Program: ElectionGuard](images/electionguard-banner.svg) 
 
 #  🗳️ ElectionGuard Web API (Deprecated)
-
+![deprecated](https://img.shields.io/badge/status-deprecated-red)
 ![package](https://github.com/microsoft/electionguard-web-api/workflows/Package/badge.svg)
 [![license](https://img.shields.io/github/license/microsoft/electionguard-web-api)](LICENSE)
 
