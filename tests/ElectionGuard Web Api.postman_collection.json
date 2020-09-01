@@ -117,6 +117,26 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get Election Constants",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/{{version}}/election/constants",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"{{version}}",
+								"election",
+								"constants"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}
