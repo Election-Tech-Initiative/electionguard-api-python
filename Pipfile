@@ -10,7 +10,9 @@ mypy = "*"
 pylint = "*"
 
 [packages]
+electionguard = "*"
 fastapi = "*"
+jsons = "*"
 uvicorn = "*"
 
 [requires]
