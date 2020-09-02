@@ -19,3 +19,13 @@ if settings.BACKEND_CORS_ORIGINS:
     )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+if __name__ == "__main__":
+    # IMPORTANT: This should only be used to debug the application.
+    # For normal execution, run `make start`.
+    #
+    # To make this work, the PYTHONPATH must be set to the root directory, e.g.
+    # `PYTHONPATH=. pipenv run python ./app/main.py`
+    # See the VSCode launch configuration for detail.
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
