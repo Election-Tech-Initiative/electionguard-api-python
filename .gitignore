@@ -138,7 +138,7 @@ dmypy.json
 cython_debug/
 
 # VS Code
-*.local.json
+*.code-workspace
 
 # Mac
 .DS_Store
