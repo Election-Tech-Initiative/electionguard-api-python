@@ -28,4 +28,5 @@ if __name__ == "__main__":
     # `PYTHONPATH=. pipenv run python ./app/main.py`
     # See the VSCode launch configuration for detail.
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
