@@ -9,7 +9,6 @@ from electionguard.ballot_store import BallotStore
 from fastapi import APIRouter, Body, HTTPException
 from pydantic import BaseModel
 from typing import Any
-from app.utils.serialize import write_json, write_json_object
 
 router = APIRouter()
 
@@ -31,7 +30,7 @@ def cast_ballot(request: AcceptBallotRequest = Body(...)) -> Any:
             status_code=500,
             detail="Ballot failed to be cast",
         )
-    return write_json_object(cast_ballot)
+    return cast_ballot.to_json_object()
 
 
 @router.post("/spoil")
@@ -45,14 +44,14 @@ def spoil_ballot(request: AcceptBallotRequest = Body(...)) -> Any:
             status_code=500,
             detail="Ballot failed to be spoiled",
         )
-    return write_json_object(spoiled_ballot)
+    return spoiled_ballot.to_json_object()
 
 
 def handle_ballot(request: AcceptBallotRequest, state: BallotBoxState) -> Any:
-    ballot = CiphertextBallot.from_json(write_json(request.ballot))
-    description = ElectionDescription.from_json(write_json(request.description))
+    ballot = CiphertextBallot.from_json_object(request.ballot)
+    description = ElectionDescription.from_json_object(request.description)
     internal_description = InternalElectionDescription(description)
-    context = CiphertextElectionContext.from_json(write_json(request.context))
+    context = CiphertextElectionContext.from_json_object(request.context)
 
     accepted_ballot = accept_ballot(
         ballot,
