@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "ca2f5fd7-c171-4c15-86ed-7b88e80f4fbb",
+		"_postman_id": "b81b6d73-a815-472e-a6b3-8014889f95b8",
 		"name": "ElectionGuard Web Api",
 		"description": "A collection of API calls for ElectionGuard Web Api",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -140,13 +140,99 @@
 				}
 			],
 			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Key",
+			"item": [
+				{
+					"name": "Generate Guardian Keys",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quorum\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/{{version}}/key/generate",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"{{version}}",
+								"key",
+								"generate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Election Keys",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quorum\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/{{version}}/key/election/generate",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"{{version}}",
+								"key",
+								"election",
+								"generate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Auxiliary Keys",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/{{version}}/key/auxiliary/generate",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"{{version}}",
+								"key",
+								"auxiliary",
+								"generate"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
 		}
 	],
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "49ee4c83-4e05-47c6-ad73-d398d61e9839",
+				"id": "6b682047-9564-4b78-b40a-1bbd460a3840",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -156,7 +242,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "83f4be04-6ac3-41df-be23-45316f16c2f1",
+				"id": "249b6ed2-9f99-4083-abd7-10afeddf8963",
 				"type": "text/javascript",
 				"exec": [
 					""
