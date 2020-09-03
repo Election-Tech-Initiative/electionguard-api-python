@@ -32,6 +32,12 @@ To start the api:
 make start
 ```
 
+## 🛠 Debugging
+
+For local debugging with Visual Studio Code, choose the `Web API` option from the dropdown in the Run menu.  Once the server is up, you can easily hit your breakpoints.
+
+If the code fails to run, [make sure your Python interpreter is set](https://code.visualstudio.com/docs/python/environments) to use your pipenv environment.
+
 ## 🐳 Docker
 A DockerFile is available to quickly create and run a docker container.
 
