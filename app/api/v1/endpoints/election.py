@@ -2,8 +2,6 @@ from electionguard.election import ElectionDescription, ElectionConstants
 from fastapi import APIRouter, HTTPException
 from os.path import realpath, join
 from typing import Any
-from app.utils.serialize import write_json_object
-
 
 router = APIRouter()
 
@@ -18,7 +16,7 @@ def get_election_constants() -> Any:
     Return the constants defined for an election
     """
     constants = ElectionConstants()
-    return write_json_object(constants)
+    return constants.to_json_object()
 
 
 @router.get("/description")
