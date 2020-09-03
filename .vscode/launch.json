@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Web API",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceRoot}/app/main.py",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceRoot}"
+            }
+        }
+    ]
+}
