@@ -3,6 +3,8 @@
 OS ?= $(shell python -c 'import platform; print(platform.system())')
 WINDOWS_ERROR = ⚠️ UNSUPPORTED WINDOWS INSTALL ⚠️ 
 CONTAINER_NAME = electionguard_web_api
+CONTAINER_ADDRESS ?= 0.0.0.0
+CONTAINER_PORT ?= 8000
 IMAGE_NAME = electionguard_web_api
 
 all: environment lint start
@@ -52,7 +54,7 @@ docker-build:
 	docker build -t $(IMAGE_NAME) .
 
 docker-run:
-	docker run -d --name $(CONTAINER_NAME) -p 8000:8000 $(IMAGE_NAME)
+	docker run -d --name $(CONTAINER_NAME) -p $(CONTAINER_PORT):8000 -e host=$(CONTAINER_ADDRESS) $(IMAGE_NAME)
 
 # Linting
 lint:
