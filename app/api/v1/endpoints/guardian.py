@@ -6,10 +6,9 @@ from electionguard.key_ceremony import (
     generate_rsa_auxiliary_key_pair,
     generate_election_partial_key_backup,
 )
-from electionguard.serializable import write_json_object, set_deserializers
+from electionguard.serializable import write_json_object
 from fastapi import APIRouter, HTTPException
-from jsons import load
-from typing import Any, cast, List
+from typing import Any, List
 
 from app.models import (
     AuxiliaryKeyPair,
@@ -83,3 +82,50 @@ def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackup:
         election_partial_key_backups=backups,
     )
 
+
+@router.post("/verify", response_model=GuardianBackup)
+def verify_backup(request: GuardianBackupRequest) -> GuardianBackup:
+    """
+    Generate all election partial key backups based on existing public keys
+    :param request: Guardian backup request
+    :return: Guardian backup
+    """
+    backups: List[Any] = []
+    for auxiliary_public_key in request.auxiliary_public_keys:
+        backup = generate_election_partial_key_backup(
+            request.guardian_id,
+            read_json_object(request.election_polynomial, ElectionPolynomial),
+            read_json_object(auxiliary_public_key, AuxiliaryPublicKey),
+        )
+        if backup is None:
+            raise HTTPException(status_code=500, detail="Backup failed to be generated")
+        backups.append(write_json_object(backup))
+
+    return GuardianBackup(
+        id=request.guardian_id,
+        election_partial_key_backups=backups,
+    )
+
+
+@router.post("/challenge", response_model=GuardianBackup)
+def create_backup_challenge(request: GuardianBackupRequest) -> GuardianBackup:
+    """
+    Generate all election partial key backups based on existing public keys
+    :param request: Guardian backup request
+    :return: Guardian backup
+    """
+    backups: List[Any] = []
+    for auxiliary_public_key in request.auxiliary_public_keys:
+        backup = generate_election_partial_key_backup(
+            request.guardian_id,
+            read_json_object(request.election_polynomial, ElectionPolynomial),
+            read_json_object(auxiliary_public_key, AuxiliaryPublicKey),
+        )
+        if backup is None:
+            raise HTTPException(status_code=500, detail="Backup failed to be generated")
+        backups.append(write_json_object(backup))
+
+    return GuardianBackup(
+        id=request.guardian_id,
+        election_partial_key_backups=backups,
+    )
