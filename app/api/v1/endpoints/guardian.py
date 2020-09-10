@@ -16,7 +16,7 @@ from electionguard.serializable import write_json_object
 from fastapi import APIRouter, HTTPException
 from typing import Any, List
 
-from app.models import (
+from ..models import (
     AuxiliaryKeyPair,
     BackupChallengeRequest,
     BackupVerificationRequest,
@@ -28,7 +28,7 @@ from app.models import (
     GuardianBackupRequest,
 )
 from app.utils import read_json_object
-from .tags import GUARDIAN_ONLY
+from ..tags import GUARDIAN_ONLY
 
 router = APIRouter()
 

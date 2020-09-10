@@ -6,7 +6,7 @@ from electionguard.elgamal import elgamal_combine_public_keys
 from electionguard.serializable import write_json_object
 from electionguard.group import int_to_q_unchecked, int_to_p_unchecked
 from fastapi import APIRouter, HTTPException
-from app.models import (
+from ..models import (
     AuxiliaryKeyPair,
     ElectionKeyPair,
     ElectionKeyPairRequest,
