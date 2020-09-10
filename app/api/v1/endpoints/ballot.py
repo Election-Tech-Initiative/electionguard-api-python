@@ -7,16 +7,11 @@ from electionguard.election import (
 )
 from electionguard.ballot_store import BallotStore
 from fastapi import APIRouter, Body, HTTPException
-from pydantic import BaseModel
 from typing import Any
 
+from ..models import AcceptBallotRequest
+
 router = APIRouter()
-
-
-class AcceptBallotRequest(BaseModel):
-    ballot: Any
-    description: Any
-    context: Any
 
 
 @router.post("/cast")

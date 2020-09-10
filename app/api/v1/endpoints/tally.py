@@ -10,20 +10,12 @@ from electionguard.tally import (
     PublishedCiphertextTally,
 )
 from fastapi import APIRouter, Body, HTTPException
-from pydantic import BaseModel
 from typing import Any, List, Tuple
 
+
+from ..models import StartTallyRequest, AppendTallyRequest
+
 router = APIRouter()
-
-
-class StartTallyRequest(BaseModel):
-    ballots: List[Any]
-    description: Any
-    context: Any
-
-
-class AppendTallyRequest(StartTallyRequest):
-    encrypted_tally: Any
 
 
 @router.post("")
