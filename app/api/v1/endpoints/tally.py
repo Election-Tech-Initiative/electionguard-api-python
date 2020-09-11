@@ -26,6 +26,7 @@ from ..models import (
     DecryptTallyShareRequest,
     StartTallyRequest,
 )
+from ..tags import GUARDIAN_ONLY
 
 router = APIRouter()
 
@@ -73,7 +74,7 @@ def decrypt_tally(request: DecryptTallyRequest = Body(...)) -> Any:
     return published_plaintext_tally.to_json_object()
 
 
-@router.post("/decrypt-share")
+@router.post("/decrypt-share", tags=[GUARDIAN_ONLY])
 def decrypt_share(request: DecryptTallyShareRequest = Body(...)) -> Any:
     description = InternalElectionDescription(
         ElectionDescription.from_json_object(request.description)
