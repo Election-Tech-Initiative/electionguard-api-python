@@ -1,9 +1,14 @@
 from typing import Any
 
 from .base import Base
+from .election import ElectionDecription, CiphertextElectionContext
+
+
+CiphertextAcceptedBallot = Any
+CiphertextBallot = Any
 
 
 class AcceptBallotRequest(Base):
-    ballot: Any
-    description: Any
-    context: Any
+    ballot: CiphertextBallot
+    description: ElectionDecription
+    context: CiphertextElectionContext

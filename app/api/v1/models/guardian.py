@@ -1,5 +1,13 @@
 from typing import Any, List, Optional
 
+import electionguard.election_polynomial
+import electionguard.elgamal
+import electionguard.guardian
+import electionguard.key_ceremony
+import electionguard.schnorr
+
+from app.utils.serialize import read_json_object
+
 from .base import Base
 from .key import AuxiliaryKeyPair, AuxiliaryPublicKey, ElectionKeyPair
 
@@ -54,3 +62,34 @@ class BackupChallengeRequest(Base):
 class ChallengeVerificationRequest(Base):
     verifier_id: str
     election_partial_key_challenge: ElectionPartialKeyChallenge
+
+
+def convert_guardian(api_guardian: Guardian) -> electionguard.guardian.Guardian:
+    """
+    Convert an API Guardian model to a fully-hydrated SDK Guardian model.
+    """
+
+    guardian = electionguard.guardian.Guardian(
+        api_guardian.id,
+        api_guardian.sequence_order,
+        api_guardian.number_of_guardians,
+        api_guardian.quorum,
+    )
+    guardian._auxiliary_keys = electionguard.key_ceremony.AuxiliaryKeyPair(
+        api_guardian.auxiliary_key_pair.public_key,
+        api_guardian.auxiliary_key_pair.secret_key,
+    )
+    guardian._election_keys = electionguard.key_ceremonyElectionKeyPair(
+        read_json_object(
+            guardian._election_keys.key_pair, electionguard.elgamal.ElGamalKeyPair
+        ),
+        read_json_object(
+            guardian._election_keys.proof, electionguard.schnorr.SchnorrProof
+        ),
+        read_json_object(
+            guardian._election_keys.polynomial,
+            electionguard.election_polynomial.ElectionPolynomial,
+        ),
+    )
+
+    return guardian
