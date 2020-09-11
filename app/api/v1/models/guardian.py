@@ -79,7 +79,7 @@ def convert_guardian(api_guardian: Guardian) -> electionguard.guardian.Guardian:
         api_guardian.auxiliary_key_pair.public_key,
         api_guardian.auxiliary_key_pair.secret_key,
     )
-    guardian._election_keys = electionguard.key_ceremonyElectionKeyPair(
+    guardian._election_keys = electionguard.key_ceremony.ElectionKeyPair(
         read_json_object(
             guardian._election_keys.key_pair, electionguard.elgamal.ElGamalKeyPair
         ),

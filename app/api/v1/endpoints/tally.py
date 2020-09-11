@@ -111,7 +111,7 @@ def _parse_tally_request(
     internal_description = InternalElectionDescription(description)
     context = CiphertextElectionContext.from_json_object(request.context)
 
-    return (ballots, description, context)
+    return (ballots, internal_description, context)
 
 
 def _tally_ballots(
