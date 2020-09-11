@@ -57,6 +57,9 @@ def append_to_tally(request: AppendTallyRequest = Body(...)) -> Any:
 
 @router.post("/decrypt")
 def decrypt_tally(request: DecryptTallyRequest = Body(...)) -> Any:
+    """
+    Decrypt a tally from a collection of decrypted guardian shares
+    """
     description = InternalElectionDescription(
         ElectionDescription.from_json_object(request.description)
     )
@@ -76,6 +79,9 @@ def decrypt_tally(request: DecryptTallyRequest = Body(...)) -> Any:
 
 @router.post("/decrypt-share", tags=[GUARDIAN_ONLY])
 def decrypt_share(request: DecryptTallyShareRequest = Body(...)) -> Any:
+    """
+    Decrypt a single guardian's share of a tally
+    """
     description = InternalElectionDescription(
         ElectionDescription.from_json_object(request.description)
     )
