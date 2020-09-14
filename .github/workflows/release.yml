@@ -76,7 +76,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: electionguard/electionguard-api
+          repository: electionguard/electionguard-web-api
           tag_with_ref: true
       - name: Push to GitHub Packages
         uses: docker/build-push-action@v1
@@ -84,7 +84,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: microsoft/electionguard-web-api/electionguard-api
+          repository: microsoft/electionguard-web-api/electionguard-web-api
           tag_with_ref: true
       - name: Deploy Github Pages
         run: make docs-deploy-ci
