@@ -2,13 +2,33 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Web API",
+            "name": "Guardian Web API",
             "type": "python",
             "request": "launch",
             "program": "${workspaceRoot}/app/main.py",
             "console": "integratedTerminal",
+            "args": [
+                "--port",
+                "8001"
+            ],
             "env": {
-                "PYTHONPATH": "${workspaceRoot}"
+                "PYTHONPATH": "${workspaceRoot}",
+                "API_MODE": "guardian"
+            }
+        },
+        {
+            "name": "Mediator Web API",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceRoot}/app/main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--port",
+                "8000"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceRoot}",
+                "API_MODE": "mediator"
             }
         }
     ]

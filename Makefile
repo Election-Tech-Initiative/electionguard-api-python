@@ -6,6 +6,8 @@ CONTAINER_NAME = electionguard_web_api
 CONTAINER_ADDRESS ?= 0.0.0.0
 CONTAINER_PORT ?= 8000
 IMAGE_NAME = electionguard_web_api
+# Supports either "guardian" or "mediator" modes
+API_MODE = mediator
 
 all: environment lint start
 
@@ -51,10 +53,13 @@ start:
 
 # Docker
 docker-build:
-	docker build -t $(IMAGE_NAME) .
+	DOCKER_BUILDKIT=1 docker build -t $(IMAGE_NAME) .
 
 docker-run:
-	docker run -d --name $(CONTAINER_NAME) -p $(CONTAINER_PORT):8000 -e host=$(CONTAINER_ADDRESS) $(IMAGE_NAME)
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose up --build
+
+docker-dev:
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.dev.yml up --build
 
 # Linting
 lint:

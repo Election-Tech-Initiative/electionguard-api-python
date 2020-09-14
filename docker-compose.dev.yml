@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  mediator:
+    build:
+      context: .
+      target: dev
+    volumes:
+      - "./app:/app"
+    ports:
+      - 8000:8000
+    environment:
+      API_MODE: "mediator"
+      PROJECT_NAME: "ElectionGuard Mediator API"
+      port: 8000
+
+  guardian:
+    build:
+      context: .
+      target: dev
+    volumes:
+      - "./app:/app"
+    ports:
+      - 8001:8001
+    environment:
+      API_MODE: "guardian"
+      PROJECT_NAME: "ElectionGuard Guardian API"
+      port: 8001
