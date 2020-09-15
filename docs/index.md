@@ -1,8 +1,8 @@
-![Microsoft Defending Democracy Program: ElectionGuard](https://github.com/microsoft/electionguard-web-api/tree/main/images/electionguard-banner.svg)
+![Microsoft Defending Democracy Program: ElectionGuard](https://raw.githubusercontent.com/microsoft/electionguard-web-api/main/images/electionguard-banner.svg)
 
 # 🗳️ ElectionGuard Web API
 
-![docker version](https://img.shields.io/docker/v/electionguard/electionguard-web-api) ![docker pulls](https://img.shields.io/docker/pulls/electionguard/electionguard-web-api) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/context:python) [![Total alerts](https://img.shields.io/lgtm/alerts/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/alerts/) [![Documentation Status](https://readthedocs.org/projects/electionguard-web-api/badge/?version=latest)](https://electionguard-web-api.readthedocs.io) [![license](https://img.shields.io/github/license/microsoft/electionguard-web-api)](LICENSE)
+![docker version](https://img.shields.io/docker/v/electionguard/electionguard-web-api) ![docker pulls](https://img.shields.io/docker/pulls/electionguard/electionguard-web-api) ![Release Build](https://github.com/microsoft/electionguard-web-api/workflows/Release%20Build/badge.svg?event=milestone) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/context:python) [![Total alerts](https://img.shields.io/lgtm/alerts/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/alerts/) [![Documentation Status](https://readthedocs.org/projects/electionguard-web-api/badge/?version=latest)](https://electionguard-web-api.readthedocs.io) [![license](https://img.shields.io/github/license/microsoft/electionguard-web-api)](LICENSE)
 
 This is a python API that utilizes [`electionguard-python`](https://github.com/microsoft/electionguard-python) to perform ballot encryption, casting, spoiling, and tallying. This API is implemented using [FastAPI](https://fastapi.tiangolo.com/#interactive-api-docs).
 
@@ -45,7 +45,7 @@ _These requirements line up with [electionguard-python](https://github.com/micro
 
 ### Quick Start
 
-Using [**make**](https://www.gnu.org/software/make/manual/make.html), installation and startup can be run with one command: 
+Using [**make**](https://www.gnu.org/software/make/manual/make.html), installation and startup can be run with one command:
 
 To set up the environment:
 
