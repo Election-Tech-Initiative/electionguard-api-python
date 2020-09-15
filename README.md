@@ -77,7 +77,14 @@ If the code fails to run, [make sure your Python interpreter is set](https://cod
 
 ## 🧪 Testing
 
-A Postman collection is available to test the API located in the `/tests` folder. This can be imported into Postman for easy testing. This suite works on a local run server or the preconfigured docker settings.
+A Postman collection is available to test the API located in the `/tests` folder. You can do a few things with this:
+
+- [Import into Postman](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-data-into-postman) for easy manual testing.
+- Run locally with the [Newman CLI](https://github.com/postmanlabs/newman).
+- Run the APIs and tests entirely in Docker by running:
+  ```bash
+  make docker-test
+  ```
 
 ## 📝 Documentation
 

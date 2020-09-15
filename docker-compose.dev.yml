@@ -1,3 +1,7 @@
+# This hosts both APIs locally in parallel
+# It mounts the codebase within the container and runs the APIs
+# with hot reload enabled.
+
 version: "3.8"
 services:
   mediator:

@@ -63,6 +63,14 @@ docker-run:
 docker-dev:
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.dev.yml up --build
 
+docker-test:
+	@echo 🧪 RUNNING TESTS IN DOCKER
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose \
+	-f tests/docker-compose.yml up \
+	--build \
+	--abort-on-container-exit \
+	--exit-code-from test-runner
+
 # Linting
 lint:
 	@echo 💚 LINT
