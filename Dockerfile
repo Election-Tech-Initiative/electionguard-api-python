@@ -18,4 +18,5 @@ CMD uvicorn app.main:app --reload --host "$host" --port "$port"
 FROM base AS prod
 COPY ./app /app
 EXPOSE $port
-CMD uvicorn app.main:app --host "$host" --port "$port"
+# TODO: We should not have to use the --reload flag here! See issue #80
+CMD uvicorn app.main:app --reload --host "$host" --port "$port"

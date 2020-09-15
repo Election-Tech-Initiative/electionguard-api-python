@@ -39,12 +39,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v1
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - name: Build Docker Image
-        run: make docker-build
+      - name: Run Tests
+        run: make docker-test
 
   release:
     name: Release

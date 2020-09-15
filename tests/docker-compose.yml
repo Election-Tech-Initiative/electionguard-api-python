@@ -1,0 +1,44 @@
+# This will spin up three parallel containers:
+# - One for each API under test
+# - One to house the test runner
+# 
+# The test runner will wait for both API containers to run, and validate that
+# the APIs have started by checking their ping endpoints.
+# 
+# This should be run with the --build and --abort-on-container-exit flags
+
+version: "3.8"
+services:
+  mediator:
+    build:
+      context: ..
+      target: prod
+    expose:
+      - 80
+    environment:
+      API_MODE: "mediator"
+      PROJECT_NAME: "ElectionGuard Mediator API"
+      port: 80
+
+  guardian:
+    build:
+      context: ..
+      target: prod
+    expose:
+      - 80
+    environment:
+      API_MODE: "guardian"
+      PROJECT_NAME: "ElectionGuard Guardian API"
+      port: 80
+  
+  test-runner:
+    build:
+      context: .
+    depends_on:
+      - mediator
+      - guardian
+    volumes:
+      - ".:/tests"
+    entrypoint: dockerize
+    command: -wait http://guardian/api/v1/ping -wait http://mediator/api/v1/ping -timeout 10s
+      bash -c "newman run /tests/*.postman_collection.json --timeout-request 60000 --env-var guardian-url=http://guardian --env-var mediator-url=http://mediator"
