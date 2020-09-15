@@ -5,8 +5,7 @@ import electionguard.elgamal
 import electionguard.guardian
 import electionguard.key_ceremony
 import electionguard.schnorr
-
-from app.utils.serialize import read_json_object
+from electionguard.serializable import read_json_object
 
 from .base import Base
 from .key import AuxiliaryKeyPair, AuxiliaryPublicKey, ElectionKeyPair
