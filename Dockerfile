@@ -5,9 +5,10 @@ RUN apt update && apt-get install -y \
     libgmp-dev \
     libmpfr-dev \
     libmpc-dev
-RUN pip install pipenv
-COPY ./Pipfile* /tmp/
-RUN cd /tmp && pipenv lock --requirements > requirements.txt
+RUN pip install poetry
+COPY ./pyproject.toml /tmp/
+COPY ./poetry.lock /tmp/
+RUN cd /tmp && poetry export -f requirements.txt > requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
 FROM base AS dev

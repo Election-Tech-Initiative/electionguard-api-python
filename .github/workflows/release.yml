@@ -55,8 +55,10 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Change Directory
         run: cd ${{ github.workspace }}
+      - name: Poetry Install
+        run: pip install poetry
       - name: Get Version
-        run: echo ::set-env name=PACKAGE_VERSION::$(echo $VERSION | python setup.py --version)
+        run: echo ::set-env name=PACKAGE_VERSION::$(echo $VERSION | poetry version | cut -c23-27)
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1.0.0
