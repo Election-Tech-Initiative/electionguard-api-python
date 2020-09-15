@@ -2,12 +2,14 @@
 
 OS ?= $(shell python -c 'import platform; print(platform.system())')
 WINDOWS_ERROR = ⚠️ UNSUPPORTED WINDOWS INSTALL ⚠️ 
-CONTAINER_NAME = electionguard_web_api
-CONTAINER_ADDRESS ?= 0.0.0.0
-CONTAINER_PORT ?= 8000
 IMAGE_NAME = electionguard_web_api
 # Supports either "guardian" or "mediator" modes
-API_MODE = mediator
+API_MODE ?= mediator
+ifeq ($(API_MODE), mediator)
+PORT ?= 8000
+else
+PORT ?= 8001
+endif
 
 all: environment lint start
 
@@ -47,9 +49,9 @@ install-gmp-linux:
 	sudo apt-get install libmpfr-dev
 	sudo apt-get install libmpc-dev
 
-# Server
+# Dev Server
 start:
-	pipenv run uvicorn app.main:app --reload
+	pipenv run uvicorn app.main:app --reload --port $(PORT)
 
 # Docker
 docker-build:

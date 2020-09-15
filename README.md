@@ -15,6 +15,18 @@ The application can run in one of two modes:
 
 In practice, you will likely need to run at least one instance of each mode. We provide a single codebase and Docker image, but the mode can be set at runtime.
 
+## 💻 Requirements
+
+> NOTE:<br>
+> 🐳 = required for running with Docker.<br>
+> 🐍 = required for running with Python.
+
+- 🐳🐍 [GNU Make](https://www.gnu.org/software/make/manual/make.html) is used to simplify the commands and GitHub Actions. This approach is recommended to simplify the command line experience. This is built in for MacOS and Linux. For Windows, setup is simpler with [Chocolatey](https://chocolatey.org/install) and installing the provided [make package](https://chocolatey.org/packages/make). The other Windows option is [manually installing make](http://gnuwin32.sourceforge.net/packages/make.htm).
+- 🐍 [Python 3.8](https://www.python.org/downloads/) is <ins>**required**</ins> to develop this API. If developer uses multiple versions of python, [pyenv](https://github.com/pyenv/pyenv) is suggested to assist version management.
+- 🐍 [pipenv](https://github.com/pypa/pipenv) is used to configure the python environment. Installation instructions can be found [here](https://github.com/pypa/pipenv#installation).
+
+_These requirements line up with [electionguard-python](https://github.com/microsoft/electionguard-python/blob/main/README.md#-requirements)._
+
 ## 🐳 Running with Docker
 
 If you run Docker and want to get started quickly, we provide a Dockerfile and docker-compose.yml.
@@ -34,14 +46,6 @@ make docker-dev
 After either command, you will find the `mediator` API running at http://127.0.0.1:8000 and the `guardian` API at http://127.0.0.1:8001
 
 ## 🐍 Running with Python
-
-### Requirements
-
-_These requirements line up with [electionguard-python](https://github.com/microsoft/electionguard-python/blob/main/README.md#-requirements)._
-
-- [Python 3.8](https://www.python.org/downloads/) is <ins>**required**</ins> to develop this API. If developer uses multiple versions of python, [pyenv](https://github.com/pyenv/pyenv) is suggested to assist version management.
-- [GNU Make](https://www.gnu.org/software/make/manual/make.html) is used to simplify the commands and GitHub Actions. This approach is recommended to simplify the command line experience. This is built in for MacOS and Linux. For Windows, setup is simpler with [Chocolatey](https://chocolatey.org/install) and installing the provided [make package](https://chocolatey.org/packages/make). The other Windows option is [manually installing make](http://gnuwin32.sourceforge.net/packages/make.htm).
-- [pipenv](https://github.com/pypa/pipenv) is used to configure the python environment. Installation instructions can be found [here](https://github.com/pypa/pipenv#installation).
 
 ### Quick Start
 
