@@ -6,7 +6,7 @@ from electionguard.election import (
     ElectionDescription,
     InternalElectionDescription,
 )
-from electionguard.encrypt import encrypt_ballot, EncryptionDevice
+from electionguard.encrypt import encrypt_ballot
 from electionguard.group import ElementModQ
 from electionguard.serializable import write_json_object
 from electionguard.utils import get_optional
