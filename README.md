@@ -1,4 +1,4 @@
-![Microsoft Defending Democracy Program: ElectionGuard](images/electionguard-banner.svg)
+![Microsoft Defending Democracy Program: ElectionGuard](https://raw.githubusercontent.com/microsoft/electionguard-web-api/main/images/electionguard-banner.svg)
 
 # 🗳️ ElectionGuard Web API
 
@@ -45,7 +45,7 @@ _These requirements line up with [electionguard-python](https://github.com/micro
 
 ### Quick Start
 
-Using [**make**](https://www.gnu.org/software/make/manual/make.html), installation and startup can be run with one command: 
+Using [**make**](https://www.gnu.org/software/make/manual/make.html), installation and startup can be run with one command:
 
 To set up the environment:
 
