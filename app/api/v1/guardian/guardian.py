@@ -12,7 +12,7 @@ from electionguard.key_ceremony import (
     verify_election_partial_key_challenge,
 )
 from electionguard.rsa import rsa_decrypt, rsa_encrypt
-from electionguard.serializable import write_json_object
+from electionguard.serializable import read_json_object, write_json_object
 from fastapi import APIRouter, HTTPException
 from typing import Any, List
 
@@ -28,7 +28,6 @@ from ..models import (
     GuardianBackupRequest,
 )
 from ..tags import KEY_CEREMONY
-from app.utils import read_json_object
 
 router = APIRouter()
 
@@ -130,8 +129,7 @@ def create_backup_challenge(request: BackupChallengeRequest) -> Any:
         raise HTTPException(
             status_code=500, detail="Backup challenge generation failed"
         )
-    # FIXME Challenge value is ElementModQ converted to int that is too large
-    challenge = challenge._replace(value=str(challenge.value))
+
     return write_json_object(challenge)
 
 
