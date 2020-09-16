@@ -25,4 +25,4 @@ class EncryptBallotsRequest(Base):
 
 class EncryptBallotsResponse(Base):
     encrypted_ballots: List[PlaintextBallot]
-    tracking_hash: str
+    next_seed_hash: str

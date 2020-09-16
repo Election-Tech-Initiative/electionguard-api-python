@@ -8,12 +8,11 @@ from electionguard.election import (
 )
 from electionguard.encrypt import encrypt_ballot
 from electionguard.group import ElementModQ
-from electionguard.serializable import write_json_object
+from electionguard.serializable import read_json_object, write_json_object
 from electionguard.utils import get_optional
 from fastapi import APIRouter, Body, HTTPException
 from typing import Any, Optional
 
-from app.utils.serialize import read_json_object
 from ..models import AcceptBallotRequest, EncryptBallotsRequest, EncryptBallotsResponse
 from ..tags import CAST_AND_SPOIL, ENCRYPT_BALLOTS
 
@@ -77,7 +76,7 @@ def encrypt_ballots(request: EncryptBallotsRequest = Body(...)) -> Any:
 
     response = EncryptBallotsResponse(
         encrypted_ballots=[ballot.to_json_object() for ballot in encrypted_ballots],
-        tracking_hash=write_json_object(current_hash),
+        next_seed_hash=write_json_object(current_hash),
     )
     return response
 
