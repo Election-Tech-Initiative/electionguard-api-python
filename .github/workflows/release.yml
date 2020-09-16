@@ -3,6 +3,8 @@ name: Release Build
 on:
   milestone:
     types: [closed]
+  repository_dispatch:
+    types: [milestone_closed]
 
 env:
   PYTHON_VERSION: 3.8
