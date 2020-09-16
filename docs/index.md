@@ -2,7 +2,7 @@
 
 # 🗳️ ElectionGuard Web API
 
-![docker version](https://img.shields.io/docker/v/electionguard/electionguard-web-api) ![docker pulls](https://img.shields.io/docker/pulls/electionguard/electionguard-web-api) ![Release Build](https://github.com/microsoft/electionguard-web-api/workflows/Release%20Build/badge.svg?event=milestone) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/context:python) [![Total alerts](https://img.shields.io/lgtm/alerts/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/alerts/) [![Documentation Status](https://readthedocs.org/projects/electionguard-web-api/badge/?version=latest)](https://electionguard-web-api.readthedocs.io) [![license](https://img.shields.io/github/license/microsoft/electionguard-web-api)](LICENSE)
+![docker version](https://img.shields.io/docker/v/electionguard/electionguard-web-api) ![docker pulls](https://img.shields.io/docker/pulls/electionguard/electionguard-web-api) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/context:python) [![Total alerts](https://img.shields.io/lgtm/alerts/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/alerts/) [![Documentation Status](https://readthedocs.org/projects/electionguard-web-api/badge/?version=latest)](https://electionguard-web-api.readthedocs.io) [![license](https://img.shields.io/github/license/microsoft/electionguard-web-api)](LICENSE)
 
 This is a python API that utilizes [`electionguard-python`](https://github.com/microsoft/electionguard-python) to perform ballot encryption, casting, spoiling, and tallying. This API is implemented using [FastAPI](https://fastapi.tiangolo.com/#interactive-api-docs).
 
@@ -14,6 +14,16 @@ The application can run in one of two modes:
 - `mediator` mode runs features used by Mediators (ballot encryption, casting, spoiling, etc.)
 
 In practice, you will likely need to run at least one instance of each mode. We provide a single codebase and Docker image, but the mode can be set at runtime.
+
+## 💻 Requirements
+
+> NOTE:<br>
+> 🐳 = required for running with Docker.<br>
+> 🐍 = required for running with Python.
+
+- 🐳🐍 [GNU Make](https://www.gnu.org/software/make/manual/make.html) is used to simplify the commands and GitHub Actions. This approach is recommended to simplify the command line experience. This is built in for MacOS and Linux. For Windows, setup is simpler with [Chocolatey](https://chocolatey.org/install) and installing the provided [make package](https://chocolatey.org/packages/make). The other Windows option is [manually installing make](http://gnuwin32.sourceforge.net/packages/make.htm).
+- 🐍 [Python 3.8](https://www.python.org/downloads/) is <ins>**required**</ins> to develop this API. If developer uses multiple versions of python, [pyenv](https://github.com/pyenv/pyenv) is suggested to assist version management.
+- 🐍 [poetry](https://python-poetry.org/docs/) is used to configure the python environment. This can be installed via pip or pipx.
 
 ## 🐳 Running with Docker
 
@@ -34,14 +44,6 @@ make docker-dev
 After either command, you will find the `mediator` API running at http://127.0.0.1:8000 and the `guardian` API at http://127.0.0.1:8001
 
 ## 🐍 Running with Python
-
-### Requirements
-
-_These requirements line up with [electionguard-python](https://github.com/microsoft/electionguard-python/blob/main/README.md#-requirements)._
-
-- [Python 3.8](https://www.python.org/downloads/) is <ins>**required**</ins> to develop this API. If developer uses multiple versions of python, [pyenv](https://github.com/pyenv/pyenv) is suggested to assist version management.
-- [GNU Make](https://www.gnu.org/software/make/manual/make.html) is used to simplify the commands and GitHub Actions. This approach is recommended to simplify the command line experience. This is built in for MacOS and Linux. For Windows, setup is simpler with [Chocolatey](https://chocolatey.org/install) and installing the provided [make package](https://chocolatey.org/packages/make). The other Windows option is [manually installing make](http://gnuwin32.sourceforge.net/packages/make.htm).
-- [pipenv](https://github.com/pypa/pipenv) is used to configure the python environment. Installation instructions can be found [here](https://github.com/pypa/pipenv#installation).
 
 ### Quick Start
 
@@ -69,11 +71,18 @@ make start API_MODE=guardian
 
 For local debugging with Visual Studio Code, choose the `Guardian Web API` or `Mediator Web API` options from the dropdown in the Run menu. Once the server is up, you can easily hit your breakpoints.
 
-If the code fails to run, [make sure your Python interpreter is set](https://code.visualstudio.com/docs/python/environments) to use your pipenv environment.
+If the code fails to run, [make sure your Python interpreter is set](https://code.visualstudio.com/docs/python/environments) to use your poetry environment.
 
 ## 🧪 Testing
 
-A Postman collection is available to test the API located in the `/tests` folder. This can be imported into Postman for easy testing. This suite works on a local run server or the preconfigured docker settings.
+A Postman collection is available to test the API located in the `/tests` folder. You can do a few things with this:
+
+- [Import into Postman](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-data-into-postman) for easy manual testing.
+- Run locally with the [Newman CLI](https://github.com/postmanlabs/newman).
+- Run the APIs and tests entirely in Docker by running:
+  ```bash
+  make docker-test
+  ```
 
 ## 📝 Documentation
 

@@ -14,10 +14,10 @@ endif
 all: environment lint start
 
 environment:
-	@echo 🔧 PIPENV SETUP
+	@echo 🔧 SETUP
 	make install-gmp
-	pip install pipenv
-	pipenv install --dev
+	pip install poetry
+	poetry install
 
 install-gmp:
 	@echo 📦 Install Module
@@ -51,7 +51,7 @@ install-gmp-linux:
 
 # Dev Server
 start:
-	pipenv run uvicorn app.main:app --reload --port $(PORT)
+	poetry run uvicorn app.main:app --reload --port $(PORT)
 
 # Docker
 docker-build:
@@ -75,28 +75,28 @@ docker-test:
 lint:
 	@echo 💚 LINT
 	@echo 1.Pylint
-	pipenv run pylint app
+	poetry run pylint app
 	@echo 2.Black Formatting
-	pipenv run black --diff --check app
+	poetry run black --diff --check app
 	@echo 3.Mypy Static Typing
-	pipenv run mypy app
+	poetry run mypy --config-file=pyproject.toml app
 	@echo 4.Documentation
-	pipenv run mkdocs build --strict
+	poetry run mkdocs build --strict
 
 auto-lint:
-	pipenv run black app
+	poetry run black app
 	make lint 
 
 # Documentation
 docs-serve:
-	pipenv run mkdocs serve
+	poetry run mkdocs serve
 
 docs-build:
-	pipenv run mkdocs build
+	poetry run mkdocs build
 
 docs-deploy:
 	@echo 🚀 DEPLOY to Github Pages
-	pipenv run mkdocs gh-deploy --force
+	poetry run mkdocs gh-deploy --force
 
 docs-deploy-ci:
 	@echo 🚀 DEPLOY to Github Pages

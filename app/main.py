@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # For normal execution, run `make start`.
     #
     # To make this work, the PYTHONPATH must be set to the root directory, e.g.
-    # `PYTHONPATH=. pipenv run python ./app/main.py`
+    # `PYTHONPATH=. poetry run python ./app/main.py`
     # See the VSCode launch configuration for detail.
     import uvicorn
     import argparse

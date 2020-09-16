@@ -18,4 +18,5 @@
       "**/**.egg-info": true
     },
     "editor.formatOnSave": true,
+    "python.venvPath": "~/Library/Caches/pypoetry/virtualenvs/",
 }

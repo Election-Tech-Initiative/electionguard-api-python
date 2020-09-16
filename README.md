@@ -23,9 +23,7 @@ In practice, you will likely need to run at least one instance of each mode. We 
 
 - 🐳🐍 [GNU Make](https://www.gnu.org/software/make/manual/make.html) is used to simplify the commands and GitHub Actions. This approach is recommended to simplify the command line experience. This is built in for MacOS and Linux. For Windows, setup is simpler with [Chocolatey](https://chocolatey.org/install) and installing the provided [make package](https://chocolatey.org/packages/make). The other Windows option is [manually installing make](http://gnuwin32.sourceforge.net/packages/make.htm).
 - 🐍 [Python 3.8](https://www.python.org/downloads/) is <ins>**required**</ins> to develop this API. If developer uses multiple versions of python, [pyenv](https://github.com/pyenv/pyenv) is suggested to assist version management.
-- 🐍 [pipenv](https://github.com/pypa/pipenv) is used to configure the python environment. Installation instructions can be found [here](https://github.com/pypa/pipenv#installation).
-
-_These requirements line up with [electionguard-python](https://github.com/microsoft/electionguard-python/blob/main/README.md#-requirements)._
+- 🐍 [poetry](https://python-poetry.org/docs/) is used to configure the python environment. This can be installed via pip or pipx.
 
 ## 🐳 Running with Docker
 
@@ -73,7 +71,7 @@ make start API_MODE=guardian
 
 For local debugging with Visual Studio Code, choose the `Guardian Web API` or `Mediator Web API` options from the dropdown in the Run menu. Once the server is up, you can easily hit your breakpoints.
 
-If the code fails to run, [make sure your Python interpreter is set](https://code.visualstudio.com/docs/python/environments) to use your pipenv environment.
+If the code fails to run, [make sure your Python interpreter is set](https://code.visualstudio.com/docs/python/environments) to use your poetry environment.
 
 ## 🧪 Testing
 
