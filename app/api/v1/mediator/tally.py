@@ -6,6 +6,7 @@ from electionguard.election import (
     ElectionDescription,
     InternalElectionDescription,
 )
+from electionguard.serializable import read_json_object
 from electionguard.tally import (
     publish_ciphertext_tally,
     publish_plaintext_tally,
@@ -15,7 +16,6 @@ from electionguard.tally import (
 from fastapi import APIRouter, Body, HTTPException
 from typing import Any, List, Tuple
 
-from app.utils.serialize import read_json_object
 from ..models import (
     convert_tally,
     AppendTallyRequest,
