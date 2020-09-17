@@ -12,7 +12,6 @@ from electionguard.tally import (
     publish_ciphertext_tally,
     publish_plaintext_tally,
     CiphertextTally,
-    PublishedCiphertextTally,
 )
 from fastapi import APIRouter, Body, HTTPException
 
@@ -70,6 +69,11 @@ def decrypt_tally(request: DecryptTallyRequest = Body(...)) -> Any:
     }
 
     full_plaintext_tally = decrypt(tally, shares, context)
+    if not full_plaintext_tally:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to decrypt tally",
+        )
     published_plaintext_tally = publish_plaintext_tally(full_plaintext_tally)
 
     return published_plaintext_tally.to_json_object()
@@ -97,7 +101,7 @@ def _parse_tally_request(
 
 def _tally_ballots(
     tally: CiphertextTally, ballots: List[CiphertextAcceptedBallot]
-) -> PublishedCiphertextTally:
+) -> Any:
     """
     Append a series of ballots to a new or existing tally
     """
