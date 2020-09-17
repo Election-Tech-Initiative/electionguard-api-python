@@ -1,3 +1,4 @@
+from typing import Any, List, Tuple
 from electionguard.ballot import CiphertextAcceptedBallot
 from electionguard.decrypt_with_shares import decrypt_tally as decrypt
 from electionguard.decryption_share import TallyDecryptionShare
@@ -14,7 +15,7 @@ from electionguard.tally import (
     PublishedCiphertextTally,
 )
 from fastapi import APIRouter, Body, HTTPException
-from typing import Any, List, Tuple
+
 
 from ..models import (
     convert_tally,
@@ -105,5 +106,4 @@ def _tally_ballots(
     if tally_succeeded:
         published_tally = publish_ciphertext_tally(tally)
         return published_tally.to_json_object()
-    else:
-        raise HTTPException(status_code=500, detail="Unable to tally ballots")
+    raise HTTPException(status_code=500, detail="Unable to tally ballots")

@@ -1,3 +1,4 @@
+from typing import Any, List
 from electionguard.auxiliary import AuxiliaryPublicKey
 from electionguard.election_polynomial import ElectionPolynomial
 from electionguard.group import int_to_q_unchecked
@@ -14,7 +15,7 @@ from electionguard.key_ceremony import (
 from electionguard.rsa import rsa_decrypt, rsa_encrypt
 from electionguard.serializable import read_json_object, write_json_object
 from fastapi import APIRouter, HTTPException
-from typing import Any, List
+
 
 from ..models import (
     AuxiliaryKeyPair,
