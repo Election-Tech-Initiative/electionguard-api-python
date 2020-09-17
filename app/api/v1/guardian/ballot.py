@@ -16,7 +16,7 @@ from ..tags import TALLY
 router = APIRouter()
 
 
-@router.post("/decrypt-share", tags=[TALLY])
+@router.post("/decrypt-shares", tags=[TALLY])
 def decrypt_ballot_shares(request: DecryptBallotSharesRequest = Body(...)) -> Any:
     """
     Decrypt this guardian's share of one or more ballots
