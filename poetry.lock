@@ -117,7 +117,7 @@ description = "ElectionGuard: Support for e2e verified elections."
 name = "electionguard"
 optional = false
 python-versions = "~=3.8"
-version = "1.1.4"
+version = "1.1.5"
 
 [package.dependencies]
 cryptography = "*"
@@ -639,7 +639,7 @@ python-versions = "*"
 version = "1.12.1"
 
 [metadata]
-content-hash = "378180549483f9bc77e820f1fc3d3832036cf1648b5eb863f58fbd02cbef4979"
+content-hash = "96f41235251e9b0d533cfd9ac17251da2db87c7f08aba1e6bdccb4898c0e5d2f"
 lock-version = "1.0"
 python-versions = "~=3.8"
 
@@ -734,8 +734,8 @@ cryptography = [
     {file = "cryptography-3.1.tar.gz", hash = "sha256:26409a473cc6278e4c90f782cd5968ebad04d3911ed1c402fc86908c17633e08"},
 ]
 electionguard = [
-    {file = "electionguard-1.1.4-py3-none-any.whl", hash = "sha256:9bc2b0f1bfe348e4c5fce337ccfce287e3b093be9f60d43d19573c3b7aafe0d7"},
-    {file = "electionguard-1.1.4.tar.gz", hash = "sha256:12ff35b46cc1b1119667fbc56740816605b4362bfe0fde6d5001e90c39711a3a"},
+    {file = "electionguard-1.1.5-py3-none-any.whl", hash = "sha256:3800a3ec5c0590679f3dd41fff4f32387473e08acf495dfec9cccf7e6f764c1f"},
+    {file = "electionguard-1.1.5.tar.gz", hash = "sha256:5e0e19d488e04eb5bc18da04ebd735af7336303f38d12290451ad2448eac645e"},
 ]
 fastapi = [
     {file = "fastapi-0.61.1-py3-none-any.whl", hash = "sha256:6cc31bb555dd8ca956d1d227477d661e4ac012337242a41d36214ffbda78bfe9"},
