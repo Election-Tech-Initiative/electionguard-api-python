@@ -1,8 +1,17 @@
 from typing import Any, List, Optional
 
 from .base import Base
-from .election import ElectionDecription, CiphertextElectionContext
+from .election import ElectionDescription, CiphertextElectionContext
 
+
+__all__ = [
+    "CiphertextAcceptedBallot",
+    "CiphertextBallot",
+    "PlaintextBallot",
+    "AcceptBallotRequest",
+    "EncryptBallotsRequest",
+    "EncryptBallotsResponse",
+]
 
 CiphertextAcceptedBallot = Any
 CiphertextBallot = Any
@@ -11,7 +20,7 @@ PlaintextBallot = Any
 
 class AcceptBallotRequest(Base):
     ballot: CiphertextBallot
-    description: ElectionDecription
+    description: ElectionDescription
     context: CiphertextElectionContext
 
 
@@ -19,7 +28,7 @@ class EncryptBallotsRequest(Base):
     ballots: List[PlaintextBallot]
     seed_hash: str
     nonce: Optional[str] = None
-    description: ElectionDecription
+    description: ElectionDescription
     context: CiphertextElectionContext
 
 

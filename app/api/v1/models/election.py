@@ -1,5 +1,7 @@
 from typing import Any
 
-ElectionDecription = Any
+__all__ = ["ElectionDescription", "CiphertextElectionContext"]
+
+ElectionDescription = Any
 
 CiphertextElectionContext = Any
