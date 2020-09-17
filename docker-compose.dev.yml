@@ -9,23 +9,23 @@ services:
       context: .
       target: dev
     volumes:
-      - "./app:/app"
+      - "./app:/app/app"
     ports:
       - 8000:8000
     environment:
       API_MODE: "mediator"
       PROJECT_NAME: "ElectionGuard Mediator API"
-      port: 8000
+      PORT: 8000
 
   guardian:
     build:
       context: .
       target: dev
     volumes:
-      - "./app:/app"
+      - "./app:/app/app"
     ports:
       - 8001:8001
     environment:
       API_MODE: "guardian"
       PROJECT_NAME: "ElectionGuard Guardian API"
-      port: 8001
+      PORT: 8001
