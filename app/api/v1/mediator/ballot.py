@@ -1,6 +1,12 @@
-from typing import Any, Optional
-from electionguard.ballot import CiphertextBallot, PlaintextBallot
+from typing import Any, Dict, List, Optional
+from electionguard.ballot import (
+    CiphertextAcceptedBallot,
+    CiphertextBallot,
+    PlaintextBallot,
+)
 from electionguard.ballot_box import accept_ballot, BallotBoxState
+from electionguard.decrypt_with_shares import decrypt_ballot
+from electionguard.decryption_share import BallotDecryptionShare
 from electionguard.ballot_store import BallotStore
 from electionguard.election import (
     CiphertextElectionContext,
@@ -13,8 +19,13 @@ from electionguard.serializable import read_json_object, write_json_object
 from electionguard.utils import get_optional
 from fastapi import APIRouter, Body, HTTPException
 
-from ..models import AcceptBallotRequest, EncryptBallotsRequest, EncryptBallotsResponse
-from ..tags import CAST_AND_SPOIL, ENCRYPT_BALLOTS
+from ..models import (
+    AcceptBallotRequest,
+    DecryptBallotsRequest,
+    EncryptBallotsRequest,
+    EncryptBallotsResponse,
+)
+from ..tags import CAST_AND_SPOIL, ENCRYPT_BALLOTS, TALLY
 
 router = APIRouter()
 
@@ -31,6 +42,38 @@ def cast_ballot(request: AcceptBallotRequest = Body(...)) -> Any:
             detail="Ballot failed to be cast",
         )
     return casted_ballot.to_json_object()
+
+
+@router.post("/decrypt", tags=[TALLY])
+def decrypt_ballots(request: DecryptBallotsRequest = Body(...)) -> Any:
+    ballots = [
+        CiphertextAcceptedBallot.from_json_object(ballot)
+        for ballot in request.encrypted_ballots
+    ]
+    context: CiphertextElectionContext = CiphertextElectionContext.from_json_object(
+        request.context
+    )
+
+    # Build a lookup for each ballot, containing the shares for decryption
+    all_shares: List[BallotDecryptionShare] = [
+        read_json_object(share, BallotDecryptionShare)
+        for shares in request.shares.values()
+        for share in shares
+    ]
+    shares_by_ballot: Dict[str, Dict[str, BallotDecryptionShare]] = {}
+    for share in all_shares:
+        ballot_shares = shares_by_ballot.setdefault(share.ballot_id, {})
+        ballot_shares[share.guardian_id] = share
+
+    extended_base_hash = context.crypto_extended_base_hash
+    decrypted_ballots = {
+        ballot.object_id: decrypt_ballot(
+            ballot, shares_by_ballot[ballot.object_id], extended_base_hash
+        )
+        for ballot in ballots
+    }
+
+    return write_json_object(decrypted_ballots)
 
 
 @router.post("/spoil", tags=[CAST_AND_SPOIL])

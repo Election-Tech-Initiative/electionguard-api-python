@@ -2,6 +2,7 @@ from typing import Any, List, Optional
 
 import electionguard.election_polynomial
 import electionguard.elgamal
+import electionguard.group
 import electionguard.guardian
 import electionguard.key_ceremony
 import electionguard.schnorr
@@ -27,6 +28,7 @@ __all__ = [
 ElectionPolynomial = Any
 ElectionPartialKeyBackup = Any
 ElectionPartialKeyChallenge = Any
+GuardianId = Any
 
 
 class Guardian(Base):
@@ -89,19 +91,25 @@ def convert_guardian(api_guardian: Guardian) -> electionguard.guardian.Guardian:
         api_guardian.number_of_guardians,
         api_guardian.quorum,
     )
+
     guardian._auxiliary_keys = electionguard.key_ceremony.AuxiliaryKeyPair(
         api_guardian.auxiliary_key_pair.public_key,
         api_guardian.auxiliary_key_pair.secret_key,
     )
+
+    election_public_key = read_json_object(
+        api_guardian.election_key_pair.public_key, electionguard.group.ElementModP
+    )
+    election_secret_key = read_json_object(
+        api_guardian.election_key_pair.secret_key, electionguard.group.ElementModQ
+    )
     guardian._election_keys = electionguard.key_ceremony.ElectionKeyPair(
+        electionguard.elgamal.ElGamalKeyPair(election_secret_key, election_public_key),
         read_json_object(
-            guardian._election_keys.key_pair, electionguard.elgamal.ElGamalKeyPair
+            api_guardian.election_key_pair.proof, electionguard.schnorr.SchnorrProof
         ),
         read_json_object(
-            guardian._election_keys.proof, electionguard.schnorr.SchnorrProof
-        ),
-        read_json_object(
-            guardian._election_keys.polynomial,
+            api_guardian.election_key_pair.polynomial,
             electionguard.election_polynomial.ElectionPolynomial,
         ),
     )
