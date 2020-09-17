@@ -1,10 +1,10 @@
+from typing import Any
 from electionguard.ballot import CiphertextAcceptedBallot
 from electionguard.decryption import compute_decryption_share_for_ballot
 from electionguard.election import CiphertextElectionContext
 from electionguard.scheduler import Scheduler
 from electionguard.serializable import write_json_object
 from fastapi import APIRouter, Body
-from typing import Any
 
 from ..models import (
     convert_guardian,

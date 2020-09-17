@@ -12,7 +12,6 @@ from electionguard.tally import (
     publish_ciphertext_tally,
     publish_plaintext_tally,
     CiphertextTally,
-    PublishedCiphertextTally,
 )
 from fastapi import APIRouter, Body, HTTPException
 
