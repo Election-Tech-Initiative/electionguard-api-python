@@ -75,7 +75,7 @@ docker-test:
 lint:
 	@echo 💚 LINT
 	@echo 1.Pylint
-	poetry run pylint app
+	poetry run pylint --extension-pkg-whitelist=pydantic app
 	@echo 2.Black Formatting
 	poetry run black --diff --check app
 	@echo 3.Mypy Static Typing
