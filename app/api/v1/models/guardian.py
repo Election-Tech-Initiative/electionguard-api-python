@@ -10,6 +10,20 @@ from electionguard.serializable import read_json_object
 from .base import Base
 from .key import AuxiliaryKeyPair, AuxiliaryPublicKey, ElectionKeyPair
 
+__all__ = [
+    "ElectionPolynomial",
+    "ElectionPartialKeyBackup",
+    "ElectionPartialKeyChallenge",
+    "Guardian",
+    "GuardianRequest",
+    "GuardianBackup",
+    "GuardianBackupRequest",
+    "BackupVerificationRequest",
+    "BackupChallengeRequest",
+    "ChallengeVerificationRequest",
+    "convert_guardian",
+]
+
 ElectionPolynomial = Any
 ElectionPartialKeyBackup = Any
 ElectionPartialKeyChallenge = Any
