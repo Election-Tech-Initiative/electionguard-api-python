@@ -1,3 +1,4 @@
+from typing import Any, Optional
 from electionguard.ballot import CiphertextBallot, PlaintextBallot
 from electionguard.ballot_box import accept_ballot, BallotBoxState
 from electionguard.ballot_store import BallotStore
@@ -11,7 +12,6 @@ from electionguard.group import ElementModQ
 from electionguard.serializable import read_json_object, write_json_object
 from electionguard.utils import get_optional
 from fastapi import APIRouter, Body, HTTPException
-from typing import Any, Optional
 
 from ..models import AcceptBallotRequest, EncryptBallotsRequest, EncryptBallotsResponse
 from ..tags import CAST_AND_SPOIL, ENCRYPT_BALLOTS
@@ -24,13 +24,13 @@ def cast_ballot(request: AcceptBallotRequest = Body(...)) -> Any:
     """
     Cast ballot
     """
-    cast_ballot = handle_ballot(request, BallotBoxState.CAST)
-    if not cast_ballot:
+    casted_ballot = handle_ballot(request, BallotBoxState.CAST)
+    if not casted_ballot:
         raise HTTPException(
             status_code=500,
             detail="Ballot failed to be cast",
         )
-    return cast_ballot.to_json_object()
+    return casted_ballot.to_json_object()
 
 
 @router.post("/spoil", tags=[CAST_AND_SPOIL])

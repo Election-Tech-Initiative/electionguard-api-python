@@ -77,6 +77,7 @@ class ChallengeVerificationRequest(Base):
     election_partial_key_challenge: ElectionPartialKeyChallenge
 
 
+# pylint:disable=protected-access
 def convert_guardian(api_guardian: Guardian) -> electionguard.guardian.Guardian:
     """
     Convert an API Guardian model to a fully-hydrated SDK Guardian model.

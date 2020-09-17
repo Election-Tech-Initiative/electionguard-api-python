@@ -1,5 +1,5 @@
-from fastapi import FastAPI
 from logging import getLogger
+from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.v1.api import api_router

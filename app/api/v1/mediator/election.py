@@ -1,7 +1,8 @@
-from electionguard.election import ElectionDescription, ElectionConstants
-from fastapi import APIRouter, HTTPException
 from os.path import realpath, join
 from typing import Any
+from electionguard.election import ElectionDescription, ElectionConstants
+from fastapi import APIRouter, HTTPException
+
 
 from ..tags import CONFIGURE_ELECTION
 

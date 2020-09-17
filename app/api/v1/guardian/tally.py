@@ -1,3 +1,4 @@
+from typing import Any
 from electionguard.decryption import compute_decryption_share
 from electionguard.election import (
     CiphertextElectionContext,
@@ -6,7 +7,7 @@ from electionguard.election import (
 )
 from electionguard.serializable import write_json_object
 from fastapi import APIRouter, Body
-from typing import Any
+
 
 from ..models import (
     convert_guardian,

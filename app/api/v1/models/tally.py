@@ -1,7 +1,7 @@
+from typing import Any, Dict, List
 import electionguard.election
 from electionguard.serializable import read_json_object
 import electionguard.tally
-from typing import Any, Dict, List
 
 
 from .ballot import CiphertextAcceptedBallot
