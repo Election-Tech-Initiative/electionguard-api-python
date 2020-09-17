@@ -16,6 +16,7 @@ from electionguard.election import (
 from electionguard.encrypt import encrypt_ballot
 from electionguard.group import ElementModQ
 from electionguard.serializable import read_json_object, write_json_object
+from electionguard.types import BALLOT_ID, GUARDIAN_ID
 from electionguard.utils import get_optional
 from fastapi import APIRouter, Body, HTTPException
 
@@ -54,16 +55,12 @@ def decrypt_ballots(request: DecryptBallotsRequest = Body(...)) -> Any:
         request.context
     )
 
-    # Build a lookup for each ballot, containing the shares for decryption
     all_shares: List[BallotDecryptionShare] = [
         read_json_object(share, BallotDecryptionShare)
         for shares in request.shares.values()
         for share in shares
     ]
-    shares_by_ballot: Dict[str, Dict[str, BallotDecryptionShare]] = {}
-    for share in all_shares:
-        ballot_shares = shares_by_ballot.setdefault(share.ballot_id, {})
-        ballot_shares[share.guardian_id] = share
+    shares_by_ballot = index_shares_by_ballot(all_shares)
 
     extended_base_hash = context.crypto_extended_base_hash
     decrypted_ballots = {
@@ -139,3 +136,18 @@ def handle_ballot(request: AcceptBallotRequest, state: BallotBoxState) -> Any:
     )
 
     return accepted_ballot
+
+
+def index_shares_by_ballot(
+    shares: List[BallotDecryptionShare],
+) -> Dict[BALLOT_ID, Dict[GUARDIAN_ID, BallotDecryptionShare]]:
+    """
+    Construct a lookup by ballot ID containing the dictionary of shares needed
+    to decrypt that ballot.
+    """
+    shares_by_ballot: Dict[str, Dict[str, BallotDecryptionShare]] = {}
+    for share in shares:
+        ballot_shares = shares_by_ballot.setdefault(share.ballot_id, {})
+        ballot_shares[share.guardian_id] = share
+
+    return shares_by_ballot
