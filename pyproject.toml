@@ -29,6 +29,7 @@ include = '\.pyi?$'
 
 [tool.pylint.'MESSAGES CONTROL']
 disable = "duplicate-code, missing-module-docstring, missing-class-docstring, missing-function-docstring, logging-fstring-interpolation"
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"

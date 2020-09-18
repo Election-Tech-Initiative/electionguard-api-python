@@ -78,7 +78,7 @@ If the code fails to run, [make sure your Python interpreter is set](https://cod
 End-to-end integration tests can be found in the `/tests/integration` folder.  To see them in action, run:
 
 ```bash
-make test
+make test-integration
 ```
 
 A Postman collection is also available to test the API located in the `/tests/postman` folder. You can do a few things with this:
