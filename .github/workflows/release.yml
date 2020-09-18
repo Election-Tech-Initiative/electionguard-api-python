@@ -41,8 +41,18 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-      - name: Run Tests
-        run: make docker-test
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Change Directory
+        run: cd ${{ github.workspace }}
+      - name: Setup Environment
+        run: make environment
+      - name: Run Integration Tests
+        run: make test-integration
+      - name: Run Postman Tests
+        run: make docker-postman-test
 
   release:
     name: Release

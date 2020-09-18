@@ -11,7 +11,7 @@ version: "3.8"
 services:
   mediator:
     build:
-      context: ..
+      context: ../..
       target: prod
     expose:
       - 80
@@ -22,7 +22,7 @@ services:
 
   guardian:
     build:
-      context: ..
+      context: ../..
       target: prod
     expose:
       - 80
