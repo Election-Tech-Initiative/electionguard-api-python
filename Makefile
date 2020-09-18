@@ -63,10 +63,10 @@ docker-run:
 docker-dev:
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.dev.yml up --build
 
-docker-test:
-	@echo 🧪 RUNNING TESTS IN DOCKER
+docker-postman-test:
+	@echo 🧪 RUNNING POSTMAN TESTS IN DOCKER
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose \
-	-f tests/docker-compose.yml up \
+	-f tests/postman/docker-compose.yml up \
 	--build \
 	--abort-on-container-exit \
 	--exit-code-from test-runner
@@ -75,17 +75,21 @@ docker-test:
 lint:
 	@echo 💚 LINT
 	@echo 1.Pylint
-	poetry run pylint --extension-pkg-whitelist=pydantic app
+	poetry run pylint --extension-pkg-whitelist=pydantic app tests
 	@echo 2.Black Formatting
-	poetry run black --diff --check app
+	poetry run black --diff --check app tests
 	@echo 3.Mypy Static Typing
-	poetry run mypy --config-file=pyproject.toml app
+	poetry run mypy --config-file=pyproject.toml app tests
 	@echo 4.Documentation
 	poetry run mkdocs build --strict
 
 auto-lint:
-	poetry run black app
-	make lint 
+	poetry run black app tests
+	make lint
+
+test-integration:
+	@echo ✅ INTEGRATION TESTS
+	poetry run pytest . -x
 
 # Documentation
 docs-serve:
