@@ -2,9 +2,11 @@
 
 # 🗳️ ElectionGuard Web API
 
-![docker version](https://img.shields.io/docker/v/electionguard/electionguard-web-api) ![docker pulls](https://img.shields.io/docker/pulls/electionguard/electionguard-web-api) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/context:python) [![Total alerts](https://img.shields.io/lgtm/alerts/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/alerts/) [![Documentation Status](https://readthedocs.org/projects/electionguard-web-api/badge/?version=latest)](https://electionguard-web-api.readthedocs.io) [![license](https://img.shields.io/github/license/microsoft/electionguard-web-api)](LICENSE)
+[![docker version](https://img.shields.io/docker/v/electionguard/electionguard-web-api)](https://hub.docker.com/r/electionguard/electionguard-web-api) [![docker pulls](https://img.shields.io/docker/pulls/electionguard/electionguard-web-api)](https://hub.docker.com/r/electionguard/electionguard-web-api) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/context:python) [![Total alerts](https://img.shields.io/lgtm/alerts/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/alerts/) [![Documentation Status](https://readthedocs.org/projects/electionguard-web-api/badge/?version=latest)](https://electionguard-web-api.readthedocs.io) [![license](https://img.shields.io/github/license/microsoft/electionguard-web-api)](LICENSE)
 
-This is a python API that utilizes [`electionguard-python`](https://github.com/microsoft/electionguard-python) to perform ballot encryption, casting, spoiling, and tallying. This API is implemented using [FastAPI](https://fastapi.tiangolo.com/#interactive-api-docs).
+This is a python API that provides a **thin**, **stateless** wrapper around the [`electionguard-python`](https://github.com/microsoft/electionguard-python) library to perform ballot encryption, casting, spoiling, and tallying. This API is implemented using [FastAPI](https://fastapi.tiangolo.com/#interactive-api-docs).
+
+If you aren't familiar with ElectionGuard and its concepts, [take a stroll through the official documentation](https://microsoft.github.io/electionguard-python/) first!
 
 ## 👯‍♀️ Two APIs in One
 
@@ -23,11 +25,36 @@ In practice, you will likely need to run at least one instance of each mode. We 
 
 - 🐳🐍 [GNU Make](https://www.gnu.org/software/make/manual/make.html) is used to simplify the commands and GitHub Actions. This approach is recommended to simplify the command line experience. This is built in for MacOS and Linux. For Windows, setup is simpler with [Chocolatey](https://chocolatey.org/install) and installing the provided [make package](https://chocolatey.org/packages/make). The other Windows option is [manually installing make](http://gnuwin32.sourceforge.net/packages/make.htm).
 - 🐍 [Python 3.8](https://www.python.org/downloads/) is <ins>**required**</ins> to develop this API. If developer uses multiple versions of python, [pyenv](https://github.com/pyenv/pyenv) is suggested to assist version management.
-- 🐍 [poetry](https://python-poetry.org/docs/) is used to configure the python environment. This can be installed via pip or pipx.
 
 ## 🐳 Running with Docker
 
-If you run Docker and want to get started quickly, we provide a Dockerfile and docker-compose.yml.
+### The official Docker image
+
+We host a Docker image on both [Github Packages](https://github.com/microsoft/electionguard-web-api/packages/397920) and [DockerHub](https://hub.docker.com/r/electionguard/electionguard-web-api).
+
+**Note:** _GitHub Packages requires authentication to retrieve the package. This requires a GitHub Access Token and using `docker login`. [Follow GitHub instructions](https://docs.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-docker-for-use-with-github-packages#authenticating-with-a-personal-access-token)._
+
+```bash
+# Pull the image from DockerHub
+docker pull docker.pkg.github.com/microsoft/electionguard-web-api/electionguard-web-api:main
+
+# Start a container for the API in mediator mode, exposed on port 80 of the host machine
+docker run -d -p 80:8000 --env API_MODE=mediator docker.pkg.github.com/microsoft/electionguard-web-api/electionguard-web-api:main
+```
+
+OR
+
+```bash
+# Pull the image from DockerHub
+docker pull electionguard/electionguard-web-api:latest
+
+# Start a container for the API in mediator mode, exposed on port 80 of the host machine
+docker run -d -p 80:8000 --env API_MODE=mediator electionguard/electionguard-web-api:latest
+```
+
+### Developing locally with Docker
+
+If you run Docker and want to run the code locally without Python dependencies, we provide a Dockerfile and docker-compose.yml.
 
 Run both APIs at the same time:
 
