@@ -7,15 +7,16 @@ from electionguard.election import (
     ElectionDescription,
     InternalElectionDescription,
 )
+from electionguard.scheduler import Scheduler
 from electionguard.serializable import read_json_object
 from electionguard.tally import (
     publish_ciphertext_tally,
     publish_plaintext_tally,
     CiphertextTally,
 )
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 
-
+from app.core.scheduler import get_scheduler
 from ..models import (
     convert_tally,
     AppendTallyRequest,
@@ -29,7 +30,10 @@ router = APIRouter()
 
 
 @router.post("", tags=[TALLY])
-def start_tally(request: StartTallyRequest = Body(...)) -> Any:
+def start_tally(
+    request: StartTallyRequest = Body(...),
+    scheduler: Scheduler = Depends(get_scheduler),
+) -> Any:
     """
     Start a new tally of a collection of ballots
     """
@@ -37,11 +41,14 @@ def start_tally(request: StartTallyRequest = Body(...)) -> Any:
     ballots, description, context = _parse_tally_request(request)
     tally = CiphertextTally("election-results", description, context)
 
-    return _tally_ballots(tally, ballots)
+    return _tally_ballots(tally, ballots, scheduler)
 
 
 @router.post("/append", tags=[TALLY])
-def append_to_tally(request: AppendTallyRequest = Body(...)) -> Any:
+def append_to_tally(
+    request: AppendTallyRequest = Body(...),
+    scheduler: Scheduler = Depends(get_scheduler),
+) -> Any:
     """
     Append ballots into an existing tally
     """
@@ -49,7 +56,7 @@ def append_to_tally(request: AppendTallyRequest = Body(...)) -> Any:
     ballots, description, context = _parse_tally_request(request)
     tally = convert_tally(request.encrypted_tally, description, context)
 
-    return _tally_ballots(tally, ballots)
+    return _tally_ballots(tally, ballots, scheduler)
 
 
 @router.post("/decrypt", tags=[TALLY])
@@ -100,12 +107,14 @@ def _parse_tally_request(
 
 
 def _tally_ballots(
-    tally: CiphertextTally, ballots: List[CiphertextAcceptedBallot]
+    tally: CiphertextTally,
+    ballots: List[CiphertextAcceptedBallot],
+    scheduler: Scheduler,
 ) -> Any:
     """
     Append a series of ballots to a new or existing tally
     """
-    tally_succeeded = tally.batch_append(ballots)
+    tally_succeeded = tally.batch_append(ballots, scheduler)
 
     if tally_succeeded:
         published_tally = publish_ciphertext_tally(tally)
