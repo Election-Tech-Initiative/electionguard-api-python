@@ -5,7 +5,7 @@ RUN apt update && apt-get install -y \
     libgmp-dev \
     libmpfr-dev \
     libmpc-dev
-RUN pip install 'poetry==1.0.10'
+RUN pip install 'poetry==1.1.0'
 COPY ./pyproject.toml /tmp/
 COPY ./poetry.lock /tmp/
 RUN cd /tmp && poetry export -f requirements.txt > requirements.txt
