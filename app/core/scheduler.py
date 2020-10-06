@@ -1,5 +1,5 @@
-from electionguard.scheduler import Scheduler
 from functools import lru_cache
+from electionguard.scheduler import Scheduler
 
 __all__ = ["get_scheduler"]
 

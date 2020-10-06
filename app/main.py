@@ -40,7 +40,7 @@ app = get_app()
 
 
 @app.on_event("shutdown")
-def on_shutdown():
+def on_shutdown() -> None:
     # Ensure a clean shutdown of the singleton Scheduler
     scheduler = get_scheduler()
     scheduler.close()
