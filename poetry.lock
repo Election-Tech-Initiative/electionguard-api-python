@@ -133,7 +133,7 @@ description = "ElectionGuard: Support for e2e verified elections."
 name = "electionguard"
 optional = false
 python-versions = "~=3.8"
-version = "1.1.7"
+version = "1.1.9"
 
 [package.dependencies]
 cryptography = "*"
@@ -797,8 +797,8 @@ cryptography = [
     {file = "cryptography-3.1.tar.gz", hash = "sha256:26409a473cc6278e4c90f782cd5968ebad04d3911ed1c402fc86908c17633e08"},
 ]
 electionguard = [
-    {file = "electionguard-1.1.7-py3-none-any.whl", hash = "sha256:6ecec656b064da79d07b91ca6ea0c4181abc8ede5c8c68bb32cdf22a45cccf57"},
-    {file = "electionguard-1.1.7.tar.gz", hash = "sha256:e541603dce4323fadaa0dc40d105fdd396d5c5aa0d08014eec07d9875884d902"},
+    {file = "electionguard-1.1.9-py3-none-any.whl", hash = "sha256:6c2efeb07fa92c02c529cf6753c68479f2e6d5f8bf80014803cb579ea5f1f122"},
+    {file = "electionguard-1.1.9.tar.gz", hash = "sha256:5fbc1dfb3bf20ae6edae444d4505a6fc081ba64292a87a352d42da3729773e52"},
 ]
 fastapi = [
     {file = "fastapi-0.61.1-py3-none-any.whl", hash = "sha256:6cc31bb555dd8ca956d1d227477d661e4ac012337242a41d36214ffbda78bfe9"},
