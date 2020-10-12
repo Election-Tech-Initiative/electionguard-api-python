@@ -4,8 +4,9 @@ from electionguard.decryption import compute_decryption_share_for_ballot
 from electionguard.election import CiphertextElectionContext
 from electionguard.scheduler import Scheduler
 from electionguard.serializable import write_json_object
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Depends
 
+from app.core.scheduler import get_scheduler
 from ..models import (
     convert_guardian,
     DecryptBallotSharesRequest,
@@ -17,7 +18,10 @@ router = APIRouter()
 
 
 @router.post("/decrypt-shares", tags=[TALLY])
-def decrypt_ballot_shares(request: DecryptBallotSharesRequest = Body(...)) -> Any:
+def decrypt_ballot_shares(
+    request: DecryptBallotSharesRequest = Body(...),
+    scheduler: Scheduler = Depends(get_scheduler),
+) -> Any:
     """
     Decrypt this guardian's share of one or more ballots
     """
@@ -28,7 +32,6 @@ def decrypt_ballot_shares(request: DecryptBallotSharesRequest = Body(...)) -> An
     context = CiphertextElectionContext.from_json_object(request.context)
     guardian = convert_guardian(request.guardian)
 
-    scheduler = Scheduler()
     shares = [
         compute_decryption_share_for_ballot(guardian, ballot, context, scheduler)
         for ballot in ballots

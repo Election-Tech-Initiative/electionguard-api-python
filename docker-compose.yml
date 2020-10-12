@@ -9,7 +9,7 @@ services:
     environment:
       API_MODE: "mediator"
       PROJECT_NAME: "ElectionGuard Mediator API"
-      port: 8000
+      PORT: 8000
 
   guardian:
     build:
@@ -20,4 +20,4 @@ services:
     environment:
       API_MODE: "guardian"
       PROJECT_NAME: "ElectionGuard Guardian API"
-      port: 8001
+      PORT: 8001

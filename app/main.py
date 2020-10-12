@@ -5,6 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.api.v1.routes import get_routes
 from app.core.config import Settings
+from app.core.scheduler import get_scheduler
 
 logger = getLogger(__name__)
 
@@ -36,6 +37,14 @@ def get_app(settings: Optional[Settings] = None) -> FastAPI:
 
 
 app = get_app()
+
+
+@app.on_event("shutdown")
+def on_shutdown() -> None:
+    # Ensure a clean shutdown of the singleton Scheduler
+    scheduler = get_scheduler()
+    scheduler.close()
+
 
 if __name__ == "__main__":
     # IMPORTANT: This should only be used to debug the application.
