@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "electionguard-web-api"
-version = "1.0.3"
+version = "1.0.4"
 description = "ElectionGuard Web Api: Support for e2e verified elections."
 license = "MIT"
 authors = ["Microsoft Corporation <electionguard@microsoft.com>"]
