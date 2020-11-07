@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="None">
+  <meta name="author" content="Microsoft">
+  
+  <link rel="shortcut icon" href="img/favicon.ico">
+  <title>ElectionGuard Web Api</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Home";
+    var mkdocs_page_input_path = "index.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="js/jquery-2.1.1.min.js" defer></script>
+  <script src="js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href="." class="icon icon-home"> ElectionGuard Web Api</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href=".">Home</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#two-apis-in-one">👯‍♀️ Two APIs in One</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#requirements">💻 Requirements</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running-with-docker">🐳 Running with Docker</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#the-official-docker-image">The official Docker image</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#developing-locally-with-docker">Developing locally with Docker</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running-with-python">🐍 Running with Python</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#quick-start">Quick Start</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#debugging">Debugging</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing">🧪 Testing</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#documentation">📝 Documentation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#archived">🗄 Archived</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#contributing">🤝 Contributing</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#code-of-conduct">Code of Conduct</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#reporting-issues">Reporting Issues</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#have-questions">Have Questions?</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#license">License</a>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href=".">ElectionGuard Web Api</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Home</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/microsoft/electionguard-web-api/edit/master/docs/index.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p><img alt="Microsoft Defending Democracy Program: ElectionGuard" src="https://raw.githubusercontent.com/microsoft/electionguard-web-api/main/images/electionguard-banner.svg" /></p>
+<h1 id="electionguard-web-api">🗳️ ElectionGuard Web API</h1>
+<p><img alt="docker version" src="https://img.shields.io/docker/v/electionguard/electionguard-web-api" /> <img alt="docker pulls" src="https://img.shields.io/docker/pulls/electionguard/electionguard-web-api" /> <a href="https://lgtm.com/projects/g/microsoft/electionguard-web-api/context:python"><img alt="Language grade: Python" src="https://img.shields.io/lgtm/grade/python/g/microsoft/electionguard-web-api.svg?logo=lgtm&amp;logoWidth=18" /></a> <a href="https://lgtm.com/projects/g/microsoft/electionguard-web-api/alerts/"><img alt="Total alerts" src="https://img.shields.io/lgtm/alerts/g/microsoft/electionguard-web-api.svg?logo=lgtm&amp;logoWidth=18" /></a> <a href="https://electionguard-web-api.readthedocs.io"><img alt="Documentation Status" src="https://readthedocs.org/projects/electionguard-web-api/badge/?version=latest" /></a> <a href="LICENSE"><img alt="license" src="https://img.shields.io/github/license/microsoft/electionguard-web-api" /></a></p>
+<p>This is a python API that provides a <strong>thin</strong>, <strong>stateless</strong> wrapper around the <a href="https://github.com/microsoft/electionguard-python"><code>electionguard-python</code></a> library to perform ballot encryption, casting, spoiling, and tallying. This API is implemented using <a href="https://fastapi.tiangolo.com/#interactive-api-docs">FastAPI</a>.</p>
+<p>If you aren't familiar with ElectionGuard and its concepts, <a href="https://microsoft.github.io/electionguard-python/">take a stroll through the official documentation</a> first!</p>
+<h2 id="two-apis-in-one">👯‍♀️ Two APIs in One</h2>
+<p>The application can run in one of two modes:</p>
+<ul>
+<li><code>guardian</code> mode runs features used by Guardians (key ceremony actions, partial tally decryption, etc.)</li>
+<li><code>mediator</code> mode runs features used by Mediators (ballot encryption, casting, spoiling, etc.)</li>
+</ul>
+<p>In practice, you will likely need to run at least one instance of each mode. We provide a single codebase and Docker image, but the mode can be set at runtime.</p>
+<h2 id="requirements">💻 Requirements</h2>
+<blockquote>
+<p>NOTE:<br>
+🐳 = required for running with Docker.<br>
+🐍 = required for running with Python.</p>
+</blockquote>
+<ul>
+<li>🐳🐍 <a href="https://www.gnu.org/software/make/manual/make.html">GNU Make</a> is used to simplify the commands and GitHub Actions. This approach is recommended to simplify the command line experience. This is built in for MacOS and Linux. For Windows, setup is simpler with <a href="https://chocolatey.org/install">Chocolatey</a> and installing the provided <a href="https://chocolatey.org/packages/make">make package</a>. The other Windows option is <a href="http://gnuwin32.sourceforge.net/packages/make.htm">manually installing make</a>.</li>
+<li>🐍 <a href="https://www.python.org/downloads/">Python 3.8</a> is <ins><strong>required</strong></ins> to develop this API. If developer uses multiple versions of python, <a href="https://github.com/pyenv/pyenv">pyenv</a> is suggested to assist version management.</li>
+</ul>
+<h2 id="running-with-docker">🐳 Running with Docker</h2>
+<h3 id="the-official-docker-image">The official Docker image</h3>
+<p>We host a Docker image on both <a href="https://github.com/microsoft/electionguard-web-api/packages/397920">Github Packages</a> and <a href="https://hub.docker.com/r/electionguard/electionguard-web-api">DockerHub</a>.</p>
+<p><strong>Note:</strong> <em>GitHub Packages requires authentication to retrieve the package. This requires a GitHub Access Token and using <code>docker login</code>. <a href="https://docs.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-docker-for-use-with-github-packages#authenticating-with-a-personal-access-token">Follow GitHub instructions</a>.</em></p>
+<pre><code class="language-bash"># Pull the image from DockerHub
+docker pull docker.pkg.github.com/microsoft/electionguard-web-api/electionguard-web-api:main
+
+# Start a container for the API in mediator mode, exposed on port 80 of the host machine
+docker run -d -p 80:8000 --env API_MODE=mediator docker.pkg.github.com/microsoft/electionguard-web-api/electionguard-web-api:main
+</code></pre>
+<p>OR</p>
+<pre><code class="language-bash"># Pull the image from DockerHub
+docker pull electionguard/electionguard-web-api:latest
+
+# Start a container for the API in mediator mode, exposed on port 80 of the host machine
+docker run -d -p 80:8000 --env API_MODE=mediator electionguard/electionguard-web-api:latest
+</code></pre>
+<h3 id="developing-locally-with-docker">Developing locally with Docker</h3>
+<p>If you run Docker and want to run the code locally without Python dependencies, we provide a Dockerfile and docker-compose.yml.</p>
+<p>Run both APIs at the same time:</p>
+<pre><code class="language-bash">make docker-run
+</code></pre>
+<p>Or run both APIs in development mode, with automatic reloading on file change:</p>
+<pre><code class="language-bash">make docker-dev
+</code></pre>
+<p>After either command, you will find the <code>mediator</code> API running at http://127.0.0.1:8000 and the <code>guardian</code> API at http://127.0.0.1:8001</p>
+<h2 id="running-with-python">🐍 Running with Python</h2>
+<h3 id="quick-start">Quick Start</h3>
+<p>Using <a href="https://www.gnu.org/software/make/manual/make.html"><strong>make</strong></a>, installation and startup can be run with one command:</p>
+<p>To set up the environment:</p>
+<pre><code class="language-bash">make environment
+</code></pre>
+<p>To start the api:</p>
+<pre><code class="language-bash">make start API_MODE=mediator
+</code></pre>
+<p>OR</p>
+<pre><code class="language-bash">make start API_MODE=guardian
+</code></pre>
+<h3 id="debugging">Debugging</h3>
+<p>For local debugging with Visual Studio Code, choose the <code>Guardian Web API</code> or <code>Mediator Web API</code> options from the dropdown in the Run menu. Once the server is up, you can easily hit your breakpoints.</p>
+<p>If the code fails to run, <a href="https://code.visualstudio.com/docs/python/environments">make sure your Python interpreter is set</a> to use your poetry environment.</p>
+<h2 id="testing">🧪 Testing</h2>
+<p>A Postman collection is available to test the API located in the <code>/tests</code> folder. You can do a few things with this:</p>
+<ul>
+<li><a href="https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-data-into-postman">Import into Postman</a> for easy manual testing.</li>
+<li>Run locally with the <a href="https://github.com/postmanlabs/newman">Newman CLI</a>.</li>
+<li>Run the APIs and tests entirely in Docker by running:
+  <code>bash
+  make docker-test</code></li>
+</ul>
+<h2 id="documentation">📝 Documentation</h2>
+<p><strong>FastApi</strong> defaultly has API documentation built in. The following is available after running:</p>
+<ul>
+<li>
+<p><strong><a href="https://github.com/swagger-api/swagger-ui">SwaggerUI</a></strong> at <a href="http://127.0.0.1:8000/docs"><code>http://127.0.0.1:8000/docs</code></a> or <a href="http://127.0.0.1:8001/docs"><code>http://127.0.0.1:8001/docs</code></a>, depending on the API mode</p>
+</li>
+<li>
+<p><strong><a href="https://github.com/Redocly/redoc">ReDoc</a></strong> at <a href="http://127.0.0.1:8000/redoc"><code>http://127.0.0.1:8000/redoc</code></a> or <a href="http://127.0.0.1:8001/redoc"><code>http://127.0.0.1:8001/redoc</code></a></p>
+</li>
+</ul>
+<p>Overviews of the API itself are available on:</p>
+<ul>
+<li><a href="https://microsoft.github.io/electionguard-web-api/">GitHub Pages</a></li>
+<li><a href="https://electionguard-web-api.readthedocs.io/">Read the Docs</a></li>
+</ul>
+<h2 id="archived">🗄 Archived</h2>
+<p>As of 06/15/2020, the previous C wrapped implementation was transitioned to the python version. ElectionGuard development has transitioned to the <a href="https://github.com/microsoft/electionguard-python">ElectionGuard-Python</a> Repo. The old version is available using the <code>dotnet-api</code> tag.</p>
+<h2 id="contributing">🤝 Contributing</h2>
+<p>This project encourages community contributions for development, testing, documentation, code review, and performance analysis, etc. For more information on how to contribute, see [the contribution guidelines][contributing]</p>
+<h3 id="code-of-conduct">Code of Conduct</h3>
+<p>This project has adopted the <a href="https://opensource.microsoft.com/codeofconduct/">Microsoft Open Source Code of Conduct</a>. For more information see the <a href="https://opensource.microsoft.com/codeofconduct/faq/">Code of Conduct FAQ</a> or contact <a href="mailto:opencode@microsoft.com">opencode@microsoft.com</a> with any additional questions or comments.</p>
+<h3 id="reporting-issues">Reporting Issues</h3>
+<p>Please report any bugs, feature requests, or enhancements using the <a href="https://github.com/microsoft/electionguard-web-api/issues">GitHub Issue Tracker</a>. Please do not report any security vulnerabilities using the Issue Tracker. Instead, please report them to the Microsoft Security Response Center (MSRC) at <a href="https://msrc.microsoft.com/create-report">https://msrc.microsoft.com/create-report</a>. See the [Security Documentation][security] for more information.</p>
+<h3 id="have-questions">Have Questions?</h3>
+<p>Electionguard would love for you to ask questions out in the open using GitHub Issues. If you really want to email the ElectionGuard team, reach out at electionguard@microsoft.com.</p>
+<h2 id="license">License</h2>
+<p>This repository is licensed under the [MIT License]</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+      <p>© Microsoft 2020</p>
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/microsoft/electionguard-web-api/" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+      
+    </span>
+</div>
+    <script>var base_url = '.';</script>
+    <script src="js/theme.js" defer></script>
+      <script src="search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.1.2
+Build Date UTC : 2020-11-07 19:48:28.803146+00:00
+-->
