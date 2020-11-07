@@ -1,7 +1,15 @@
 from typing import Any
-from .base import Base
 
-__all__ = ["CiphertextElectionContext", "ElectionContextRequest", "ElectionDescription"]
+from .base import Base
+from .validation import BaseValidationRequest
+
+
+__all__ = [
+    "CiphertextElectionContext",
+    "ElectionContextRequest",
+    "ElectionDescription",
+    "ValidateElectionDescriptionRequest",
+]
 
 ElectionDescription = Any
 
@@ -17,3 +25,11 @@ class ElectionContextRequest(Base):
     elgamal_public_key: str
     number_of_guardians: int
     quorum: int
+
+
+class ValidateElectionDescriptionRequest(BaseValidationRequest):
+    """
+    A request to validate an Election Description
+    """
+
+    description: ElectionDescription
