@@ -1,10 +1,11 @@
 from typing import Any, List
-from electionguard.auxiliary import AuxiliaryPublicKey
+from electionguard.auxiliary import AuxiliaryPublicKey, AuxiliaryKeyPair
 from electionguard.election_polynomial import ElectionPolynomial
 from electionguard.group import int_to_q_unchecked
 from electionguard.key_ceremony import (
     ElectionPartialKeyBackup,
     ElectionPartialKeyChallenge,
+    ElectionPublicKey,
     generate_election_key_pair,
     generate_rsa_auxiliary_key_pair,
     generate_election_partial_key_backup,
@@ -16,9 +17,7 @@ from electionguard.rsa import rsa_decrypt, rsa_encrypt
 from electionguard.serializable import read_json_object, write_json_object
 from fastapi import APIRouter, HTTPException
 
-
 from ..models import (
-    AuxiliaryKeyPair,
     BackupChallengeRequest,
     BackupVerificationRequest,
     ChallengeVerificationRequest,
@@ -41,11 +40,15 @@ def create_guardian(request: GuardianRequest) -> Guardian:
     Create a guardian for the election process with the associated keys
     """
     election_keys = generate_election_key_pair(
+        request.id,
+        request.sequence_order,
         request.quorum,
         int_to_q_unchecked(request.nonce) if request.nonce is not None else None,
     )
     if request.auxiliary_key_pair is None:
-        auxiliary_keys = generate_rsa_auxiliary_key_pair()
+        auxiliary_keys = generate_rsa_auxiliary_key_pair(
+            request.id, request.sequence_order
+        )
     else:
         auxiliary_keys = request.auxiliary_key_pair
     if not election_keys:
@@ -63,13 +66,16 @@ def create_guardian(request: GuardianRequest) -> Guardian:
         number_of_guardians=request.number_of_guardians,
         quorum=request.quorum,
         election_key_pair=ElectionKeyPair(
-            public_key=str(election_keys.key_pair.public_key),
-            secret_key=str(election_keys.key_pair.secret_key),
-            proof=write_json_object(election_keys.proof),
+            owner_id=request.id,
+            sequence_order=request.sequence_order,
+            key_pair=election_keys.key_pair,
             polynomial=write_json_object(election_keys.polynomial),
         ),
         auxiliary_key_pair=AuxiliaryKeyPair(
-            public_key=auxiliary_keys.public_key, secret_key=auxiliary_keys.secret_key
+            owner_id=request.id,
+            sequence_order=request.sequence_order,
+            public_key=auxiliary_keys.public_key,
+            secret_key=auxiliary_keys.secret_key,
         ),
     )
 
@@ -110,6 +116,7 @@ def verify_backup(request: BackupVerificationRequest) -> Any:
     verification = verify_election_partial_key_backup(
         request.verifier_id,
         read_json_object(request.election_partial_key_backup, ElectionPartialKeyBackup),
+        read_json_object(request.election_public_key, ElectionPublicKey),
         read_json_object(request.auxiliary_key_pair, AuxiliaryKeyPair),
         decrypt,
     )

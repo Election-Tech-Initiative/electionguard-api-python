@@ -9,6 +9,7 @@ from ..models import (
     AuxiliaryKeyPair,
     ElectionKeyPair,
     ElectionKeyPairRequest,
+    AuxiliaryRequest,
 )
 from ..tags import KEY_CEREMONY
 
@@ -23,6 +24,8 @@ def generate_election_keys(request: ElectionKeyPairRequest) -> ElectionKeyPair:
     :return: Election key pair
     """
     keys = generate_election_key_pair(
+        request.owner_id,
+        request.sequence_order,
         request.quorum,
         int_to_q_unchecked(request.nonce) if request.nonce is not None else None,
     )
@@ -32,9 +35,9 @@ def generate_election_keys(request: ElectionKeyPairRequest) -> ElectionKeyPair:
             detail="Election keys failed to be generated",
         )
     return ElectionKeyPair(
-        public_key=str(keys.key_pair.public_key),
-        secret_key=str(keys.key_pair.secret_key),
-        proof=write_json_object(keys.proof),
+        owner_id=keys.owner_id,
+        sequence_order=keys.sequence_order,
+        key_pair=keys.key_pair,
         polynomial=write_json_object(keys.polynomial),
     )
 
@@ -42,12 +45,12 @@ def generate_election_keys(request: ElectionKeyPairRequest) -> ElectionKeyPair:
 @router.post(
     "/auxiliary/generate", response_model=AuxiliaryKeyPair, tags=[KEY_CEREMONY]
 )
-def generate_auxiliary_keys() -> AuxiliaryKeyPair:
+def generate_auxiliary_keys(request: AuxiliaryRequest) -> AuxiliaryKeyPair:
     """
     Generate auxiliary key pair for auxiliary uses during process
     :return: Auxiliary key pair
     """
-    keys = generate_rsa_auxiliary_key_pair()
+    keys = generate_rsa_auxiliary_key_pair(request.owner_id, request.sequence_order)
     if not keys:
         raise HTTPException(
             status_code=500, detail="Auxiliary keys failed to be generated"

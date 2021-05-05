@@ -1,5 +1,5 @@
 from typing import Any
-from electionguard.ballot import CiphertextAcceptedBallot
+from electionguard.ballot import SubmittedBallot
 from electionguard.decryption import compute_decryption_share_for_ballot
 from electionguard.election import CiphertextElectionContext
 from electionguard.scheduler import Scheduler
@@ -26,8 +26,7 @@ def decrypt_ballot_shares(
     Decrypt this guardian's share of one or more ballots
     """
     ballots = [
-        CiphertextAcceptedBallot.from_json_object(ballot)
-        for ballot in request.encrypted_ballots
+        SubmittedBallot.from_json_object(ballot) for ballot in request.encrypted_ballots
     ]
     context = CiphertextElectionContext.from_json_object(request.context)
     guardian = convert_guardian(request.guardian)

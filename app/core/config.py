@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = Field(
         default=["http://localhost", "http://localhost:8080", "https://localhost"]
     )
-    PROJECT_NAME: str = "electionguard-web-api"
+    PROJECT_NAME: str = "electionguard-api-python"
 
     class Config:
         case_sensitive = True
