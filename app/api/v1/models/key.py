@@ -1,5 +1,4 @@
 from typing import Any, List, Optional
-from electionguard.elgamal import ElGamalKeyPair
 
 from .base import Base
 
@@ -14,7 +13,8 @@ __all__ = [
     "AuxiliaryRequest",
 ]
 
-ElectionPublicKey = str
+ElectionPublicKey = Any
+ElGamalKeyPair = Any
 
 
 class AuxiliaryKeyPair(Base):
@@ -60,6 +60,5 @@ class ElectionJointKey(Base):
 
 
 class AuxiliaryRequest(Base):
-
     owner_id: str
     sequence_order: int

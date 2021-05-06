@@ -5,7 +5,6 @@ from electionguard.group import int_to_q_unchecked
 from electionguard.key_ceremony import (
     ElectionPartialKeyBackup,
     ElectionPartialKeyChallenge,
-    ElectionPublicKey,
     generate_election_key_pair,
     generate_rsa_auxiliary_key_pair,
     generate_election_partial_key_backup,
@@ -22,6 +21,7 @@ from ..models import (
     BackupVerificationRequest,
     ChallengeVerificationRequest,
     ElectionKeyPair,
+    ElectionPublicKey,
     Guardian,
     GuardianRequest,
     GuardianBackup,
