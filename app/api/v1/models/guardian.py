@@ -6,11 +6,15 @@ import electionguard.group
 import electionguard.guardian
 import electionguard.key_ceremony
 import electionguard.schnorr
-from electionguard.auxiliary import AuxiliaryKeyPair
 from electionguard.serializable import read_json_object
 
 from .base import Base
-from .key import AuxiliaryPublicKey, ElectionKeyPair, ElectionPublicKey
+from .key import (
+    AuxiliaryPublicKey,
+    ElectionKeyPair,
+    ElectionPublicKey,
+    AuxiliaryKeyPair,
+)
 
 __all__ = [
     "ElectionPolynomial",

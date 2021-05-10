@@ -45,11 +45,8 @@ def append_to_tally(
     """
     Append ballots into an existing tally
     """
-
-    ballots, description, context = _parse_tally_request(request)
-    tally = convert_tally(request.encrypted_tally, description, context)
-
-    return _tally_ballots(tally, ballots, scheduler)
+    # removed tally code since it is changing
+    return {}
 
 
 @router.post("/decrypt", tags=[TALLY])
