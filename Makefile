@@ -4,6 +4,9 @@ OS ?= $(shell python -c 'import platform; print(platform.system())')
 WINDOWS_ERROR = ⚠️ UNSUPPORTED WINDOWS INSTALL ⚠️ 
 IMAGE_NAME = electionguard_web_api
 RESOURCE_GROUP = EG-Deploy-Demo
+DEPLOY_REGISTRY = DeployDemoRegistry
+ACI_CONTEXT = egacicontext
+TENANT_ID = xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 GROUP_EXISTS ?= $(shell az group exists --name $(RESOURCE_GROUP))
 
 # Supports either "guardian" or "mediator" modes
@@ -69,18 +72,17 @@ endif
 # deploy to azure
 deploy-azure:
 	@echo Deploy to Azure
-# az login
+	az login
 ifeq ($(GROUP_EXISTS), false)
 	az group create -l eastus -n $(RESOURCE_GROUP)
 endif
-	az acr create --resource-group $(RESOURCE_GROUP)--name DeployDemoRegistry --sku Basic
-	az acr login --name DeployDemoRegistry
-	docker login azure
-	docker context create aci egacicontext
-	docker context use egacicontext
-
-
-# az logout
+	az acr create --resource-group $(RESOURCE_GROUP) --name $(DEPLOY_REGISTRY) --sku Basic
+	az acr login --name $(DEPLOY_REGISTRY)
+	docker login azure --tenant-id $(TENANT_ID)
+	docker context create aci $(ACI_CONTEXT)
+	docker context use $(ACI_CONTEXT)
+	docker compose -f docker-compose.azure.yml up
+	az logout
 
 # Dev Server
 start:
