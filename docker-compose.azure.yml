@@ -1,0 +1,33 @@
+version: "3.8"
+services:
+  mediator:
+    build:
+      context: .
+      target: prod
+    image: deploydemoregistry.azurecr.io/electionguard-api-python_mediator_1
+    ports:
+      - 8000:8000
+    environment:
+      API_MODE: "mediator"
+      PROJECT_NAME: "ElectionGuard Mediator API"
+      PORT: 8000
+
+  guardian:
+    build:
+      context: .
+      target: prod
+    image: deploydemoregistry.azurecr.io/electionguard-api-python_guardian_1
+    ports:
+      - 8001:8001
+    environment:
+      API_MODE: "guardian"
+      PROJECT_NAME: "ElectionGuard Guardian API"
+      PORT: 8001
+
+  messagequeue:
+    image: rabbitmq:3.8.16-management-alpine
+    container_name: 'electionguard-message-queue'
+    ports:
+      - 5672:5672
+      - 15672:15672
+

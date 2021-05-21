@@ -3,6 +3,9 @@
 OS ?= $(shell python -c 'import platform; print(platform.system())')
 WINDOWS_ERROR = ⚠️ UNSUPPORTED WINDOWS INSTALL ⚠️ 
 IMAGE_NAME = electionguard_web_api
+RESOURCE_GROUP = EG-Deploy-Demo
+GROUP_EXISTS ?= $(shell az group exists --name $(RESOURCE_GROUP))
+
 # Supports either "guardian" or "mediator" modes
 API_MODE ?= mediator
 ifeq ($(API_MODE), mediator)
@@ -48,6 +51,36 @@ install-gmp-linux:
 	sudo apt-get install libgmp-dev
 	sudo apt-get install libmpfr-dev
 	sudo apt-get install libmpc-dev
+
+# install azure command line
+install-azure-cli:
+	@echo Install Azure CLI
+ifeq ($(OS), Linux)
+	curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+endif
+ifeq ($(OS), Darwin)
+	brew install azure-cli
+	az upgrade
+endif
+ifeq ($(OS), Windows)
+	Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'; rm .\AzureCLI.msi
+endif
+
+# deploy to azure
+deploy-azure:
+	@echo Deploy to Azure
+# az login
+ifeq ($(GROUP_EXISTS), false)
+	az group create -l eastus -n $(RESOURCE_GROUP)
+endif
+	az acr create --resource-group $(RESOURCE_GROUP)--name DeployDemoRegistry --sku Basic
+	az acr login --name DeployDemoRegistry
+	docker login azure
+	docker context create aci egacicontext
+	docker context use egacicontext
+
+
+# az logout
 
 # Dev Server
 start:

@@ -19,6 +19,7 @@ from electionguard.serializable import read_json_object, write_json_object
 from electionguard.types import BALLOT_ID, GUARDIAN_ID
 from electionguard.utils import get_optional
 from fastapi import APIRouter, Body, HTTPException
+from pymongo import MongoClient
 
 from ..models import (
     AcceptBallotRequest,
@@ -151,3 +152,26 @@ def index_shares_by_ballot(
         ballot_shares[share.guardian_id] = share
 
     return shares_by_ballot
+
+
+@router.post("/submit", tags=[CAST_AND_SPOIL])
+def submit_ballot(request: AcceptBallotRequest = Body(...)) -> Any:
+    """
+    Cast ballot
+    """
+    casted_ballot = save_ballot(request)
+    if not casted_ballot:
+        raise HTTPException(
+            status_code=500,
+            detail="Ballot failed to be cast",
+        )
+    return casted_ballot.to_json_object()
+
+
+def save_ballot(casted_ballot: Any) -> Any:
+    ballot = CiphertextBallot.from_json_object(casted_ballot.ballot)
+    client = MongoClient(host="mongo:27017", username="root", password="example")
+    database = client.get_database("BallotData")
+    collection = database.get_collection("SubmittedBallots")
+    collection.insert_one(ballot.to_json_object())
+    return ballot
