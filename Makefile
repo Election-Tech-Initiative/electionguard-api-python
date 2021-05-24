@@ -3,10 +3,12 @@
 OS ?= $(shell python -c 'import platform; print(platform.system())')
 WINDOWS_ERROR = ⚠️ UNSUPPORTED WINDOWS INSTALL ⚠️ 
 IMAGE_NAME = electionguard_web_api
+AZURE_LOCATION = eastus
 RESOURCE_GROUP = EG-Deploy-Demo
-DEPLOY_REGISTRY = DeployDemoRegistry
+DEPLOY_REGISTRY = deploydemoregistry
+REGISTRY_SKU = Basic
 ACI_CONTEXT = egacicontext
-TENANT_ID = xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+TENANT_ID = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 GROUP_EXISTS ?= $(shell az group exists --name $(RESOURCE_GROUP))
 
 # Supports either "guardian" or "mediator" modes
@@ -72,16 +74,22 @@ endif
 # deploy to azure
 deploy-azure:
 	@echo Deploy to Azure
-	az login
+	az login --tenant $(TENANT_ID)
 ifeq ($(GROUP_EXISTS), false)
-	az group create -l eastus -n $(RESOURCE_GROUP)
+	az group create -l $(AZURE_LOCATION) -n $(RESOURCE_GROUP)
 endif
-	az acr create --resource-group $(RESOURCE_GROUP) --name $(DEPLOY_REGISTRY) --sku Basic
+	az acr create --resource-group $(RESOURCE_GROUP) --name $(DEPLOY_REGISTRY) --sku $(REGISTRY_SKU)
 	az acr login --name $(DEPLOY_REGISTRY)
+	docker context use default
+	docker compose -f docker-compose.azure.yml up --build -d
+	docker compose -f docker-compose.azure.yml down
+	docker-compose -f docker-compose.azure.yml push
 	docker login azure --tenant-id $(TENANT_ID)
-	docker context create aci $(ACI_CONTEXT)
+# docker context create aci $(ACI_CONTEXT)
 	docker context use $(ACI_CONTEXT)
 	docker compose -f docker-compose.azure.yml up
+	docker logout
+	docker context use default
 	az logout
 
 # Dev Server

@@ -1,4 +1,10 @@
 from typing import Any, Dict, List, Optional
+
+import json
+import os
+import sys
+import pika
+
 from electionguard.ballot import (
     CiphertextAcceptedBallot,
     CiphertextBallot,
@@ -157,9 +163,9 @@ def index_shares_by_ballot(
 @router.post("/submit", tags=[CAST_AND_SPOIL])
 def submit_ballot(request: AcceptBallotRequest = Body(...)) -> Any:
     """
-    Cast ballot
+    Submit ballot
     """
-    casted_ballot = save_ballot(request)
+    casted_ballot = save_ballot_queue(request)
     if not casted_ballot:
         raise HTTPException(
             status_code=500,
@@ -168,10 +174,56 @@ def submit_ballot(request: AcceptBallotRequest = Body(...)) -> Any:
     return casted_ballot.to_json_object()
 
 
-def save_ballot(casted_ballot: Any) -> Any:
+def save_ballot_queue(casted_ballot: Any) -> Any:
     ballot = CiphertextBallot.from_json_object(casted_ballot.ballot)
-    client = MongoClient(host="mongo:27017", username="root", password="example")
+    try:
+        uri = os.environ.get("MESSAGEQUEUE_URI", "amqp://guest:guest@localhost:5672")
+        params = pika.URLParameters(uri)
+        connection = pika.BlockingConnection(params)
+        channel = connection.channel()
+        channel.queue_declare(queue="submitted-ballots")
+        channel.basic_publish(
+            exchange="",
+            routing_key="submitted-ballots",
+            body=json.dumps(ballot.to_json_object()),
+        )
+        channel.close()
+        connection.close()
+    except:
+        print(sys.exc_info())
+    return ballot
+
+
+def save_ballot_db(casted_ballot: Any) -> Any:
+    ballot = CiphertextBallot.from_json_object(json.loads(casted_ballot))
+    uri = os.environ.get("MONGODB_URI", "mongodb://root:example@mongo:27017")
+    client = MongoClient(uri)
     database = client.get_database("BallotData")
     collection = database.get_collection("SubmittedBallots")
     collection.insert_one(ballot.to_json_object())
     return ballot
+
+
+@router.post("/process", tags=[CAST_AND_SPOIL])
+def process_ballots() -> Any:
+    """
+    Process ballot
+    """
+    try:
+        uri = os.environ.get("MESSAGEQUEUE_URI", "amqp://guest:guest@localhost:5672")
+        params = pika.URLParameters(uri)
+        connection = pika.BlockingConnection(params)
+        channel = connection.channel()
+        method_frame, header_frame, data = channel.basic_get("submitted-ballots", True)
+        while method_frame:
+            save_ballot_db(data)
+            method_frame, header_frame, data = channel.basic_get(
+                "submitted-ballots", True
+            )
+
+        channel.close()
+        connection.close()
+    except:
+        print(sys.exc_info())
+    # cnt = save_ballot()
+    return {}
