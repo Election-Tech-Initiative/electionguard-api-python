@@ -1,3 +1,4 @@
+# pylint: disable=unused-argument
 from typing import Any, List, Tuple
 from electionguard.ballot import SubmittedBallot
 from electionguard.decrypt_with_shares import decrypt_tally as decrypt

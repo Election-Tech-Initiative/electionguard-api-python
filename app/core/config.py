@@ -5,13 +5,13 @@ from pydantic.fields import Field
 
 
 class ApiMode(str, Enum):
-    guardian = "guardian"
-    mediator = "mediator"
+    GUARDIAN = "guardian"
+    MEDIATOR = "mediator"
 
 
 # pylint:disable=too-few-public-methods
 class Settings(BaseSettings):
-    API_MODE: ApiMode = ApiMode.mediator
+    API_MODE: ApiMode = ApiMode.MEDIATOR
     API_V1_STR: str = "/api/v1"
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = Field(
         default=["http://localhost", "http://localhost:8080", "https://localhost"]

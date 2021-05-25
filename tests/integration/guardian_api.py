@@ -7,7 +7,7 @@ from app.main import get_app
 
 from . import api_utils
 
-_api_client = TestClient(get_app(Settings(API_MODE=ApiMode.guardian)))
+_api_client = TestClient(get_app(Settings(API_MODE=ApiMode.GUARDIAN)))
 
 
 def create_guardian(

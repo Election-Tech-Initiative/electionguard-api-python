@@ -6,7 +6,7 @@ from app.main import get_app
 
 from . import api_utils
 
-_api_client = TestClient(get_app(Settings(API_MODE=ApiMode.mediator)))
+_api_client = TestClient(get_app(Settings(API_MODE=ApiMode.MEDIATOR)))
 
 
 def combine_election_keys(election_public_keys: List[Dict]) -> Dict:

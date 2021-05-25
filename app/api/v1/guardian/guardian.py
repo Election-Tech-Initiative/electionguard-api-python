@@ -50,7 +50,12 @@ def create_guardian(request: GuardianRequest) -> Guardian:
             request.id, request.sequence_order
         )
     else:
-        auxiliary_keys = request.auxiliary_key_pair
+        auxiliary_keys = AuxiliaryKeyPair(
+            owner_id=request.auxiliary_key_pair.owner_id,
+            sequence_order=request.auxiliary_key_pair.sequence_order,
+            public_key=request.auxiliary_key_pair.public_key,
+            secret_key=request.auxiliary_key_pair.secret_key,
+        )
     if not election_keys:
         raise HTTPException(
             status_code=500,
