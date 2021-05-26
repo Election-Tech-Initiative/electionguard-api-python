@@ -4,7 +4,7 @@ from electionguard.decryption import compute_decryption_share_for_ballot
 from electionguard.election import CiphertextElectionContext
 from electionguard.key_ceremony import ElectionKeyPair
 from electionguard.scheduler import Scheduler
-from electionguard.serializable import write_json_object
+from electionguard.serializable import read_json_object, write_json_object
 from fastapi import APIRouter, Body, Depends
 
 from app.core.scheduler import get_scheduler
@@ -29,12 +29,8 @@ def decrypt_ballot_shares(
         SubmittedBallot.from_json_object(ballot) for ballot in request.encrypted_ballots
     ]
     context = CiphertextElectionContext.from_json_object(request.context)
-
-    election_key_pair = ElectionKeyPair(
-        owner_id=request.guardian.election_key_pair.owner_id,
-        sequence_order=request.guardian.election_key_pair.sequence_order,
-        key_pair=request.guardian.election_key_pair.key_pair,
-        polynomial=request.guardian.election_key_pair.polynomial,
+    election_key_pair = read_json_object(
+        request.guardian.election_key_pair, ElectionKeyPair
     )
 
     shares = [

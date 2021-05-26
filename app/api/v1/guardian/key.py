@@ -2,7 +2,7 @@ from electionguard.key_ceremony import (
     generate_election_key_pair,
     generate_rsa_auxiliary_key_pair,
 )
-from electionguard.serializable import write_json_object
+from electionguard.serializable import read_json_object
 from electionguard.group import int_to_q_unchecked
 from fastapi import APIRouter, Body, HTTPException
 from ..models import (
@@ -36,12 +36,7 @@ def generate_election_keys(
             status_code=500,
             detail="Election keys failed to be generated",
         )
-    return ElectionKeyPair(
-        owner_id=keys.owner_id,
-        sequence_order=keys.sequence_order,
-        key_pair=keys.key_pair,
-        polynomial=write_json_object(keys.polynomial),
-    )
+    return read_json_object(keys, ElectionKeyPair)
 
 
 @router.post(
@@ -58,10 +53,4 @@ def generate_auxiliary_keys(request: AuxiliaryRequest = Body(...)) -> AuxiliaryK
         raise HTTPException(
             status_code=500, detail="Auxiliary keys failed to be generated"
         )
-
-    return AuxiliaryKeyPair(
-        owner_id=keys.owner_id,
-        sequence_order=keys.sequence_order,
-        public_key=keys.public_key,
-        secret_key=keys.secret_key,
-    )
+    return read_json_object(keys, AuxiliaryKeyPair)

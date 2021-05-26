@@ -51,11 +51,8 @@ def create_guardian(request: GuardianRequest) -> Guardian:
             request.id, request.sequence_order
         )
     else:
-        auxiliary_keys = EG_AUX.AuxiliaryKeyPair(
-            owner_id=request.auxiliary_key_pair.owner_id,
-            sequence_order=request.auxiliary_key_pair.sequence_order,
-            public_key=request.auxiliary_key_pair.public_key,
-            secret_key=request.auxiliary_key_pair.secret_key,
+        auxiliary_keys = read_json_object(
+            request.auxiliary_key_pair, EG_AUX.AuxiliaryKeyPair
         )
     if not election_keys:
         raise HTTPException(
