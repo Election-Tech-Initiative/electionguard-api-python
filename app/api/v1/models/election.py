@@ -23,6 +23,7 @@ class ElectionContextRequest(Base):
 
     description: ElectionDescription
     elgamal_public_key: str
+    # commitment_hash: str
     number_of_guardians: int
     quorum: int
 

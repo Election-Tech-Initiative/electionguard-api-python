@@ -1,37 +1,37 @@
 {
-    "ballot_style": "congress-district-5-hamilton-county",
+    "style_id": "congress-district-5-hamilton-county",
     "contests": [
         {
             "ballot_selections": [
                 {
                     "is_placeholder_selection": false,
                     "object_id": "barchi-hallaren-selection",
-                    "vote": "True"
+                    "vote": 1
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "cramer-vuocolo-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "court-blumhardt-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "boone-lian-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "hildebrand-garritty-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "patterson-lariviere-selection",
-                    "vote": "False"
+                    "vote": 0
                 }
             ],
             "object_id": "president-vice-president-contest"
@@ -41,72 +41,72 @@
                 {
                     "is_placeholder_selection": false,
                     "object_id": "franz-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "harris-selection",
-                    "vote": "True"
+                    "vote": 1
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "sharp-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "alpern-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "windbeck-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "greher-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "alexander-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "mitchell-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "lee-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "ash-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "brown-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "murphy-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "york-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "write-in-selection-governor",
-                    "vote": "False"
+                    "vote": 0
                 }
             ],
             "object_id": "ozark-governor"
@@ -116,22 +116,22 @@
                 {
                     "is_placeholder_selection": false,
                     "object_id": "soliz-selection",
-                    "vote": "True"
+                    "vote": 1
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "keller-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "rangel-selection",
-                    "vote": "False"
+                    "vote": 0
                 },
                 {
                     "is_placeholder_selection": false,
                     "object_id": "write-in-selection-us-congress-district-5",
-                    "vote": "False"
+                    "vote": 0
                 }
             ],
             "object_id": "congress-district-5-contest"
