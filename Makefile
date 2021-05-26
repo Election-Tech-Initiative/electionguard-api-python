@@ -8,7 +8,7 @@ RESOURCE_GROUP = EG-Deploy-Demo
 DEPLOY_REGISTRY = deploydemoregistry
 REGISTRY_SKU = Basic
 ACI_CONTEXT = egacicontext
-TENANT_ID = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+TENANT_ID = 72f988bf-86f1-41af-91ab-2d7cd011db47
 GROUP_EXISTS ?= $(shell az group exists --name $(RESOURCE_GROUP))
 
 # Supports either "guardian" or "mediator" modes
@@ -81,9 +81,8 @@ endif
 	az acr create --resource-group $(RESOURCE_GROUP) --name $(DEPLOY_REGISTRY) --sku $(REGISTRY_SKU)
 	az acr login --name $(DEPLOY_REGISTRY)
 	docker context use default
-	docker compose -f docker-compose.azure.yml up --build -d
-	docker compose -f docker-compose.azure.yml down
-	docker-compose -f docker-compose.azure.yml push
+	docker build . -t $(DEPLOY_REGISTRY).azurecr.io/electionguard-api-python:latest
+	docker push $(DEPLOY_REGISTRY).azurecr.io/electionguard-api-python:latest
 	docker login azure --tenant-id $(TENANT_ID)
 # docker context create aci $(ACI_CONTEXT)
 	docker context use $(ACI_CONTEXT)

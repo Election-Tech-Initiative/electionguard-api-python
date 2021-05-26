@@ -4,7 +4,8 @@ services:
     build:
       context: .
       target: prod
-    image: deploydemoregistry.azurecr.io/electionguard-api-python_mediator_1
+    image: deploydemoregistry.azurecr.io/electionguard-api-python:latest
+    container_name: 'electionguard-api-python-mediator'
     ports:
       - 8000:8000
     environment:
@@ -18,7 +19,8 @@ services:
     build:
       context: .
       target: prod
-    image: deploydemoregistry.azurecr.io/electionguard-api-python_guardian_1
+    image: deploydemoregistry.azurecr.io/electionguard-api-python:latest
+    container_name: 'electionguard-api-python-guardian'
     ports:
       - 8001:8001
     environment:
