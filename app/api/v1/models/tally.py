@@ -2,9 +2,9 @@ from typing import Any, Dict, List
 import electionguard.election
 from electionguard.serializable import read_json_object
 import electionguard.tally
+from electionguard.manifest import InternalManifest
 
-
-from .ballot import CiphertextAcceptedBallot
+from .ballot import SubmittedBallot
 from .base import Base
 from .election import ElectionDescription, CiphertextElectionContext
 from .guardian import Guardian
@@ -24,7 +24,7 @@ TallyDecryptionShare = Any
 
 
 class StartTallyRequest(Base):
-    ballots: List[CiphertextAcceptedBallot]
+    ballots: List[SubmittedBallot]
     description: ElectionDescription
     context: CiphertextElectionContext
 
@@ -49,7 +49,7 @@ class DecryptTallyShareRequest(Base):
 
 def convert_tally(
     encrypted_tally: PublishedCiphertextTally,
-    description: electionguard.election.InternalElectionDescription,
+    description: InternalManifest,
     context: electionguard.election.CiphertextElectionContext,
 ) -> electionguard.tally.CiphertextTally:
     """
@@ -62,6 +62,5 @@ def convert_tally(
     tally = electionguard.tally.CiphertextTally(
         published_tally.object_id, description, context
     )
-    tally.cast = published_tally.cast
 
     return tally

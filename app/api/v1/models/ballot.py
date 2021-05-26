@@ -7,7 +7,7 @@ from .guardian import Guardian, GuardianId
 
 __all__ = [
     "AcceptBallotRequest",
-    "CiphertextAcceptedBallot",
+    "SubmittedBallot",
     "CiphertextBallot",
     "DecryptBallotSharesRequest",
     "DecryptBallotSharesResponse",
@@ -17,8 +17,8 @@ __all__ = [
     "PlaintextBallot",
 ]
 
-BallotDecryptionShare = Any
-CiphertextAcceptedBallot = Any
+DecryptionShare = Any
+SubmittedBallot = Any
 CiphertextBallot = Any
 PlaintextBallot = Any
 
@@ -30,19 +30,19 @@ class AcceptBallotRequest(Base):
 
 
 class DecryptBallotsRequest(Base):
-    encrypted_ballots: List[CiphertextAcceptedBallot]
-    shares: Dict[GuardianId, List[BallotDecryptionShare]]
+    encrypted_ballots: List[SubmittedBallot]
+    shares: Dict[GuardianId, List[DecryptionShare]]
     context: CiphertextElectionContext
 
 
 class DecryptBallotSharesRequest(Base):
-    encrypted_ballots: List[CiphertextAcceptedBallot]
+    encrypted_ballots: List[SubmittedBallot]
     guardian: Guardian
     context: CiphertextElectionContext
 
 
 class DecryptBallotSharesResponse(Base):
-    shares: List[BallotDecryptionShare]
+    shares: List[DecryptionShare]
 
 
 class EncryptBallotsRequest(Base):

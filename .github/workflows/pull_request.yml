@@ -50,5 +50,5 @@ jobs:
         run: make environment
       - name: Run Integration Tests
         run: make test-integration
-      - name: Run Postman Tests
-        run: make docker-postman-test
+#      - name: Run Postman Tests
+#        run: make docker-postman-test

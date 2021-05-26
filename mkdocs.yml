@@ -6,7 +6,7 @@ site_author: Microsoft
 # remote_name: for gh-deploy to Github Pages
 copyright: "© Microsoft 2020"
 docs_dir: "docs"
-repo_url: https://github.com/microsoft/electionguard-web-api/
+repo_url: https://github.com/microsoft/electionguard-api-python/
 nav:
   - Home: index.md
 theme: readthedocs

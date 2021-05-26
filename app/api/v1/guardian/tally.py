@@ -1,10 +1,8 @@
 from typing import Any
 from electionguard.decryption import compute_decryption_share
-from electionguard.election import (
-    CiphertextElectionContext,
-    ElectionDescription,
-    InternalElectionDescription,
-)
+from electionguard.election import CiphertextElectionContext
+from electionguard.key_ceremony import generate_election_key_pair
+from electionguard.manifest import InternalManifest, Manifest
 from electionguard.scheduler import Scheduler
 from electionguard.serializable import write_json_object
 from fastapi import APIRouter, Body, Depends
@@ -28,13 +26,14 @@ def decrypt_share(
     """
     Decrypt a single guardian's share of a tally
     """
-    description = InternalElectionDescription(
-        ElectionDescription.from_json_object(request.description)
-    )
+    description = InternalManifest(Manifest.from_json_object(request.description))
     context = CiphertextElectionContext.from_json_object(request.context)
     guardian = convert_guardian(request.guardian)
     tally = convert_tally(request.encrypted_tally, description, context)
+    election_key_pair = generate_election_key_pair(
+        guardian.id, guardian.sequence_order, guardian.ceremony_details.quorum
+    )
 
-    share = compute_decryption_share(guardian, tally, context, scheduler)
+    share = compute_decryption_share(election_key_pair, tally, context, scheduler)
 
     return write_json_object(share)
