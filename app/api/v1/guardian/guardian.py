@@ -1,5 +1,5 @@
 from typing import Any, List
-from electionguard.auxiliary import AuxiliaryPublicKey, AuxiliaryKeyPair
+import electionguard.auxiliary as EG_AUX
 from electionguard.election_polynomial import ElectionPolynomial
 from electionguard.group import int_to_q_unchecked
 from electionguard.key_ceremony import (
@@ -17,6 +17,7 @@ from electionguard.serializable import read_json_object, write_json_object
 from fastapi import APIRouter, HTTPException
 
 from ..models import (
+    AuxiliaryKeyPair,
     BackupChallengeRequest,
     BackupVerificationRequest,
     ChallengeVerificationRequest,
@@ -50,7 +51,7 @@ def create_guardian(request: GuardianRequest) -> Guardian:
             request.id, request.sequence_order
         )
     else:
-        auxiliary_keys = AuxiliaryKeyPair(
+        auxiliary_keys = EG_AUX.AuxiliaryKeyPair(
             owner_id=request.auxiliary_key_pair.owner_id,
             sequence_order=request.auxiliary_key_pair.sequence_order,
             public_key=request.auxiliary_key_pair.public_key,
@@ -73,7 +74,7 @@ def create_guardian(request: GuardianRequest) -> Guardian:
         election_key_pair=ElectionKeyPair(
             owner_id=request.id,
             sequence_order=request.sequence_order,
-            key_pair=election_keys.key_pair,
+            key_pair=write_json_object(election_keys.key_pair),
             polynomial=write_json_object(election_keys.polynomial),
         ),
         auxiliary_key_pair=AuxiliaryKeyPair(
@@ -98,7 +99,7 @@ def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackup:
         backup = generate_election_partial_key_backup(
             request.guardian_id,
             read_json_object(request.election_polynomial, ElectionPolynomial),
-            AuxiliaryPublicKey(
+            EG_AUX.AuxiliaryPublicKey(
                 auxiliary_public_key.owner_id,
                 auxiliary_public_key.sequence_order,
                 auxiliary_public_key.key,
@@ -122,7 +123,7 @@ def verify_backup(request: BackupVerificationRequest) -> Any:
         request.verifier_id,
         read_json_object(request.election_partial_key_backup, ElectionPartialKeyBackup),
         read_json_object(request.election_public_key, ElectionPublicKey),
-        read_json_object(request.auxiliary_key_pair, AuxiliaryKeyPair),
+        read_json_object(request.auxiliary_key_pair, EG_AUX.AuxiliaryKeyPair),
         decrypt,
     )
     if not verification:

@@ -44,6 +44,7 @@ def build_election_context(request: ElectionContextRequest = Body(...)) -> Any:
     elgamal_public_key: ElementModP = read_json_object(
         request.elgamal_public_key, ElementModP
     )
+    # commitment_hash = read_json_object(request.commitment_hash, ElementModQ)
     number_of_guardians = request.number_of_guardians
     quorum = request.quorum
 
