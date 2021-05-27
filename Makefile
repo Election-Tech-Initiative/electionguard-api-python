@@ -8,7 +8,7 @@ RESOURCE_GROUP = EG-Deploy-Demo
 DEPLOY_REGISTRY = deploydemoregistry
 REGISTRY_SKU = Basic
 ACI_CONTEXT = egacicontext
-TENANT_ID = 72f988bf-86f1-41af-91ab-2d7cd011db47
+TENANT_ID = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 GROUP_EXISTS ?= $(shell az group exists --name $(RESOURCE_GROUP))
 
 # Supports either "guardian" or "mediator" modes
