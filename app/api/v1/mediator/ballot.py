@@ -159,13 +159,13 @@ def submit_ballot(request: AcceptBallotRequest = Body(...)) -> Any:
     """
     Submit ballot
     """
-    casted_ballot = save_ballot_queue(request)
-    if not casted_ballot:
+    sumbitted_ballot = save_ballot_queue(request)
+    if not sumbitted_ballot:
         raise HTTPException(
             status_code=500,
-            detail="Ballot failed to be cast",
+            detail="Ballot failed to be submitted",
         )
-    return casted_ballot.to_json_object()
+    return sumbitted_ballot.to_json_object()
 
 
 def save_ballot_queue(casted_ballot: Any) -> Any:
