@@ -9,6 +9,16 @@
 
 version: "3.8"
 services:
+  messagequeue:
+    image: rabbitmq:3.8.16-management-alpine
+    container_name: 'postman-electionguard-message-queue'
+    expose: 
+      - 5672
+      - 15672
+    ports:
+      - 5672:5672
+      - 15672:15672
+
   mediator:
     build:
       context: ../..
@@ -19,6 +29,8 @@ services:
       API_MODE: "mediator"
       PROJECT_NAME: "ElectionGuard Mediator API"
       PORT: 80
+      MESSAGEQUEUE_URI: "amqp://guest:guest@postman-electionguard-message-queue:5672"
+      MONGODB_URI: "mongodb://root:example@postman-electionguard-db:27017"
 
   guardian:
     build:
@@ -31,6 +43,30 @@ services:
       PROJECT_NAME: "ElectionGuard Guardian API"
       PORT: 80
   
+  mongo:
+    image: mongo
+    container_name: 'postman-electionguard-db'
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: BallotData
+    volumes: 
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example   
+    links:
+      - 'mongo'
+        
   test-runner:
     build:
       context: .

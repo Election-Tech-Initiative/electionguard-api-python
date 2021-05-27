@@ -3,6 +3,14 @@
 OS ?= $(shell python -c 'import platform; print(platform.system())')
 WINDOWS_ERROR = ⚠️ UNSUPPORTED WINDOWS INSTALL ⚠️ 
 IMAGE_NAME = electionguard_web_api
+AZURE_LOCATION = eastus
+RESOURCE_GROUP = EG-Deploy-Demo
+DEPLOY_REGISTRY = deploydemoregistry
+REGISTRY_SKU = Basic
+ACI_CONTEXT = egacicontext
+TENANT_ID = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+GROUP_EXISTS ?= $(shell az group exists --name $(RESOURCE_GROUP))
+
 # Supports either "guardian" or "mediator" modes
 API_MODE ?= mediator
 ifeq ($(API_MODE), mediator)
@@ -53,6 +61,40 @@ install-gmp-linux:
 	sudo apt-get install libgmp-dev
 	sudo apt-get install libmpfr-dev
 	sudo apt-get install libmpc-dev
+
+# install azure command line
+install-azure-cli:
+	@echo Install Azure CLI
+ifeq ($(OS), Linux)
+	curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+endif
+ifeq ($(OS), Darwin)
+	brew install azure-cli
+	az upgrade
+endif
+ifeq ($(OS), Windows)
+	Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'; rm .\AzureCLI.msi
+endif
+
+# deploy to azure
+deploy-azure:
+	@echo Deploy to Azure
+	az login --tenant $(TENANT_ID)
+ifeq ($(GROUP_EXISTS), false)
+	az group create -l $(AZURE_LOCATION) -n $(RESOURCE_GROUP)
+endif
+	az acr create --resource-group $(RESOURCE_GROUP) --name $(DEPLOY_REGISTRY) --sku $(REGISTRY_SKU)
+	az acr login --name $(DEPLOY_REGISTRY)
+	docker context use default
+	docker build . -t $(DEPLOY_REGISTRY).azurecr.io/electionguard-api-python:latest
+	docker push $(DEPLOY_REGISTRY).azurecr.io/electionguard-api-python:latest
+	docker login azure --tenant-id $(TENANT_ID)
+# docker context create aci $(ACI_CONTEXT)
+	docker context use $(ACI_CONTEXT)
+	docker compose -f docker-compose.azure.yml up
+	docker logout
+	docker context use default
+	az logout
 
 # Dev Server
 start:

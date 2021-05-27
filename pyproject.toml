@@ -13,6 +13,8 @@ documentation = "https://electionguard-api-python.readthedocs.io/"
 python = "~=3.8"
 fastapi = "~0.61"
 uvicorn = "~0.11"
+pika = "1.2.0"
+pymongo = "~3.11.4"
 electionguard = "^1.2.1"
 
 

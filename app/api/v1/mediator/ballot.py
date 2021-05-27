@@ -1,4 +1,11 @@
 from typing import Any, Dict, List, Optional
+
+import json
+import os
+import sys
+import pika
+import pymongo
+
 from electionguard.ballot import (
     SubmittedBallot,
     CiphertextBallot,
@@ -16,6 +23,7 @@ from electionguard.serializable import read_json_object, write_json_object
 from electionguard.types import BALLOT_ID, GUARDIAN_ID
 from electionguard.utils import get_optional
 from fastapi import APIRouter, Body, HTTPException
+from pymongo import MongoClient
 
 from ..models import (
     AcceptBallotRequest,
@@ -145,3 +153,69 @@ def index_shares_by_ballot(
         ballot_shares[share.guardian_id] = share
 
     return shares_by_ballot
+
+
+@router.post("/submit", tags=[CAST_AND_SPOIL])
+def submit_ballot(request: AcceptBallotRequest = Body(...)) -> Any:
+    """
+    Submit ballot
+    """
+    sumbitted_ballot = save_ballot_queue(request)
+    if not sumbitted_ballot:
+        raise HTTPException(
+            status_code=500,
+            detail="Ballot failed to be submitted",
+        )
+    return sumbitted_ballot.to_json_object()
+
+
+def save_ballot_queue(casted_ballot: Any) -> Any:
+    ballot = CiphertextBallot.from_json_object(casted_ballot.ballot)
+    try:
+        uri = os.environ.get("MESSAGEQUEUE_URI", "amqp://guest:guest@localhost:5672")
+        params = pika.URLParameters(uri)
+        connection = pika.BlockingConnection(params)
+        channel = connection.channel()
+        channel.queue_declare(queue="submitted-ballots")
+        channel.basic_publish(
+            exchange="",
+            routing_key="submitted-ballots",
+            body=json.dumps(ballot.to_json_object()),
+        )
+        channel.close()
+        connection.close()
+    except (pika.exceptions.ChannelError, pika.exceptions.StreamLostError):
+        print(sys.exc_info())
+    return ballot
+
+
+def save_ballot_db(casted_ballot: Any) -> Any:
+    ballot = CiphertextBallot.from_json_object(json.loads(casted_ballot))
+    uri = os.environ.get("MONGODB_URI", "mongodb://root:example@mongo:27017")
+    client = MongoClient(uri)
+    database = client.get_database("BallotData")
+    collection = database.get_collection("SubmittedBallots")
+    collection.insert_one(ballot.to_json_object())
+    return ballot
+
+
+@router.post("/process", tags=[CAST_AND_SPOIL])
+def process_ballots() -> Any:
+    """
+    Process ballot
+    """
+    try:
+        uri = os.environ.get("MESSAGEQUEUE_URI", "amqp://guest:guest@localhost:5672")
+        params = pika.URLParameters(uri)
+        connection = pika.BlockingConnection(params)
+        channel = connection.channel()
+        data = channel.basic_get("submitted-ballots", True)
+        while data[0]:
+            save_ballot_db(data[2])
+            data = channel.basic_get("submitted-ballots", True)
+
+        channel.close()
+        connection.close()
+    except (pymongo.errors.ConnectionFailure, pymongo.errors.OperationFailure):
+        print(sys.exc_info())
+    return {}
