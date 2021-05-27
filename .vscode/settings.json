@@ -3,9 +3,17 @@
   "python.linting.mypyEnabled": true,
   "python.linting.pylintEnabled": true,
   "python.linting.pylintUseMinimalCheckers": false,
-  "python.linting.pylintArgs": ["--extension-pkg-whitelist=pydantic"],
+  "python.linting.pylintArgs": [
+    "--extension-pkg-whitelist=pydantic"
+  ],
   "python.linting.enabled": true,
-  "python.testing.unittestArgs": ["-v", "-s", "./tests", "-p", "test_*.py"],
+  "python.testing.unittestArgs": [
+    "-v",
+    "-s",
+    "./tests",
+    "-p",
+    "test_*.py"
+  ],
   "python.testing.pytestEnabled": true,
   "python.testing.pytestArgs": [],
   "python.testing.nosetestsEnabled": false,
@@ -19,5 +27,6 @@
     "**/**.egg-info": true
   },
   "editor.formatOnSave": true,
-  "python.venvPath": "~/Library/Caches/pypoetry/virtualenvs/"
+  "python.venvPath": ".venv",
+  "python.pythonPath": ".venv/bin/python"
 }

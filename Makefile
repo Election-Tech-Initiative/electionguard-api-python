@@ -25,6 +25,7 @@ environment:
 	@echo 🔧 SETUP
 	make install-gmp
 	pip install 'poetry==1.1.6'
+	poetry config virtualenvs.in-project true 
 	poetry install
 
 install:
