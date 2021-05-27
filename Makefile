@@ -24,9 +24,13 @@ all: environment lint start
 environment:
 	@echo 🔧 SETUP
 	make install-gmp
-	pip install 'poetry==1.0.10'
+	pip install 'poetry==1.1.6'
 	poetry install
 
+install:
+	@echo 🔧 INSTALL
+	poetry install
+	
 install-gmp:
 	@echo 📦 Install Module
 	@echo Operating System identified as $(OS)

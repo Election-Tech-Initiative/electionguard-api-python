@@ -6,19 +6,16 @@ import sys
 import pika
 
 from electionguard.ballot import (
-    CiphertextAcceptedBallot,
+    SubmittedBallot,
     CiphertextBallot,
     PlaintextBallot,
 )
 from electionguard.ballot_box import accept_ballot, BallotBoxState
 from electionguard.decrypt_with_shares import decrypt_ballot
-from electionguard.decryption_share import BallotDecryptionShare
-from electionguard.ballot_store import BallotStore
-from electionguard.election import (
-    CiphertextElectionContext,
-    ElectionDescription,
-    InternalElectionDescription,
-)
+from electionguard.decryption_share import DecryptionShare
+from electionguard.data_store import DataStore
+from electionguard.election import CiphertextElectionContext
+from electionguard.manifest import InternalManifest, Manifest
 from electionguard.encrypt import encrypt_ballot
 from electionguard.group import ElementModQ
 from electionguard.serializable import read_json_object, write_json_object
@@ -55,15 +52,14 @@ def cast_ballot(request: AcceptBallotRequest = Body(...)) -> Any:
 @router.post("/decrypt", tags=[TALLY])
 def decrypt_ballots(request: DecryptBallotsRequest = Body(...)) -> Any:
     ballots = [
-        CiphertextAcceptedBallot.from_json_object(ballot)
-        for ballot in request.encrypted_ballots
+        SubmittedBallot.from_json_object(ballot) for ballot in request.encrypted_ballots
     ]
     context: CiphertextElectionContext = CiphertextElectionContext.from_json_object(
         request.context
     )
 
-    all_shares: List[BallotDecryptionShare] = [
-        read_json_object(share, BallotDecryptionShare)
+    all_shares: List[DecryptionShare] = [
+        read_json_object(share, DecryptionShare)
         for shares in request.shares.values()
         for share in shares
     ]
@@ -100,9 +96,7 @@ def encrypt_ballots(request: EncryptBallotsRequest = Body(...)) -> Any:
     Encrypt one or more ballots
     """
     ballots = [PlaintextBallot.from_json_object(ballot) for ballot in request.ballots]
-    description = InternalElectionDescription(
-        ElectionDescription.from_json_object(request.description)
-    )
+    description = InternalManifest(Manifest.from_json_object(request.description))
     context = CiphertextElectionContext.from_json_object(request.context)
     seed_hash = read_json_object(request.seed_hash, ElementModQ)
     nonce: Optional[ElementModQ] = (
@@ -119,7 +113,7 @@ def encrypt_ballots(request: EncryptBallotsRequest = Body(...)) -> Any:
         if not encrypted_ballot:
             raise HTTPException(status_code=500, detail="Ballot failed to encrypt")
         encrypted_ballots.append(encrypted_ballot)
-        current_hash = get_optional(encrypted_ballot.tracking_hash)
+        current_hash = get_optional(encrypted_ballot.crypto_hash)
 
     response = EncryptBallotsResponse(
         encrypted_ballots=[ballot.to_json_object() for ballot in encrypted_ballots],
@@ -130,8 +124,8 @@ def encrypt_ballots(request: EncryptBallotsRequest = Body(...)) -> Any:
 
 def handle_ballot(request: AcceptBallotRequest, state: BallotBoxState) -> Any:
     ballot = CiphertextBallot.from_json_object(request.ballot)
-    description = ElectionDescription.from_json_object(request.description)
-    internal_description = InternalElectionDescription(description)
+    description = Manifest.from_json_object(request.description)
+    internal_description = InternalManifest(description)
     context = CiphertextElectionContext.from_json_object(request.context)
 
     accepted_ballot = accept_ballot(
@@ -139,22 +133,22 @@ def handle_ballot(request: AcceptBallotRequest, state: BallotBoxState) -> Any:
         state,
         internal_description,
         context,
-        BallotStore(),
+        DataStore(),
     )
 
     return accepted_ballot
 
 
 def index_shares_by_ballot(
-    shares: List[BallotDecryptionShare],
-) -> Dict[BALLOT_ID, Dict[GUARDIAN_ID, BallotDecryptionShare]]:
+    shares: List[DecryptionShare],
+) -> Dict[BALLOT_ID, Dict[GUARDIAN_ID, DecryptionShare]]:
     """
     Construct a lookup by ballot ID containing the dictionary of shares needed
     to decrypt that ballot.
     """
-    shares_by_ballot: Dict[str, Dict[str, BallotDecryptionShare]] = {}
+    shares_by_ballot: Dict[str, Dict[str, DecryptionShare]] = {}
     for share in shares:
-        ballot_shares = shares_by_ballot.setdefault(share.ballot_id, {})
+        ballot_shares = shares_by_ballot.setdefault(share.object_id, {})
         ballot_shares[share.guardian_id] = share
 
     return shares_by_ballot

@@ -1,5 +1,6 @@
 from typing import Any, List, Optional
 
+import electionguard.auxiliary
 import electionguard.election_polynomial
 import electionguard.elgamal
 import electionguard.group
@@ -9,7 +10,12 @@ import electionguard.schnorr
 from electionguard.serializable import read_json_object
 
 from .base import Base
-from .key import AuxiliaryKeyPair, AuxiliaryPublicKey, ElectionKeyPair
+from .key import (
+    AuxiliaryPublicKey,
+    ElectionKeyPair,
+    ElectionPublicKey,
+    AuxiliaryKeyPair,
+)
 
 __all__ = [
     "ElectionPolynomial",
@@ -65,6 +71,7 @@ class GuardianBackupRequest(Base):
 class BackupVerificationRequest(Base):
     verifier_id: str
     election_partial_key_backup: ElectionPartialKeyBackup
+    election_public_key: ElectionPublicKey
     auxiliary_key_pair: AuxiliaryKeyPair
     override_rsa: bool = False
 
@@ -92,22 +99,25 @@ def convert_guardian(api_guardian: Guardian) -> electionguard.guardian.Guardian:
         api_guardian.quorum,
     )
 
-    guardian._auxiliary_keys = electionguard.key_ceremony.AuxiliaryKeyPair(
+    guardian._auxiliary_keys = electionguard.auxiliary.AuxiliaryKeyPair(
+        api_guardian.id,
+        api_guardian.sequence_order,
         api_guardian.auxiliary_key_pair.public_key,
         api_guardian.auxiliary_key_pair.secret_key,
     )
 
     election_public_key = read_json_object(
-        api_guardian.election_key_pair.public_key, electionguard.group.ElementModP
+        api_guardian.election_key_pair.key_pair["public_key"],
+        electionguard.group.ElementModP,
     )
     election_secret_key = read_json_object(
-        api_guardian.election_key_pair.secret_key, electionguard.group.ElementModQ
+        api_guardian.election_key_pair.key_pair["secret_key"],
+        electionguard.group.ElementModQ,
     )
     guardian._election_keys = electionguard.key_ceremony.ElectionKeyPair(
+        api_guardian.id,
+        api_guardian.sequence_order,
         electionguard.elgamal.ElGamalKeyPair(election_secret_key, election_public_key),
-        read_json_object(
-            api_guardian.election_key_pair.proof, electionguard.schnorr.SchnorrProof
-        ),
         read_json_object(
             api_guardian.election_key_pair.polynomial,
             electionguard.election_polynomial.ElectionPolynomial,

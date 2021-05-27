@@ -1,11 +1,11 @@
 from os.path import realpath, join
 from typing import Any, Optional
 from electionguard.election import (
-    ElectionDescription,
     ElectionConstants,
     make_ciphertext_election_context,
 )
 from electionguard.group import ElementModP
+from electionguard.manifest import Manifest
 from electionguard.schema import validate_json_schema
 from electionguard.serializable import read_json_object, write_json_object
 
@@ -40,17 +40,20 @@ def build_election_context(request: ElectionContextRequest = Body(...)) -> Any:
     """
     Build a CiphertextElectionContext for a given election
     """
-    description: ElectionDescription = ElectionDescription.from_json_object(
-        request.description
-    )
+    description: Manifest = Manifest.from_json_object(request.description)
     elgamal_public_key: ElementModP = read_json_object(
         request.elgamal_public_key, ElementModP
     )
+    # commitment_hash = read_json_object(request.commitment_hash, ElementModQ)
     number_of_guardians = request.number_of_guardians
     quorum = request.quorum
 
     context = make_ciphertext_election_context(
-        number_of_guardians, quorum, elgamal_public_key, description.crypto_hash()
+        number_of_guardians,
+        quorum,
+        elgamal_public_key,
+        description.crypto_hash(),  # need commitment hash
+        description.crypto_hash(),
     )
 
     return write_json_object(context)
@@ -78,10 +81,10 @@ def validate_election_description(
         details = error_details
 
     # Check object parse
-    description: Optional[ElectionDescription] = None
+    description: Optional[Manifest] = None
     if success:
         try:
-            description = ElectionDescription.from_json_object(request.description)
+            description = Manifest.from_json_object(request.description)
         except Exception:  # pylint: disable=broad-except
             success = False
             message = "Election description could not be read from JSON"
