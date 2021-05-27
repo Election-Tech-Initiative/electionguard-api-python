@@ -4,6 +4,7 @@ import json
 import os
 import sys
 import pika
+import pymongo
 
 from electionguard.ballot import (
     SubmittedBallot,
@@ -183,7 +184,7 @@ def save_ballot_queue(casted_ballot: Any) -> Any:
         )
         channel.close()
         connection.close()
-    except:
+    except (pika.exceptions.ChannelError, pika.exceptions.StreamLostError):
         print(sys.exc_info())
     return ballot
 
@@ -208,16 +209,13 @@ def process_ballots() -> Any:
         params = pika.URLParameters(uri)
         connection = pika.BlockingConnection(params)
         channel = connection.channel()
-        method_frame, header_frame, data = channel.basic_get("submitted-ballots", True)
-        while method_frame:
-            save_ballot_db(data)
-            method_frame, header_frame, data = channel.basic_get(
-                "submitted-ballots", True
-            )
+        data = channel.basic_get("submitted-ballots", True)
+        while data[0]:
+            save_ballot_db(data[2])
+            data = channel.basic_get("submitted-ballots", True)
 
         channel.close()
         connection.close()
-    except:
+    except (pymongo.errors.ConnectionFailure, pymongo.errors.OperationFailure):
         print(sys.exc_info())
-    # cnt = save_ballot()
     return {}
