@@ -98,7 +98,11 @@ endif
 
 # Dev Server
 start:
+	docker compose -f docker-compose.support.yml up -d
 	poetry run uvicorn app.main:app --reload --port $(PORT)
+
+stop:
+	docker compose -f docker-compose.support.yml down
 
 # Docker
 docker-build:
@@ -108,7 +112,7 @@ docker-run:
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose up --build
 
 docker-dev:
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.dev.yml up --build
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.support.yml -f docker-compose.dev.yml up --build
 
 docker-postman-test:
 	@echo 🧪 RUNNING POSTMAN TESTS IN DOCKER

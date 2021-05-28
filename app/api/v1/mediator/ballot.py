@@ -191,7 +191,7 @@ def save_ballot_queue(casted_ballot: Any) -> Any:
 
 def save_ballot_db(casted_ballot: Any) -> Any:
     ballot = CiphertextBallot.from_json_object(json.loads(casted_ballot))
-    uri = os.environ.get("MONGODB_URI", "mongodb://root:example@mongo:27017")
+    uri = os.environ.get("MONGODB_URI", "mongodb://root:example@localhost:27017")
     client = MongoClient(uri)
     database = client.get_database("BallotData")
     collection = database.get_collection("SubmittedBallots")
