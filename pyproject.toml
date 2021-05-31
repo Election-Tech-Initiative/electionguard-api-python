@@ -30,8 +30,30 @@ requests = "^2.24.0"
 target-version = ['py38']
 include = '\.pyi?$'
 
+[tool.pylint.'FORMAT']
+max-line-length = 120
+
 [tool.pylint.'MESSAGES CONTROL']
-disable = "duplicate-code, missing-module-docstring, missing-class-docstring, missing-function-docstring, logging-fstring-interpolation"
+disable = '''
+    duplicate-code,
+    fixme,
+    invalid-name,
+    logging-fstring-interpolation,
+    missing-module-docstring, 
+    missing-class-docstring, 
+    missing-function-docstring, 
+    
+    no-value-for-parameter,
+    redefined-builtin,
+    too-few-public-methods,
+    too-many-arguments,
+    too-many-branches,
+    too-many-function-args,
+    too-many-lines,
+    too-many-locals,
+    too-many-nested-blocks,
+    unnecessary-lambda
+    '''
 
 [build-system]
 requires = ["poetry>=0.12"]

@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.core.config import ApiMode, Settings
+from app.core.settings import ApiMode, Settings
 from . import common
 from . import guardian
 from . import mediator

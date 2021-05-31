@@ -24,6 +24,8 @@ services:
       - 8000:8000
     environment:
       API_MODE: "mediator"
+      QUEUE_MODE: "remote"
+      STORAGE_MODE: "mongo"
       PROJECT_NAME: "ElectionGuard Mediator API"
       PORT: 8000
       MESSAGEQUEUE_URI: "amqp://guest:guest@electionguard-message-queue:5672"
@@ -39,6 +41,8 @@ services:
       - 8001:8001
     environment:
       API_MODE: "guardian"
+      QUEUE_MODE: "remote"
+      STORAGE_MODE: "mongo"
       PROJECT_NAME: "ElectionGuard Guardian API"
       PORT: 8001
 

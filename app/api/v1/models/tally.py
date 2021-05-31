@@ -5,8 +5,8 @@ import electionguard.tally
 from electionguard.manifest import InternalManifest
 
 from .ballot import SubmittedBallot
-from .base import Base
-from .election import ElectionDescription, CiphertextElectionContext
+from .base import BaseRequest
+from .election import ElectionManifest, CiphertextElectionContext
 from .guardian import Guardian
 
 __all__ = [
@@ -23,9 +23,9 @@ PublishedCiphertextTally = Any
 TallyDecryptionShare = Any
 
 
-class StartTallyRequest(Base):
+class StartTallyRequest(BaseRequest):
     ballots: List[SubmittedBallot]
-    description: ElectionDescription
+    description: ElectionManifest
     context: CiphertextElectionContext
 
 
@@ -33,17 +33,17 @@ class AppendTallyRequest(StartTallyRequest):
     encrypted_tally: PublishedCiphertextTally
 
 
-class DecryptTallyRequest(Base):
+class DecryptTallyRequest(BaseRequest):
     encrypted_tally: PublishedCiphertextTally
     shares: Dict[str, TallyDecryptionShare]
-    description: ElectionDescription
+    description: ElectionManifest
     context: CiphertextElectionContext
 
 
-class DecryptTallyShareRequest(Base):
+class DecryptTallyShareRequest(BaseRequest):
     encrypted_tally: PublishedCiphertextTally
     guardian: Guardian
-    description: ElectionDescription
+    description: ElectionManifest
     context: CiphertextElectionContext
 
 

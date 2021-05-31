@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import Dict, List
 from fastapi.testclient import TestClient
 
-from app.core.config import ApiMode, Settings
+from app.core.settings import ApiMode, Settings
 from app.main import get_app
 
 from . import api_utils

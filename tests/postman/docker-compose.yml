@@ -1,5 +1,6 @@
-# This will spin up three parallel containers:
+# This will spin up multiple parallel containers:
 # - One for each API under test
+# - one for each infrastructure component
 # - One to house the test runner
 # 
 # The test runner will wait for both API containers to run, and validate that
@@ -27,6 +28,8 @@ services:
       - 80
     environment:
       API_MODE: "mediator"
+      QUEUE_MODE: "remote"
+      STORAGE_MODE: "mongo"
       PROJECT_NAME: "ElectionGuard Mediator API"
       PORT: 80
       MESSAGEQUEUE_URI: "amqp://guest:guest@postman-electionguard-message-queue:5672"
@@ -40,6 +43,8 @@ services:
       - 80
     environment:
       API_MODE: "guardian"
+      QUEUE_MODE: "remote"
+      STORAGE_MODE: "mongo"
       PROJECT_NAME: "ElectionGuard Guardian API"
       PORT: 80
   
