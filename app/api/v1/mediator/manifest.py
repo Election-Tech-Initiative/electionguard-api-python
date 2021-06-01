@@ -54,7 +54,7 @@ def get_manifest(manifest_hash: str) -> ManifestQueryResponse:
         ) from error
 
 
-@router.put("", tags=[MANIFEST], status_code=status.HTTP_204_NO_CONTENT)
+@router.put("", tags=[MANIFEST], status_code=status.HTTP_202_ACCEPTED)
 def submit_manifest(
     request: ValidateManifestRequest = Body(...),
     schema: Any = Depends(get_description_schema),
