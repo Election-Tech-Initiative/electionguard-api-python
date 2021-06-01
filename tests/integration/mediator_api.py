@@ -38,6 +38,30 @@ def create_election_context(
     return api_utils.send_post_request(_api_client, "election/context", request)
 
 
+def get_manifest(manifest_hash: str) -> Dict:
+    return api_utils.send_get_request(
+        _api_client, f"manifest?manifest_hash={manifest_hash}"
+    )
+
+
+def submit_manifest(
+    manifest: Dict,
+) -> Dict:
+    request = {
+        "manifest": manifest,
+    }
+    return api_utils.send_put_request(_api_client, "manifest", request)
+
+
+def validate_manifest(
+    manifest: Dict,
+) -> Dict:
+    request = {
+        "manifest": manifest,
+    }
+    return api_utils.send_post_request(_api_client, "manifest/validate", request)
+
+
 def cast_ballot(election_id: str, ballot: Dict, manifest: Dict, context: Dict) -> Dict:
     request = {
         "election_id": election_id,
@@ -67,7 +91,7 @@ def submit_ballot(
         "manifest": manifest,
         "context": context,
     }
-    return api_utils.send_post_request(_api_client, "ballot/submit", request)
+    return api_utils.send_put_request(_api_client, "ballot/submit", request)
 
 
 def validate_ballot(ballot: Dict, manifest: Dict, context: Dict) -> Dict:
