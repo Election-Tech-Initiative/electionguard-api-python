@@ -1,10 +1,19 @@
 from typing import Any
 
-from .base import BaseValidationRequest
+from .base import BaseResponse, BaseValidationRequest
 
-__all__ = ["ValidateManifestRequest"]
+__all__ = ["ManifestSubmitResponse", "ManifestQueryResponse", "ValidateManifestRequest"]
 
 ElectionManifest = Any
+ElementModQ = Any
+
+
+class ManifestSubmitResponse(BaseResponse):
+    manifest_hash: ElementModQ
+
+
+class ManifestQueryResponse(BaseResponse):
+    manifest: ElectionManifest
 
 
 class ValidateManifestRequest(BaseValidationRequest):
