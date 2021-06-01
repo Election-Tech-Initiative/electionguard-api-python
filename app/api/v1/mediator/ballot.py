@@ -185,7 +185,6 @@ def _submit_ballots(
         with get_repository(election_id, DataCollection.SUBMITTED_BALLOT) as repository:
             cacheable_ballots = [ballot.to_json_object() for ballot in ballots]
             keys = repository.set(cacheable_ballots)
-            print(keys)
             return SubmitBallotsResponse(
                 status=ResponseStatus.SUCCESS,
                 message="Ballot Successfully Submitted",
