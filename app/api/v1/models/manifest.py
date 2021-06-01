@@ -1,6 +1,6 @@
-from typing import Any, Optional
+from typing import Any
 
-from .base import BaseRequest, BaseResponse, BaseValidationRequest
+from .base import BaseResponse, BaseValidationRequest
 
 __all__ = ["ManifestSubmitResponse", "ManifestQueryResponse", "ValidateManifestRequest"]
 

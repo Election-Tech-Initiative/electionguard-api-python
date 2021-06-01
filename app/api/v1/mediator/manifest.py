@@ -1,8 +1,8 @@
 from typing import Any, Optional, Tuple
 import sys
-from fastapi import APIRouter, Body, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 
-from electionguard.group import ElementModQ, hex_to_q
+from electionguard.group import hex_to_q
 from electionguard.manifest import Manifest
 from electionguard.schema import validate_json_schema
 from electionguard.utils import get_optional
