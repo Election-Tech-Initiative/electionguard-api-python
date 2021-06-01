@@ -98,7 +98,12 @@ endif
 
 # Dev Server
 start:
+	poetry run uvicorn app.main:app --reload --port $(PORT)
+
+start-server:
 	docker compose -f docker-compose.support.yml up -d
+	QUEUE_MODE = remote
+	STORAGE_MODE = mongo
 	poetry run uvicorn app.main:app --reload --port $(PORT)
 
 stop:
