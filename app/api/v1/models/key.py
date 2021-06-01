@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 
-from .base import Base
+from .base import BaseRequest
 
 __all__ = [
     "ElectionPublicKey",
@@ -17,7 +17,7 @@ ElectionPublicKey = Any
 ElGamalKeyPair = Any
 
 
-class AuxiliaryKeyPair(Base):
+class AuxiliaryKeyPair(BaseRequest):
     """Auxiliary pair of a secret key and public key."""
 
     owner_id: str
@@ -26,7 +26,7 @@ class AuxiliaryKeyPair(Base):
     public_key: str
 
 
-class AuxiliaryPublicKey(Base):
+class AuxiliaryPublicKey(BaseRequest):
     """Auxiliary public key and owner information"""
 
     owner_id: str
@@ -34,7 +34,7 @@ class AuxiliaryPublicKey(Base):
     key: str
 
 
-class ElectionKeyPair(Base):
+class ElectionKeyPair(BaseRequest):
     """Election key pair, proof and polynomial"""
 
     owner_id: str
@@ -43,7 +43,7 @@ class ElectionKeyPair(Base):
     polynomial: Any
 
 
-class ElectionKeyPairRequest(Base):
+class ElectionKeyPairRequest(BaseRequest):
 
     owner_id: str
     sequence_order: int
@@ -51,14 +51,14 @@ class ElectionKeyPairRequest(Base):
     nonce: Optional[str] = None
 
 
-class CombineElectionKeysRequest(Base):
+class CombineElectionKeysRequest(BaseRequest):
     election_public_keys: List[ElectionPublicKey]
 
 
-class ElectionJointKey(Base):
+class ElectionJointKey(BaseRequest):
     joint_key: str
 
 
-class AuxiliaryRequest(Base):
+class AuxiliaryRequest(BaseRequest):
     owner_id: str
     sequence_order: int

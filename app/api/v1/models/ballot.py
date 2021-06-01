@@ -1,20 +1,18 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
-from .base import Base
-from .election import ElectionDescription, CiphertextElectionContext
-from .guardian import Guardian, GuardianId
+from .base import BaseRequest, BaseResponse, BaseValidationRequest
+from .election import CiphertextElectionContext
+from .manifest import ElectionManifest
 
 
 __all__ = [
-    "AcceptBallotRequest",
-    "SubmittedBallot",
-    "CiphertextBallot",
-    "DecryptBallotSharesRequest",
-    "DecryptBallotSharesResponse",
-    "DecryptBallotsRequest",
-    "EncryptBallotsRequest",
-    "EncryptBallotsResponse",
-    "PlaintextBallot",
+    "BallotQueryResponse",
+    "BaseBallotRequest",
+    "CastBallotsRequest",
+    "SpoilBallotsRequest",
+    "SubmitBallotsRequest",
+    "SubmitBallotsResponse",
+    "ValidateBallotRequest",
 ]
 
 DecryptionShare = Any
@@ -23,36 +21,41 @@ CiphertextBallot = Any
 PlaintextBallot = Any
 
 
-class AcceptBallotRequest(Base):
+class BallotQueryResponse(BaseResponse):
+    election_id: str
+    ballot: Optional[CiphertextBallot] = None
+
+
+class BaseBallotRequest(BaseRequest):
+    election_id: Optional[str] = None
+    manifest: Optional[ElectionManifest] = None
+    context: Optional[CiphertextElectionContext] = None
+
+
+class CastBallotsRequest(BaseBallotRequest):
+    ballots: List[CiphertextBallot]
+
+
+class SpoilBallotsRequest(BaseBallotRequest):
+    ballots: List[CiphertextBallot]
+
+
+class SubmitBallotsRequest(BaseBallotRequest):
+    """Submit a ballot against a specific election"""
+
+    ballots: List[SubmittedBallot]
+
+
+class SubmitBallotsResponse(BaseResponse):
+    """Submit a ballot against a specific election"""
+
+    cache_keys: List[str]
+    election_id: Optional[str] = None
+
+
+class ValidateBallotRequest(BaseValidationRequest):
+    """Submit a ballot against a specific election description and contest to determine if it is accepted"""
+
     ballot: CiphertextBallot
-    description: ElectionDescription
+    manifest: ElectionManifest
     context: CiphertextElectionContext
-
-
-class DecryptBallotsRequest(Base):
-    encrypted_ballots: List[SubmittedBallot]
-    shares: Dict[GuardianId, List[DecryptionShare]]
-    context: CiphertextElectionContext
-
-
-class DecryptBallotSharesRequest(Base):
-    encrypted_ballots: List[SubmittedBallot]
-    guardian: Guardian
-    context: CiphertextElectionContext
-
-
-class DecryptBallotSharesResponse(Base):
-    shares: List[DecryptionShare]
-
-
-class EncryptBallotsRequest(Base):
-    ballots: List[PlaintextBallot]
-    seed_hash: str
-    nonce: Optional[str] = None
-    description: ElectionDescription
-    context: CiphertextElectionContext
-
-
-class EncryptBallotsResponse(Base):
-    encrypted_ballots: List[PlaintextBallot]
-    next_seed_hash: str

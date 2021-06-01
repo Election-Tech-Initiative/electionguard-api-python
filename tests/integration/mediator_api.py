@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 from fastapi.testclient import TestClient
 
-from app.core.config import ApiMode, Settings
+from app.core.settings import ApiMode, Settings
 from app.main import get_app
 
 from . import api_utils
@@ -19,43 +19,71 @@ def combine_election_keys(election_public_keys: List[Dict]) -> Dict:
 
 
 def create_election_context(
-    description: Dict, elgamal_public_key: str, number_of_guardians: int, quorum: int
+    manifest: Dict,
+    elgamal_public_key: str,
+    commitment_hash: str,
+    number_of_guardians: int,
+    quorum: int,
 ) -> Dict:
     """
     Construct an encryption context for use throughout the election to encrypt and decrypt data
     """
     request = {
-        "description": description,
+        "manifest": manifest,
         "elgamal_public_key": elgamal_public_key,
+        "commitment_hash": commitment_hash,
         "number_of_guardians": number_of_guardians,
         "quorum": quorum,
     }
     return api_utils.send_post_request(_api_client, "election/context", request)
 
 
-def cast_ballot(ballot: Dict, description: Dict, context: Dict) -> Dict:
+def cast_ballot(election_id: str, ballot: Dict, manifest: Dict, context: Dict) -> Dict:
     request = {
-        "ballot": ballot,
-        "description": description,
+        "election_id": election_id,
+        "ballots": [ballot],
+        "manifest": manifest,
         "context": context,
     }
     return api_utils.send_post_request(_api_client, "ballot/cast", request)
 
 
-def spoil_ballot(ballot: Dict, description: Dict, context: Dict) -> Dict:
+def spoil_ballot(election_id: str, ballot: Dict, manifest: Dict, context: Dict) -> Dict:
     request = {
-        "ballot": ballot,
-        "description": description,
+        "election_id": election_id,
+        "ballots": [ballot],
+        "manifest": manifest,
         "context": context,
     }
     return api_utils.send_post_request(_api_client, "ballot/spoil", request)
+
+
+def submit_ballot(
+    election_id: str, ballot: Dict, manifest: Dict, context: Dict
+) -> Dict:
+    request = {
+        "election_id": election_id,
+        "ballots": [ballot],
+        "manifest": manifest,
+        "context": context,
+    }
+    return api_utils.send_post_request(_api_client, "ballot/submit", request)
+
+
+def validate_ballot(ballot: Dict, manifest: Dict, context: Dict) -> Dict:
+    request = {
+        "ballots": ballot,
+        "manifest": manifest,
+        "context": context,
+    }
+    return api_utils.send_post_request(_api_client, "ballot/validate", request)
 
 
 def encrypt_ballots(
     ballots: List[Dict],
     seed_hash: str,
     nonce: Optional[str],
-    description: Dict,
+    manifest: Dict,
     context: Dict,
 ) -> Dict:
 
@@ -63,7 +91,7 @@ def encrypt_ballots(
         "ballots": ballots,
         "seed_hash": seed_hash,
         "nonce": nonce,
-        "description": description,
+        "manifest": manifest,
         "context": context,
     }
     return api_utils.send_post_request(_api_client, "ballot/encrypt", request)

@@ -1,36 +1,23 @@
 from typing import Any
 
-from .base import Base
-from .validation import BaseValidationRequest
+from .base import BaseRequest
+from .manifest import ElectionManifest
 
 
 __all__ = [
-    "CiphertextElectionContext",
-    "ElectionContextRequest",
-    "ElectionDescription",
-    "ValidateElectionDescriptionRequest",
+    "MakeElectionContextRequest",
 ]
-
-ElectionDescription = Any
 
 CiphertextElectionContext = Any
 
 
-class ElectionContextRequest(Base):
+class MakeElectionContextRequest(BaseRequest):
     """
     A request to build an Election Context for a given election
     """
 
-    description: ElectionDescription
+    manifest: ElectionManifest
     elgamal_public_key: str
-    # commitment_hash: str
+    commitment_hash: str
     number_of_guardians: int
     quorum: int
-
-
-class ValidateElectionDescriptionRequest(BaseValidationRequest):
-    """
-    A request to validate an Election Description
-    """
-
-    description: ElectionDescription

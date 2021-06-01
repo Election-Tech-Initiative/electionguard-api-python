@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.v1.routes import get_routes
-from app.core.config import Settings
+from app.core.settings import Settings
 from app.core.scheduler import get_scheduler
 
 logger = getLogger(__name__)

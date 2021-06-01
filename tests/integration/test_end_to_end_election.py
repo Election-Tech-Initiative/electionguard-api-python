@@ -46,10 +46,10 @@ def prepare_election(description: Dict) -> Tuple[List[Dict], Dict]:
         "joint_key"
     ]
 
-    # commitment_hash = "2"
+    commitment_hash = "2"
 
     context = mediator_api.create_election_context(
-        description, elgamal_public_key, NUMBER_OF_GUARDIANS, QUORUM
+        description, elgamal_public_key, commitment_hash, NUMBER_OF_GUARDIANS, QUORUM
     )
 
     return guardians, context
@@ -121,16 +121,21 @@ def cast_and_spoil_ballots(
     """
     Mark each ballot as either cast or spoiled.
     """
+    election_id = "some_election"
     casted_ballots = []
     spoiled_ballots = []
     for index, ballot in enumerate(encrypted_ballots):
         # Spoil every other ballot
         should_spoil = index % 2 == 1
         if should_spoil:
-            spoiled_ballot = mediator_api.spoil_ballot(ballot, description, context)
+            spoiled_ballot = mediator_api.spoil_ballot(
+                election_id, ballot, description, context
+            )
             spoiled_ballots.append(spoiled_ballot)
         else:
-            casted_ballot = mediator_api.cast_ballot(ballot, description, context)
+            casted_ballot = mediator_api.cast_ballot(
+                election_id, ballot, description, context
+            )
             casted_ballots.append(casted_ballot)
 
     return casted_ballots, spoiled_ballots

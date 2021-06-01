@@ -9,7 +9,7 @@ import electionguard.key_ceremony
 import electionguard.schnorr
 from electionguard.serializable import read_json_object
 
-from .base import Base
+from .base import Base, BaseRequest
 from .key import (
     AuxiliaryPublicKey,
     ElectionKeyPair,
@@ -46,7 +46,7 @@ class Guardian(Base):
     auxiliary_key_pair: AuxiliaryKeyPair
 
 
-class GuardianRequest(Base):
+class GuardianRequest(BaseRequest):
     id: str
     sequence_order: int
     number_of_guardians: int
@@ -55,12 +55,12 @@ class GuardianRequest(Base):
     auxiliary_key_pair: Optional[AuxiliaryKeyPair] = None
 
 
-class GuardianBackup(Base):
+class GuardianBackup(BaseRequest):
     id: str
     election_partial_key_backups: List[ElectionPartialKeyBackup]
 
 
-class GuardianBackupRequest(Base):
+class GuardianBackupRequest(BaseRequest):
     guardian_id: str
     quorum: int
     election_polynomial: ElectionPolynomial
@@ -68,7 +68,7 @@ class GuardianBackupRequest(Base):
     override_rsa: bool = False
 
 
-class BackupVerificationRequest(Base):
+class BackupVerificationRequest(BaseRequest):
     verifier_id: str
     election_partial_key_backup: ElectionPartialKeyBackup
     election_public_key: ElectionPublicKey
@@ -76,12 +76,12 @@ class BackupVerificationRequest(Base):
     override_rsa: bool = False
 
 
-class BackupChallengeRequest(Base):
+class BackupChallengeRequest(BaseRequest):
     election_partial_key_backup: ElectionPartialKeyBackup
     election_polynomial: ElectionPolynomial
 
 
-class ChallengeVerificationRequest(Base):
+class ChallengeVerificationRequest(BaseRequest):
     verifier_id: str
     election_partial_key_challenge: ElectionPartialKeyChallenge
 
