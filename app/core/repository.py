@@ -10,7 +10,7 @@ __all__ = ["IRepository", "MemoryRepository", "MongoRepository", "get_repository
 
 settings = Settings()
 
-DOCUMEMNT_VALUE_TYPE = Union[MutableMapping, List[MutableMapping]]
+DOCUMENT_VALUE_TYPE = Union[MutableMapping, List[MutableMapping]]
 
 
 class IRepository(Protocol):
@@ -25,7 +25,7 @@ class IRepository(Protocol):
         Get an item from the container
         """
 
-    def set(self, value: DOCUMEMNT_VALUE_TYPE) -> Any:
+    def set(self, value: DOCUMENT_VALUE_TYPE) -> Any:
         """
         Set and item in the container
         """
@@ -63,7 +63,7 @@ class MemoryRepository(IRepository):
                 return item
         return None
 
-    def set(self, value: DOCUMEMNT_VALUE_TYPE) -> Any:
+    def set(self, value: DOCUMENT_VALUE_TYPE) -> Any:
         self._id += 1
         self.storage[self._id] = value
         return str(self._id)
@@ -95,7 +95,7 @@ class MongoRepository(IRepository):
         collection = self._database.get_collection(self._collection)
         return collection.find_one(key)
 
-    def set(self, value: DOCUMEMNT_VALUE_TYPE) -> Any:
+    def set(self, value: DOCUMENT_VALUE_TYPE) -> Any:
         collection = self._database.get_collection(self._collection)
         if isinstance(value, List):
             result = collection.insert_many(value)

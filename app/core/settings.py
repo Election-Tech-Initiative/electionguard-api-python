@@ -30,7 +30,7 @@ class Settings(BaseSettings):
         default=["http://localhost", "http://localhost:8080", "https://localhost"]
     )
     PROJECT_NAME: str = "electionguard-api-python"
-    MONGODB_URI: str = "mongodb://root:example@mongo:27017"
+    MONGODB_URI: str = "mongodb://root:example@localhost:27017"
     MESSAGEQUEUE_URI: str = "amqp://guest:guest@localhost:5672"
 
     class Config:
