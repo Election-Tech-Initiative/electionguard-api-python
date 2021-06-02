@@ -31,7 +31,7 @@ jobs:
           uses: 'azure/aci-deploy@v1'
           with:
             resource-group: ${{ secrets.RESOURCE_GROUP }}
-            dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }}
+            dns-name-label: electionguard-api-python-mediator
             image: ${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }}
             registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
             registry-username: ${{ secrets.REGISTRY_USERNAME }}
@@ -41,6 +41,20 @@ jobs:
             secure-environment-variables: MONGODB_URI=${{ secrets.COSMOSDB_URI }}
             location: 'east us'
             ports: 8000
+
+        - name: 'Deploy Guardian to Azure Container Instances'
+          uses: 'azure/aci-deploy@v1'
+          with:
+            resource-group: ${{ secrets.RESOURCE_GROUP }}
+            dns-name-label: electionguard-api-python-guardian
+            image: ${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }}
+            registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+            registry-username: ${{ secrets.REGISTRY_USERNAME }}
+            registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+            name: electionguard-api-python-guardian
+            environment-variables: API_MODE="guardian" QUEUE_MODE="remote" STORAGE_MODE="mongo" PROJECT_NAME="ElectionGuard Guardian API" PORT=8001 
+            location: 'east us'
+            ports: 8001
 
         - name: 'Deploy MessageQueue to Azure Container Instances'
           uses: 'azure/aci-deploy@v1'
