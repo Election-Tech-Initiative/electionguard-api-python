@@ -1,0 +1,22 @@
+name: Azure_Deply_Workflow
+on: 
+  push:
+    branches:
+      - azure-deploy
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+        # checkout the repo
+        - name: 'Checkout GitHub Action'
+          uses: actions/checkout@main
+          
+        - name: 'Login via Azure CLI'
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+        - run: |
+            docker build . -t ${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }}
+            docker push ${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }}
+
