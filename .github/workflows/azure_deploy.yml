@@ -40,8 +40,8 @@ jobs:
               { 
                 name: "electionguard-api-python-mediator",
                 image: "${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }}",
-                "environment-variables": "API_MODE=mediator QUEUE_MODE=remote STORAGE_MODE=mongo PROJECT_NAME=ElectionGuard_Mediator_API PORT=8000 MESSAGEQUEUE_URI=amqp://guest:guest@electionguard-message-queue:5672",
-                "secure-environment-variables": "MONGODB_URI=${{ secrets.COSMOSDB_URI }}",
+                "environmentVariables": "API_MODE=mediator QUEUE_MODE=remote STORAGE_MODE=mongo PROJECT_NAME=ElectionGuard_Mediator_API PORT=8000 MESSAGEQUEUE_URI=amqp://guest:guest@electionguard-message-queue:5672",
+                "secureEnvironmentVariables": "MONGODB_URI=${{ secrets.COSMOSDB_URI }}",
                 "cpu": 1,
                 "memory": 1,
                 ports: "8000"
@@ -49,8 +49,8 @@ jobs:
               {
                 "name": "electionguard-api-python-guardian",
                 "image": "${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }}",
-                "environment-variables": "API_MODE=\"guardian\" QUEUE_MODE=\"remote\" STORAGE_MODE=\"mongo\" PROJECT_NAME=\"ElectionGuard Guardian API\" PORT=8001 MESSAGEQUEUE_URI=\"amqp://guest:guest@electionguard-message-queue:5672\"",
-                "secure-environment-variables": "MONGODB_URI=${{ secrets.COSMOSDB_URI }}",
+                "environmentVariables": "API_MODE=\"guardian\" QUEUE_MODE=\"remote\" STORAGE_MODE=\"mongo\" PROJECT_NAME=\"ElectionGuard Guardian API\" PORT=8001 MESSAGEQUEUE_URI=\"amqp://guest:guest@electionguard-message-queue:5672\"",
+                "secureEnvironmentVariables": "MONGODB_URI=${{ secrets.COSMOSDB_URI }}",
                 "cpu": 1,
                 "memory": 1,
                 ports: "8001"
