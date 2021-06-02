@@ -37,7 +37,7 @@ jobs:
             registry-username: ${{ secrets.REGISTRY_USERNAME }}
             registry-password: ${{ secrets.REGISTRY_PASSWORD }}
             name: electionguard-api-python-mediator
-            environment-variables: API_MODE="mediator" QUEUE_MODE="remote" STORAGE_MODE="mongo" PROJECT_NAME="ElectionGuard Mediator API" PORT=8000 MESSAGEQUEUE_URI="amqp://guest:guest@electionguard-message-queue:5672"
+            environment-variables: API_MODE="mediator" QUEUE_MODE="remote" STORAGE_MODE="mongo" PROJECT_NAME="ElectionGuard Mediator API" PORT=8000 MESSAGEQUEUE_URI="amqp://guest:guest@electionguard-message-queue.eastus.azurecontainer.io:5672"
             secure-environment-variables: MONGODB_URI=${{ secrets.COSMOSDB_URI }}
             location: 'east us'
             ports: 8000
