@@ -38,23 +38,23 @@ jobs:
             location: 'east us'
             containers: '[
               { 
-                name: electionguard-api-python-mediator,
-                image: ${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }},
+                name: "electionguard-api-python-mediator",
+                image: "${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }}",
                 environment-variables: API_MODE="mediator" QUEUE_MODE="remote" STORAGE_MODE="mongo" PROJECT_NAME="ElectionGuard Mediator API" PORT=8000 MESSAGEQUEUE_URI="amqp://guest:guest@electionguard-message-queue.eastus.azurecontainer.io:5672",
                 secure-environment-variables: MONGODB_URI=${{ secrets.COSMOSDB_URI }},
-                ports: 8000
+                ports: "8000"
               }, 
               {
                 name: electionguard-api-python-guardian,
                 image: ${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }},
                 environment-variables: API_MODE="guardian" QUEUE_MODE="remote" STORAGE_MODE="mongo" PROJECT_NAME="ElectionGuard Guardian API" PORT=8001 MESSAGEQUEUE_URI="amqp://guest:guest@electionguard-message-queue.eastus.azurecontainer.io:5672",
                 secure-environment-variables: MONGODB_URI=${{ secrets.COSMOSDB_URI }},
-                ports: 8001
+                ports: "8001"
               }, 
               {
                 name: electionguard-message-queue,
                 image: rabbitmq:3.8.16-management-alpine,
-                ports: 5672 15672
+                ports: "5672 15672"
               }]'
 #
 #        - name: 'Deploy Mediator to Azure Container Instances'
