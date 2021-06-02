@@ -27,3 +27,28 @@ jobs:
             docker build . -t ${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }}
             docker push ${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }}
 
+        - name: 'Deploy Mediator to Azure Container Instances'
+          uses: 'azure/aci-deploy@v1'
+          with:
+            resource-group: ${{ secrets.RESOURCE_GROUP }}
+            dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }}
+            image: ${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }}
+            registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+            registry-username: ${{ secrets.REGISTRY_USERNAME }}
+            registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+            name: electionguard-api-python
+            environment-variables: API_MODE="mediator" QUEUE_MODE="remote" STORAGE_MODE="mongo" PROJECT_NAME="ElectionGuard Mediator API" PORT=8000 MESSAGEQUEUE_URI="amqp://guest:guest@electionguard-message-queue:5672"
+            secure-environment-variables: MONGODB_URI=${{ secrets.COSMOSDB_URI }}
+            location: 'east us'
+            ports: 8000
+
+        - name: 'Deploy MessageQueue to Azure Container Instances'
+          uses: 'azure/aci-deploy@v1'
+          with:
+            resource-group: ${{ secrets.RESOURCE_GROUP }}
+            dns-name-label: electionguard-message-queue
+            image: rabbitmq:3.8.16-management-alpine
+            name: electionguard-api-python
+            location: 'east us'
+            ports: 5672 15672
+
