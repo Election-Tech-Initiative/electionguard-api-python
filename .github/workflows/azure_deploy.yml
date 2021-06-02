@@ -42,6 +42,8 @@ jobs:
                 image: "${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }}",
                 environment-variables: API_MODE="mediator" QUEUE_MODE="remote" STORAGE_MODE="mongo" PROJECT_NAME="ElectionGuard Mediator API" PORT=8000 MESSAGEQUEUE_URI="amqp://guest:guest@electionguard-message-queue.eastus.azurecontainer.io:5672",
                 secure-environment-variables: MONGODB_URI=${{ secrets.COSMOSDB_URI }},
+                "cpu": 1,
+                "memory": 1,
                 ports: "8000"
               }, 
               {
@@ -49,11 +51,15 @@ jobs:
                 image: ${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }},
                 environment-variables: API_MODE="guardian" QUEUE_MODE="remote" STORAGE_MODE="mongo" PROJECT_NAME="ElectionGuard Guardian API" PORT=8001 MESSAGEQUEUE_URI="amqp://guest:guest@electionguard-message-queue.eastus.azurecontainer.io:5672",
                 secure-environment-variables: MONGODB_URI=${{ secrets.COSMOSDB_URI }},
+                "cpu": 1,
+                "memory": 1,
                 ports: "8001"
               }, 
               {
                 name: electionguard-message-queue,
                 image: rabbitmq:3.8.16-management-alpine,
+                "cpu": 1,
+                "memory": 1,
                 ports: "5672 15672"
               }]'
 #
