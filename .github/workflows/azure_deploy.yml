@@ -49,7 +49,7 @@ jobs:
               {
                 "name": "electionguard-api-python-guardian",
                 "image": "${{ secrets.DEPLOY_REGISTRY }}.azurecr.io/electionguard-api-python:${{ github.sha }}",
-                "environmentVariables": "API_MODE=\"guardian\" QUEUE_MODE=\"remote\" STORAGE_MODE=\"mongo\" PROJECT_NAME=\"ElectionGuard Guardian API\" PORT=8001 MESSAGEQUEUE_URI=\"amqp://guest:guest@electionguard-message-queue:5672\"",
+                "environmentVariables": "API_MODE=\"guardian\" QUEUE_MODE=\"remote\" STORAGE_MODE=\"mongo\" PROJECT_NAME=\"ElectionGuard Guardian API\" PORT=8001 MESSAGEQUEUE_URI=\"amqp://guest:guest@electionguard-message-queue:5672 MONGODB_URI2=${{ secrets.COSMOSDB_URI }}\"",
                 "secureEnvironmentVariables": "MONGODB_URI=${{ secrets.COSMOSDB_URI }}",
                 "cpu": 1,
                 "memory": 1,
