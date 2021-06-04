@@ -1,5 +1,5 @@
-MANIFEST = "Election Manifest"
 ELECTION = "Configure Election"
+MANIFEST = "Election Manifest"
 KEY_CEREMONY = "Key Ceremony"
 BALLOTS = "Query Ballots"
 ENCRYPT = "Encrypt Ballots"

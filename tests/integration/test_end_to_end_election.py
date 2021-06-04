@@ -48,7 +48,7 @@ def prepare_election(description: Dict) -> Tuple[List[Dict], Dict]:
 
     commitment_hash = "2"
 
-    context = mediator_api.create_election_context(
+    context = mediator_api.build_election_context(
         description, elgamal_public_key, commitment_hash, NUMBER_OF_GUARDIANS, QUORUM
     )
 

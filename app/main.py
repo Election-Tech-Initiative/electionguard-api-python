@@ -15,7 +15,9 @@ def get_app(settings: Optional[Settings] = None) -> FastAPI:
         settings = Settings()
 
     web_app = FastAPI(
-        title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
+        title=settings.PROJECT_NAME,
+        openapi_url=f"{settings.API_V1_STR}/openapi.json",
+        version="1.0.5",
     )
 
     logger.error(f"Starting API in {settings.API_MODE} mode")

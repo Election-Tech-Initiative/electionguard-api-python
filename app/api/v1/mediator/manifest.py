@@ -1,20 +1,22 @@
-from typing import Any, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 import sys
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 
-from electionguard.group import hex_to_q
+from electionguard.group import int_to_q
 from electionguard.manifest import Manifest
 from electionguard.schema import validate_json_schema
+from electionguard.serializable import write_json_object
 from electionguard.utils import get_optional
 
 from app.core.schema import get_description_schema
 
 from ....core.repository import get_repository, DataCollection
 from ..models import (
+    ManifestQueryRequest,
     ManifestQueryResponse,
     ManifestSubmitResponse,
     ValidateManifestRequest,
-    BaseValidationResponse,
+    ValidateManifestResponse,
     ResponseStatus,
 )
 from ..tags import MANIFEST
@@ -28,7 +30,7 @@ CLIENT_ID = "electionguard-default-client-id"
 @router.get("", tags=[MANIFEST])
 def get_manifest(manifest_hash: str) -> ManifestQueryResponse:
     """Get an election manifest by hash"""
-    crypto_hash = hex_to_q(manifest_hash)
+    crypto_hash = int_to_q(manifest_hash)  # TODO: hex_to_q
     if not crypto_hash:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="manifest hash not valid"
@@ -44,7 +46,7 @@ def get_manifest(manifest_hash: str) -> ManifestQueryResponse:
 
             return ManifestQueryResponse(
                 status=ResponseStatus.SUCCESS,
-                manifest=query_result["manifest"],
+                manifests=[query_result["manifest"]],
             )
     except Exception as error:
         print(sys.exc_info())
@@ -70,12 +72,12 @@ def submit_manifest(
 
     try:
         with get_repository(CLIENT_ID, DataCollection.MANIFEST) as repository:
-            manifest_hash = manifest.crypto_hash().to_hex()
-            print(manifest.to_json_object())
-            keys = repository.set(
+            manifest_hash = str(
+                manifest.crypto_hash().to_int()
+            )  # TODO: hex representation
+            _ = repository.set(
                 {"manifest_hash": manifest_hash, "manifest": manifest.to_json_object()}
             )
-            print(keys)
             return ManifestSubmitResponse(
                 status=ResponseStatus.SUCCESS, manifest_hash=manifest_hash
             )
@@ -87,11 +89,40 @@ def submit_manifest(
         ) from error
 
 
+@router.get("/find", tags=[MANIFEST])
+def find_manifests(
+    skip: int = 0, limit: int = 100, request: ManifestQueryRequest = Body(...)
+) -> ManifestQueryResponse:
+    """
+    Find manifests.
+
+    Search the repository for manifests that match the filter criteria specified in the request body.
+    If no filter criteria is specified the API will iterate all available data.
+    """
+    try:
+
+        filter = write_json_object(request.filter) if request.filter else {}
+        with get_repository(CLIENT_ID, DataCollection.ELECTION) as repository:
+            cursor = repository.find(filter, skip, limit)
+            manifests: List[Manifest] = []
+            for item in cursor:
+                manifests.append(Manifest.from_json_object(item["manifest"]))
+            return ManifestQueryResponse(
+                status=ResponseStatus.SUCCESS, manifests=manifests
+            )
+    except Exception as error:
+        print(sys.exc_info())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="find manifests failed",
+        ) from error
+
+
 @router.post("/validate", tags=[MANIFEST], status_code=status.HTTP_204_NO_CONTENT)
 def validate_manifest(
     request: ValidateManifestRequest = Body(...),
     schema: Any = Depends(get_description_schema),
-) -> BaseValidationResponse:
+) -> ValidateManifestResponse:
     """
     Validate an Election manifest for a given election.
     """
@@ -110,7 +141,7 @@ def _deserialize_manifest(data: object) -> Optional[Manifest]:
 
 def _validate_manifest(
     request: ValidateManifestRequest, schema: Any
-) -> Tuple[Optional[Manifest], BaseValidationResponse]:
+) -> Tuple[Optional[Manifest], ValidateManifestResponse]:
     # Check schema
     schema = request.schema_override if request.schema_override else schema
     (schema_success, schema_details) = validate_json_schema(request.manifest, schema)
@@ -124,11 +155,15 @@ def _validate_manifest(
     success = schema_success and serialize_success and valid_success
 
     if success:
-        return manifest, BaseValidationResponse(
-            status=ResponseStatus.SUCCESS, message="Manifest successfully validated"
+        return manifest, ValidateManifestResponse(
+            status=ResponseStatus.SUCCESS,
+            message="Manifest successfully validated",
+            manifest_hash=str(
+                get_optional(manifest).crypto_hash().to_int()
+            ),  # TODO: to hex
         )
 
-    return manifest, BaseValidationResponse(
+    return manifest, ValidateManifestResponse(
         status=ResponseStatus.FAIL,
         message="Manifest failed validation",
         details=str(

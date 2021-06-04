@@ -20,7 +20,12 @@ class IRepository(Protocol):
     def __exit__(self, exc_type: Any, exc_value: Any, exc_traceback: Any) -> None:
         pass
 
-    def get(self, key: MutableMapping) -> Any:
+    def find(self, filter: MutableMapping, skip: int = 0, limit: int = 0) -> Any:
+        """
+        Find items matching the filter
+        """
+
+    def get(self, filter: MutableMapping) -> Any:
         """
         Get an item from the container
         """
@@ -28,6 +33,11 @@ class IRepository(Protocol):
     def set(self, value: DOCUMENT_VALUE_TYPE) -> Any:
         """
         Set and item in the container
+        """
+
+    def update(self, filter: MutableMapping, value: DOCUMENT_VALUE_TYPE) -> Any:
+        """
+        Update an item
         """
 
 
@@ -57,9 +67,12 @@ class MemoryRepository(IRepository):
     def __exit__(self, exc_type: Any, exc_value: Any, exc_traceback: Any) -> None:
         pass
 
-    def get(self, key: MutableMapping) -> Any:
+    def find(self, filter: MutableMapping, skip: int = 0, limit: int = 0) -> Any:
+        pass
+
+    def get(self, filter: MutableMapping) -> Any:
         for item in self.storage.items():
-            if item[key[0]] == key[1]:
+            if item[filter[0]] == filter[1]:
                 return item
         return None
 
@@ -67,6 +80,9 @@ class MemoryRepository(IRepository):
         self._id += 1
         self.storage[self._id] = value
         return str(self._id)
+
+    def update(self, filter: MutableMapping, value: DOCUMENT_VALUE_TYPE) -> Any:
+        pass
 
 
 class MongoRepository(IRepository):
@@ -91,9 +107,13 @@ class MongoRepository(IRepository):
     def __exit__(self, exc_type: Any, exc_value: Any, exc_traceback: Any) -> None:
         self._client.close()
 
-    def get(self, key: MutableMapping) -> Any:
+    def find(self, filter: MutableMapping, skip: int = 0, limit: int = 0) -> Any:
         collection = self._database.get_collection(self._collection)
-        return collection.find_one(key)
+        return collection.find(filter=filter, skip=skip, limit=limit)
+
+    def get(self, filter: MutableMapping) -> Any:
+        collection = self._database.get_collection(self._collection)
+        return collection.find_one(filter)
 
     def set(self, value: DOCUMENT_VALUE_TYPE) -> Any:
         collection = self._database.get_collection(self._collection)
@@ -102,6 +122,10 @@ class MongoRepository(IRepository):
             return [str(id) for id in result.inserted_ids]
         result = collection.insert_one(value)
         return [str(result.inserted_id)]
+
+    def update(self, filter: MutableMapping, value: DOCUMENT_VALUE_TYPE) -> Any:
+        collection = self._database.get_collection(self._collection)
+        return collection.update_one(filter=filter, update={"$set": value})
 
 
 def get_repository(container: str, collection: str) -> IRepository:
