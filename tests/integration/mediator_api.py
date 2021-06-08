@@ -18,7 +18,43 @@ def combine_election_keys(election_public_keys: List[Dict]) -> Dict:
     return api_utils.send_post_request(_api_client, "key/election/combine", request)
 
 
-def create_election_context(
+def get_election(election_id: str) -> Dict:
+    return api_utils.send_get_request(
+        _api_client, f"election?election_id={election_id}"
+    )
+
+
+def submit_election(
+    election_id: str,
+    context: Dict,
+    manifest: Dict,
+) -> Dict:
+    """
+    Construct an encryption context for use throughout the election to encrypt and decrypt data
+    """
+    request = {"election_id": election_id, "context": context, "manifest": manifest}
+    return api_utils.send_put_request(_api_client, "election", request)
+
+
+def open_election(election_id: str) -> Dict:
+    return api_utils.send_post_request(
+        _api_client, f"election/open?election_id={election_id}"
+    )
+
+
+def close_election(election_id: str) -> Dict:
+    return api_utils.send_post_request(
+        _api_client, f"election/close?election_id={election_id}"
+    )
+
+
+def publish_election(election_id: str) -> Dict:
+    return api_utils.send_post_request(
+        _api_client, f"election/publish?election_id={election_id}"
+    )
+
+
+def build_election_context(
     manifest: Dict,
     elgamal_public_key: str,
     commitment_hash: str,
