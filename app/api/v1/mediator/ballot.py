@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 import sys
 
 from fastapi import APIRouter, Body, HTTPException, status, Response
@@ -19,6 +19,7 @@ from ....core.queue import get_message_queue, IMessageQueue
 from ..models import (
     ResponseStatus,
     BaseResponse,
+    BaseQueryRequest,
     BaseBallotRequest,
     BallotQueryResponse,
     CastBallotsRequest,
@@ -33,27 +34,47 @@ router = APIRouter()
 
 
 @router.get("", tags=[BALLOTS])
-def get_ballot(
-    election_id: str, ballot_id: str, response: Response
-) -> BallotQueryResponse:
+def get_ballot(election_id: str, ballot_id: str) -> BallotQueryResponse:
     """
     Get A Ballot for a specific election
     """
     with get_repository(election_id, DataCollection.SUBMITTED_BALLOT) as repository:
         ballot = repository.get({"object_id": ballot_id})
         if not ballot:
-            response.status_code = status.HTTP_404_NOT_FOUND
-            return BallotQueryResponse(
-                status=ResponseStatus.FAIL,
-                message=f"Could not find ballot {ballot_id}",
-                election_id=election_id,
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Could not find ballot {ballot_id}",
             )
 
         return BallotQueryResponse(
             status=ResponseStatus.SUCCESS,
             election_id=election_id,
-            ballot=write_json_object(ballot),
+            ballots=[write_json_object(ballot)],
         )
+
+
+@router.get("/find", tags=[BALLOTS])
+def find_ballots(
+    election_id: str,
+    skip: int = 0,
+    limit: int = 100,
+    request: BaseQueryRequest = Body(...),
+) -> BallotQueryResponse:
+    """Find Ballots."""
+    try:
+        filter = write_json_object(request.filter) if request.filter else {}
+        with get_repository(election_id, DataCollection.SUBMITTED_BALLOT) as repository:
+            cursor = repository.find(filter, skip, limit)
+            ballots: List[Any] = []
+            for item in cursor:
+                ballots.append(write_json_object(item))
+            return BallotQueryResponse(status=ResponseStatus.SUCCESS, ballots=ballots)
+    except Exception as error:
+        print(sys.exc_info())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="find guardians failed",
+        ) from error
 
 
 @router.post("/cast", tags=[BALLOTS], status_code=status.HTTP_202_ACCEPTED)

@@ -10,12 +10,6 @@ import electionguard.schnorr
 from electionguard.serializable import read_json_object
 
 from .base import Base, BaseRequest
-from .key import (
-    AuxiliaryPublicKey,
-    ElectionKeyPair,
-    ElectionPublicKey,
-    AuxiliaryKeyPair,
-)
 
 __all__ = [
     "ElectionPolynomial",
@@ -35,6 +29,12 @@ ElectionPolynomial = Any
 ElectionPartialKeyBackup = Any
 ElectionPartialKeyChallenge = Any
 GuardianId = Any
+
+ElectionKeyPair = Any
+AuxiliaryKeyPair = Any
+
+AuxiliaryPublicKey = Any
+ElectionPublicKey = Any
 
 
 class Guardian(Base):

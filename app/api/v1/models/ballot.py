@@ -23,7 +23,7 @@ PlaintextBallot = Any
 
 class BallotQueryResponse(BaseResponse):
     election_id: str
-    ballot: Optional[CiphertextBallot] = None
+    ballots: List[CiphertextBallot]
 
 
 class BaseBallotRequest(BaseRequest):

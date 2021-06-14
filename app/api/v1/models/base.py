@@ -6,6 +6,7 @@ __all__ = [
     "Base",
     "BaseRequest",
     "BaseResponse",
+    "BaseQueryRequest",
     "BaseValidationRequest",
     "BaseValidationResponse",
     "ResponseStatus",
@@ -35,6 +36,12 @@ class BaseResponse(BaseModel):
 
     message: Optional[str] = None
     """An optional message describing the response"""
+
+
+class BaseQueryRequest(BaseRequest):
+    """Find something"""
+
+    filter: Optional[Any] = None
 
 
 class BaseValidationRequest(BaseRequest):

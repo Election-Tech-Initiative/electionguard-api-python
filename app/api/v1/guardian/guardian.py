@@ -1,8 +1,10 @@
 from typing import Any, List
-import electionguard.auxiliary as EG_AUX
+from electionguard.auxiliary import AuxiliaryKeyPair, AuxiliaryPublicKey
 from electionguard.election_polynomial import ElectionPolynomial
 from electionguard.group import int_to_q_unchecked
 from electionguard.key_ceremony import (
+    ElectionKeyPair,
+    ElectionPublicKey,
     ElectionPartialKeyBackup,
     ElectionPartialKeyChallenge,
     generate_election_key_pair,
@@ -17,12 +19,11 @@ from electionguard.serializable import read_json_object, write_json_object
 from fastapi import APIRouter, HTTPException
 
 from ..models import (
-    AuxiliaryKeyPair,
+    BaseQueryRequest,
+    BaseResponse,
     BackupChallengeRequest,
     BackupVerificationRequest,
     ChallengeVerificationRequest,
-    ElectionKeyPair,
-    ElectionPublicKey,
     Guardian,
     GuardianRequest,
     GuardianBackup,
@@ -51,9 +52,7 @@ def create_guardian(request: GuardianRequest) -> Guardian:
             request.id, request.sequence_order
         )
     else:
-        auxiliary_keys = read_json_object(
-            request.auxiliary_key_pair, EG_AUX.AuxiliaryKeyPair
-        )
+        auxiliary_keys = read_json_object(request.auxiliary_key_pair, AuxiliaryKeyPair)
     if not election_keys:
         raise HTTPException(
             status_code=500,
@@ -96,7 +95,7 @@ def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackup:
         backup = generate_election_partial_key_backup(
             request.guardian_id,
             read_json_object(request.election_polynomial, ElectionPolynomial),
-            EG_AUX.AuxiliaryPublicKey(
+            AuxiliaryPublicKey(
                 auxiliary_public_key.owner_id,
                 auxiliary_public_key.sequence_order,
                 auxiliary_public_key.key,
@@ -114,13 +113,14 @@ def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackup:
 
 
 @router.post("/backup/verify", tags=[KEY_CEREMONY])
-def verify_backup(request: BackupVerificationRequest) -> Any:
+def verify_backup(request: BackupVerificationRequest) -> BaseResponse:
+    """aaa"""
     decrypt = identity if request.override_rsa else rsa_decrypt
     verification = verify_election_partial_key_backup(
         request.verifier_id,
         read_json_object(request.election_partial_key_backup, ElectionPartialKeyBackup),
         read_json_object(request.election_public_key, ElectionPublicKey),
-        read_json_object(request.auxiliary_key_pair, EG_AUX.AuxiliaryKeyPair),
+        read_json_object(request.auxiliary_key_pair, AuxiliaryKeyPair),
         decrypt,
     )
     if not verification:
@@ -131,7 +131,8 @@ def verify_backup(request: BackupVerificationRequest) -> Any:
 
 
 @router.post("/challenge", tags=[KEY_CEREMONY])
-def create_backup_challenge(request: BackupChallengeRequest) -> Any:
+def create_backup_challenge(request: BackupChallengeRequest) -> BaseResponse:
+    """aaa"""
     challenge = generate_election_partial_key_challenge(
         read_json_object(request.election_partial_key_backup, ElectionPartialKeyBackup),
         read_json_object(request.election_polynomial, ElectionPolynomial),
@@ -145,7 +146,8 @@ def create_backup_challenge(request: BackupChallengeRequest) -> Any:
 
 
 @router.post("/challenge/verify", tags=[KEY_CEREMONY])
-def verify_challenge(request: ChallengeVerificationRequest) -> Any:
+def verify_challenge(request: ChallengeVerificationRequest) -> BaseResponse:
+    """aaa"""
     verification = verify_election_partial_key_challenge(
         request.verifier_id,
         read_json_object(
