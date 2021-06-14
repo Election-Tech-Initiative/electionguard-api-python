@@ -1,4 +1,3 @@
-from app.api.v1.models.key import KeyCeremonyGuardianStatus, KeyCeremonyState
 from typing import Any, List, Optional
 import sys
 from fastapi import APIRouter, Body, HTTPException, status
@@ -8,6 +7,7 @@ from electionguard.key_ceremony import (
     ElectionPartialKeyBackup,
     ElectionPartialKeyVerification,
     ElectionPartialKeyChallenge,
+    verify_election_partial_key_challenge,
 )
 from electionguard.elgamal import elgamal_combine_public_keys
 from electionguard.serializable import write_json_object, read_json_object
@@ -20,19 +20,18 @@ from ..models import (
     ResponseStatus,
     GuardianAnnounceRequest,
     GuardianSubmitBackupRequest,
-    GuardianBackupQueryResponse,
     GuardianSubmitVerificationRequest,
-    GuardianVerificationQueryResponse,
     GuardianSubmitChallengeRequest,
-    GuardianChallengeQueryResponse,
     GuardianQueryResponse,
     KeyCeremony,
+    KeyCeremonyState,
     KeyCeremonyGuardian,
+    KeyCeremonyGuardianStatus,
     KeyCeremonyGuardianState,
     KeyCeremonyCreateRequest,
-    GuardianQueryResponse,
     KeyCeremonyStateResponse,
     KeyCeremonyQueryResponse,
+    KeyCeremonyVerifyChallengesResponse,
     ElectionJointKeyResponse,
 )
 from ..tags import KEY_CEREMONY
@@ -99,10 +98,14 @@ def find_guardians(
         ) from error
 
 
+# --------- Key Ceremony Participants --------
+
 # ROUND 0: Create Key Ceremony Guardians
 @router.put("/guardian")
-def put_guardian(request: KeyCeremonyGuardian = Body(...)) -> BaseResponse:
-    """Create a guardian"""
+def create_guardian(request: KeyCeremonyGuardian = Body(...)) -> BaseResponse:
+    """
+    Create a Key Ceremony Guardian.
+    """
     try:
         with get_repository(CLIENT_ID, DataCollection.GUARDIAN) as repository:
             query_result = repository.get({"guardian_id": request.guardian_id})
@@ -122,19 +125,20 @@ def put_guardian(request: KeyCeremonyGuardian = Body(...)) -> BaseResponse:
 
 
 # ROUND 1: Announce guardians with public keys
-@router.put("/ceremony/announce", tags=[KEY_CEREMONY])
+@router.post("/guardian/announce", tags=[KEY_CEREMONY])
 def announce_guardian(
     request: GuardianAnnounceRequest = Body(...),
 ) -> BaseResponse:
     """
-    Announce the guardian as present and participating in the Key Ceremony
-    :param public_key_set: Both the guardians public keys
+    Announce the guardian as present and participating in the Key Ceremony.
     """
     keyset = read_json_object(request.public_keys, PublicKeySet)
     guardian_id = keyset.election.owner_id
 
     ceremony = _get_key_ceremony(request.key_name)
     guardian = _get_guardian(guardian_id)
+
+    _validate_can_participate(ceremony, guardian)
 
     guardian.public_keys = write_json_object(keyset)
     ceremony.guardian_status[
@@ -146,19 +150,21 @@ def announce_guardian(
 
 
 # ROUND 2: Share Election Partial Key Backups for compensating
-@router.put("/ceremony/backup", tags=[KEY_CEREMONY])
-def put_guardian_backup(
+@router.post("/guardian/backup", tags=[KEY_CEREMONY])
+def share_backups(
     request: GuardianSubmitBackupRequest = Body(...),
 ) -> BaseResponse:
     """
-    put the guardian backups
+    Share Election Partial Key Backups to be distributed to the other guardians.
     """
+    ceremony = _get_key_ceremony(request.key_name)
+    guardian = _get_guardian(request.guardian_id)
+
+    _validate_can_participate(ceremony, guardian)
+
     backups = [
         read_json_object(backup, ElectionPartialKeyBackup) for backup in request.backups
     ]
-
-    ceremony = _get_key_ceremony(request.key_name)
-    guardian = _get_guardian(request.guardian_id)
 
     guardian.backups = [write_json_object(backup) for backup in backups]
     ceremony.guardian_status[
@@ -170,20 +176,22 @@ def put_guardian_backup(
 
 
 # ROUND 3: Share verifications of backups
-@router.put("/ceremony/verify", tags=[KEY_CEREMONY])
-def put_guardian_verification(
+@router.post("/guardian/verify", tags=[KEY_CEREMONY])
+def verify_backups(
     request: GuardianSubmitVerificationRequest = Body(...),
 ) -> BaseResponse:
     """
-    put the guardian backups
+    Share the reulsts of verifying the other guardians' backups
     """
+    ceremony = _get_key_ceremony(request.key_name)
+    guardian = _get_guardian(request.guardian_id)
+
+    _validate_can_participate(ceremony, guardian)
+
     verifications = [
         read_json_object(verification, ElectionPartialKeyVerification)
         for verification in request.verifications
     ]
-
-    ceremony = _get_key_ceremony(request.key_name)
-    guardian = _get_guardian(request.guardian_id)
 
     guardian.verifications = [
         write_json_object(verification) for verification in verifications
@@ -197,20 +205,22 @@ def put_guardian_verification(
 
 
 # ROUND 4 (Optional): If a verification fails, guardian must issue challenge
-@router.put("/ceremony/challenge", tags=[KEY_CEREMONY])
-def put_guardian_challenge(
+@router.post("/guardian/challenge", tags=[KEY_CEREMONY])
+def challenge_backups(
     request: GuardianSubmitChallengeRequest = Body(...),
 ) -> BaseResponse:
     """
-    Submit Challenges
+    Submit challenges to the other guardians' backups
     """
+    ceremony = _get_key_ceremony(request.key_name)
+    guardian = _get_guardian(request.guardian_id)
+
+    _validate_can_participate(ceremony, guardian)
+
     challenges = [
         read_json_object(challenge, ElectionPartialKeyChallenge)
         for challenge in request.challenges
     ]
-
-    ceremony = _get_key_ceremony(request.key_name)
-    guardian = _get_guardian(request.guardian_id)
 
     guardian.challenges = [write_json_object(challenge) for challenge in challenges]
     ceremony.guardian_status[
@@ -227,8 +237,7 @@ def publish_joint_key(
     key_name: str,
 ) -> KeyCeremonyQueryResponse:
     """
-    Combine public election keys into a final one
-    :return: Combine Election key
+    Publish joint election key from the public keys of all guardians
     """
     ceremony = _get_key_ceremony(key_name)
 
@@ -253,7 +262,7 @@ def publish_joint_key(
     )
 
 
-# --------- Key Ceremony --------
+# --------- Key Ceremony Admin --------
 
 
 @router.get("/ceremony", tags=[KEY_CEREMONY])
@@ -261,7 +270,7 @@ def get_key_ceremony(
     key_name: str,
 ) -> KeyCeremonyQueryResponse:
     """
-    Get a key ceremony
+    Get a specific key ceremony by key_name.
     """
     try:
         with get_repository(CLIENT_ID, DataCollection.KEY_CEREMONY) as repository:
@@ -288,7 +297,7 @@ def get_key_ceremony_state(
     key_name: str,
 ) -> KeyCeremonyStateResponse:
     """
-    Get Key Ceremony State
+    Get a specific key ceremony state by key_name.
     """
     ceremonies = get_key_ceremony(key_name)
 
@@ -303,7 +312,9 @@ def get_key_ceremony_state(
 def find_key_ceremonies(
     skip: int = 0, limit: int = 100, request: BaseQueryRequest = Body(...)
 ) -> KeyCeremonyQueryResponse:
-    """Find Key Ceremonies."""
+    """
+    Find Key Ceremonies according ot the filter criteria.
+    """
     try:
         filter = write_json_object(request.filter) if request.filter else {}
         with get_repository(CLIENT_ID, DataCollection.KEY_CEREMONY) as repository:
@@ -322,14 +333,34 @@ def find_key_ceremonies(
         ) from error
 
 
-@router.post("/ceremony/create", tags=[KEY_CEREMONY])
+@router.get("/ceremony/joint_key", tags=[KEY_CEREMONY])
+def get_joint_key(
+    key_name: str,
+) -> ElectionJointKeyResponse:
+    """
+    Get The Joint Election Key
+    """
+    ceremony = _get_key_ceremony(key_name)
+    if not ceremony.election_joint_key:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            detail=f"No joint key for {key_name}",
+        )
+
+    return ElectionJointKeyResponse(
+        status=ResponseStatus.SUCCESS,
+        joint_key=write_json_object(ceremony.election_joint_key),
+    )
+
+
+@router.put("/ceremony", tags=[KEY_CEREMONY])
 def create_key_ceremony(
     request: KeyCeremonyCreateRequest = Body(...),
 ) -> BaseResponse:
     """
     Create a Key Ceremony.
 
-    Will overwrite an existing one.
+    Calling this method for an existing key_name will overwrite an existing one.
     """
 
     ceremony = KeyCeremony(
@@ -365,7 +396,7 @@ def create_key_ceremony(
 @router.post("/ceremony/open", tags=[KEY_CEREMONY])
 def open_key_ceremony(key_name: str) -> BaseResponse:
     """
-    Open a Key Ceremony.
+    Open a key ceremony for participation.
     """
     return _update_key_ceremony_state(key_name, KeyCeremonyState.OPEN)
 
@@ -373,7 +404,7 @@ def open_key_ceremony(key_name: str) -> BaseResponse:
 @router.post("/ceremony/close", tags=[KEY_CEREMONY])
 def close_key_ceremony(key_name: str) -> BaseResponse:
     """
-    Close a Key Ceremony.
+    Close a key ceremony for participation
     """
     return _update_key_ceremony_state(key_name, KeyCeremonyState.CLOSED)
 
@@ -381,9 +412,42 @@ def close_key_ceremony(key_name: str) -> BaseResponse:
 @router.post("/ceremony/challenge", tags=[KEY_CEREMONY])
 def challenge_key_ceremony(key_name: str) -> BaseResponse:
     """
-    Challenge a Key Ceremony.
+    Mark the key ceremony challenged.
     """
     return _update_key_ceremony_state(key_name, KeyCeremonyState.CHALLENGED)
+
+
+@router.post("/ceremony/challenge/verify", tags=[KEY_CEREMONY])
+def verify_key_ceremony_challenges(key_name: str) -> BaseResponse:
+    """
+    Verify a challenged key ceremony.
+    """
+    ceremony = _get_key_ceremony(key_name)
+    challenge_guardians: List[KeyCeremonyGuardian] = []
+    for guardian_id, state in ceremony.guardian_status.items():
+        if state.backups_verified == KeyCeremonyGuardianStatus.ERROR:
+            challenge_guardians.append(_get_guardian(guardian_id))
+
+    if not any(challenge_guardians):
+        return BaseResponse(
+            status=ResponseStatus.SUCCESS, message="no challenges exist"
+        )
+
+    verifications: List[ElectionPartialKeyVerification] = []
+    for guardian in challenge_guardians:
+        if not guardian.challenges:
+            continue
+        for challenge in guardian.challenges:
+            verifications.append(
+                verify_election_partial_key_challenge(
+                    "API",
+                    read_json_object(challenge, ElectionPartialKeyChallenge),
+                )
+            )
+
+    return KeyCeremonyVerifyChallengesResponse(
+        status=ResponseStatus.SUCCESS, verifications=verifications
+    )
 
 
 @router.post("/ceremony/cancel", tags=[KEY_CEREMONY])
@@ -392,40 +456,6 @@ def cancel_key_ceremony(key_name: str) -> BaseResponse:
     Cancel a Key Ceremony.
     """
     return _update_key_ceremony_state(key_name, KeyCeremonyState.CANCELLED)
-
-
-@router.get("/ceremony/joint_key", tags=[KEY_CEREMONY])
-def get_joint_key(
-    key_name: str,
-) -> ElectionJointKeyResponse:
-    """
-    Get The Joint Election Key
-    """
-    ceremony = _get_key_ceremony(key_name)
-    if not ceremony.election_joint_key:
-        raise HTTPException(
-            status_code=status.HTTP_412_PRECONDITION_FAILED,
-            detail=f"No joint key for {key_name}",
-        )
-
-    return ElectionJointKeyResponse(
-        status=ResponseStatus.SUCCESS,
-        joint_key=write_json_object(ceremony.election_joint_key),
-    )
-
-
-def _validate_can_publish(ceremony: KeyCeremony) -> None:
-    # TODO: better validation
-    for guardian_id, state in ceremony.guardian_status.items():
-        if (
-            state.public_key_shared != KeyCeremonyGuardianStatus.COMPLETE
-            or state.backups_shared != KeyCeremonyGuardianStatus.COMPLETE
-            or state.backups_verified != KeyCeremonyGuardianStatus.COMPLETE
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_412_PRECONDITION_FAILED,
-                detail=f"Publish Constraint not satisfied for {guardian_id}",
-            )
 
 
 def _get_guardian(guardian_id: str) -> KeyCeremonyGuardian:
@@ -526,3 +556,34 @@ def _update_key_ceremony_state(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="update key ceremony state failed",
         ) from error
+
+
+def _validate_can_participate(
+    ceremony: KeyCeremony, guardian: KeyCeremonyGuardian
+) -> None:
+    # TODO: better validation
+    if ceremony.state != KeyCeremonyState.OPEN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Cannot announce for key ceremony state {ceremony.state}",
+        )
+
+    if guardian.guardian_id not in ceremony.guardian_ids:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Guardian {guardian.guardian_id} not in ceremony",
+        )
+
+
+def _validate_can_publish(ceremony: KeyCeremony) -> None:
+    # TODO: better validation
+    for guardian_id, state in ceremony.guardian_status.items():
+        if (
+            state.public_key_shared != KeyCeremonyGuardianStatus.COMPLETE
+            or state.backups_shared != KeyCeremonyGuardianStatus.COMPLETE
+            or state.backups_verified != KeyCeremonyGuardianStatus.COMPLETE
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_412_PRECONDITION_FAILED,
+                detail=f"Publish Constraint not satisfied for {guardian_id}",
+            )

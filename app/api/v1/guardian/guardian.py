@@ -25,7 +25,7 @@ from ..models import (
     BackupVerificationRequest,
     ChallengeVerificationRequest,
     Guardian,
-    GuardianRequest,
+    CreateGuardianRequest,
     GuardianBackup,
     GuardianBackupRequest,
 )
@@ -37,7 +37,7 @@ identity = lambda message, key: message
 
 
 @router.post("", response_model=Guardian, tags=[KEY_CEREMONY])
-def create_guardian(request: GuardianRequest) -> Guardian:
+def create_guardian(request: CreateGuardianRequest) -> Guardian:
     """
     Create a guardian for the election process with the associated keys
     """

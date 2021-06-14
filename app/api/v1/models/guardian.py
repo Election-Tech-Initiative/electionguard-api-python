@@ -9,14 +9,14 @@ import electionguard.key_ceremony
 import electionguard.schnorr
 from electionguard.serializable import read_json_object
 
-from .base import Base, BaseRequest
+from .base import Base, BaseRequest, BaseResponse
 
 __all__ = [
     "ElectionPolynomial",
     "ElectionPartialKeyBackup",
     "ElectionPartialKeyChallenge",
     "Guardian",
-    "GuardianRequest",
+    "CreateGuardianRequest",
     "GuardianBackup",
     "GuardianBackupRequest",
     "BackupVerificationRequest",
@@ -46,7 +46,8 @@ class Guardian(Base):
     auxiliary_key_pair: AuxiliaryKeyPair
 
 
-class GuardianRequest(BaseRequest):
+class CreateGuardianRequest(BaseRequest):
+
     id: str
     sequence_order: int
     number_of_guardians: int
