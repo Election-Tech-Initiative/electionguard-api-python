@@ -29,14 +29,14 @@ from ..models import (
     GuardianBackup,
     GuardianBackupRequest,
 )
-from ..tags import KEY_CEREMONY
+from ..tags import GUARDIAN
 
 router = APIRouter()
 
 identity = lambda message, key: message
 
 
-@router.post("", response_model=Guardian, tags=[KEY_CEREMONY])
+@router.post("", response_model=Guardian, tags=[GUARDIAN])
 def create_guardian(request: CreateGuardianRequest) -> Guardian:
     """
     Create a guardian for the election process with the associated keys
@@ -82,7 +82,7 @@ def create_guardian(request: CreateGuardianRequest) -> Guardian:
     )
 
 
-@router.post("/backup", response_model=GuardianBackup, tags=[KEY_CEREMONY])
+@router.post("/backup", response_model=GuardianBackup, tags=[GUARDIAN])
 def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackup:
     """
     Generate all election partial key backups based on existing public keys
@@ -112,7 +112,7 @@ def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackup:
     )
 
 
-@router.post("/backup/verify", tags=[KEY_CEREMONY])
+@router.post("/backup/verify", tags=[GUARDIAN])
 def verify_backup(request: BackupVerificationRequest) -> BaseResponse:
     """aaa"""
     decrypt = identity if request.override_rsa else rsa_decrypt
@@ -130,7 +130,7 @@ def verify_backup(request: BackupVerificationRequest) -> BaseResponse:
     return write_json_object(verification)
 
 
-@router.post("/challenge", tags=[KEY_CEREMONY])
+@router.post("/challenge", tags=[GUARDIAN])
 def create_backup_challenge(request: BackupChallengeRequest) -> BaseResponse:
     """aaa"""
     challenge = generate_election_partial_key_challenge(
@@ -145,7 +145,7 @@ def create_backup_challenge(request: BackupChallengeRequest) -> BaseResponse:
     return write_json_object(challenge)
 
 
-@router.post("/challenge/verify", tags=[KEY_CEREMONY])
+@router.post("/challenge/verify", tags=[GUARDIAN])
 def verify_challenge(request: ChallengeVerificationRequest) -> BaseResponse:
     """aaa"""
     verification = verify_election_partial_key_challenge(

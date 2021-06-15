@@ -15,6 +15,7 @@ from electionguard.manifest import Manifest
 from electionguard.serializable import read_json_object, write_json_object
 
 from .manifest import get_manifest
+from ....core.client import get_client_id
 from ....core.repository import get_repository, DataCollection
 from ..models import (
     BaseResponse,
@@ -32,9 +33,6 @@ from ..tags import ELECTION
 
 router = APIRouter()
 
-# TODO: multi-tenancy
-CLIENT_ID = "electionguard-default-client-id"
-
 
 @router.get("/constants", tags=[ELECTION])
 def get_election_constants() -> Any:
@@ -49,7 +47,7 @@ def get_election_constants() -> Any:
 def get_election(election_id: str) -> ElectionQueryResponse:
     """Get an election by election id"""
     try:
-        with get_repository(CLIENT_ID, DataCollection.ELECTION) as repository:
+        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
             query_result = repository.get({"election_id": election_id})
             if not query_result:
                 raise HTTPException(
@@ -116,7 +114,7 @@ def submit_election(
     )
 
     try:
-        with get_repository(CLIENT_ID, DataCollection.ELECTION) as repository:
+        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
             _ = repository.set(write_json_object(election.dict()))
             return SubmitElectionResponse(
                 status=ResponseStatus.SUCCESS, election_id=election_id
@@ -142,7 +140,7 @@ def find_elections(
     try:
 
         filter = write_json_object(request.filter) if request.filter else {}
-        with get_repository(CLIENT_ID, DataCollection.ELECTION) as repository:
+        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
             cursor = repository.find(filter, skip, limit)
             elections: List[Election] = []
             for item in cursor:
@@ -232,7 +230,7 @@ def build_election_context(
 
 def _update_election_state(election_id: str, new_state: ElectionState) -> BaseResponse:
     try:
-        with get_repository(CLIENT_ID, DataCollection.ELECTION) as repository:
+        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
             query_result = repository.get({"election_id": election_id})
             if not query_result:
                 raise HTTPException(

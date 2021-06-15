@@ -56,6 +56,27 @@ class CreateGuardianRequest(BaseRequest):
     auxiliary_key_pair: Optional[AuxiliaryKeyPair] = None
 
 
+class CreateElectionKeyPairRequest(BaseRequest):
+
+    owner_id: str
+    sequence_order: int
+    quorum: int
+    nonce: Optional[str] = None
+
+
+class CreateElectionKeyPairResponse(BaseResponse):
+    election_key_pair: ElectionKeyPair
+
+
+class CreateAuxiliaryKeyPairRequest(BaseRequest):
+    owner_id: str
+    sequence_order: int
+
+
+class CreateAuxiliaryKeyPairResponse(BaseResponse):
+    auxiliary_key_pair: AuxiliaryKeyPair
+
+
 class GuardianBackup(BaseRequest):
     id: str
     election_partial_key_backups: List[ElectionPartialKeyBackup]

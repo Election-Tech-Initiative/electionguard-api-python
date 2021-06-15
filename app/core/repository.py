@@ -1,8 +1,14 @@
 from typing import Dict, Protocol, Any, List, Union
 from collections.abc import MutableMapping
 
+import mmap
+import os
+import json
+
 from pymongo import MongoClient
 from pymongo.database import Database
+
+from electionguard.hash import hash_elems
 
 from .settings import Settings, StorageMode
 
@@ -43,10 +49,70 @@ class IRepository(Protocol):
 
 class DataCollection:
     GUARDIAN = "Guardian"
+    KEY_CEREMONY = "KeyCeremony"
     ELECTION = "Election"
     MANIFEST = "Manifest"
     SUBMITTED_BALLOT = "SubmittedBallots"
     TALLY = "Tally"
+
+
+class LocalRepository(IRepository):
+    """A simple local storage interface."""
+
+    def __init__(
+        self,
+        container: str,
+        collection: str,
+    ):
+        super().__init__()
+        self._id = 0
+        self._container = container
+        self._collection = collection
+        self._storage = os.path.join(
+            os.getcwd(), "data", self._container, self._collection
+        )
+
+    def __enter__(self) -> Any:
+        if not os.path.exists(self._storage):
+            os.makedirs(self._storage)
+
+    def __exit__(self, exc_type: Any, exc_value: Any, exc_traceback: Any) -> None:
+        pass
+
+    def find(self, filter: MutableMapping, skip: int = 0, limit: int = 0) -> Any:
+        pass
+
+    def get(self, filter: MutableMapping) -> Any:
+        """An inefficient search through all files in the directory"""
+        query_string = json.dumps(dict(filter))
+
+        search_files = [
+            file
+            for file in os.listdir(self._storage)
+            if os.path.isfile(os.path.join(self._storage, file))
+        ]
+
+        for filename in search_files:
+            with open(os.path.join(self._storage, filename)) as file, mmap.mmap(
+                file.fileno(), 0, access=mmap.ACCESS_READ
+            ) as search:
+                if search.find(bytes(query_string, "utf-8")) != -1:
+                    json_string = file.read()
+                    return json.loads(json_string)
+        return None
+
+    def set(self, value: DOCUMENT_VALUE_TYPE) -> Any:
+        # just ignore lists for now
+        if isinstance(value, List):
+            return None
+        json_string = json.dumps(dict(value))
+        filename = hash_elems(json_string).to_hex()
+        with open(os.path.join(self._storage, filename)) as file:
+            file.write(json_string)
+        return filename
+
+    def update(self, filter: MutableMapping, value: DOCUMENT_VALUE_TYPE) -> Any:
+        pass
 
 
 class MemoryRepository(IRepository):
@@ -131,5 +197,8 @@ class MongoRepository(IRepository):
 def get_repository(container: str, collection: str) -> IRepository:
     if settings.STORAGE_MODE == StorageMode.MONGO:
         return MongoRepository(settings.MONGODB_URI, container, collection)
+
+    if settings.STORAGE_MODE == StorageMode.LOCAL_STORAGE:
+        return LocalRepository(container, collection)
 
     return MemoryRepository(container, collection)

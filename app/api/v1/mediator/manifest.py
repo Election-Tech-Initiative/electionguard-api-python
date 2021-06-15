@@ -10,6 +10,7 @@ from electionguard.utils import get_optional
 
 from app.core.schema import get_description_schema
 
+from ....core.client import get_client_id
 from ....core.repository import get_repository, DataCollection
 from ..models import (
     ManifestQueryRequest,
@@ -23,9 +24,6 @@ from ..tags import MANIFEST
 
 router = APIRouter()
 
-# TODO: multi-tenancy
-CLIENT_ID = "electionguard-default-client-id"
-
 
 @router.get("", tags=[MANIFEST])
 def get_manifest(manifest_hash: str) -> ManifestQueryResponse:
@@ -36,7 +34,7 @@ def get_manifest(manifest_hash: str) -> ManifestQueryResponse:
             status_code=status.HTTP_400_BAD_REQUEST, detail="manifest hash not valid"
         )
     try:
-        with get_repository(CLIENT_ID, DataCollection.MANIFEST) as repository:
+        with get_repository(get_client_id(), DataCollection.MANIFEST) as repository:
             query_result = repository.get({"manifest_hash": crypto_hash.to_hex()})
             if not query_result:
                 raise HTTPException(
@@ -71,7 +69,7 @@ def submit_manifest(
         )
 
     try:
-        with get_repository(CLIENT_ID, DataCollection.MANIFEST) as repository:
+        with get_repository(get_client_id(), DataCollection.MANIFEST) as repository:
             manifest_hash = str(
                 manifest.crypto_hash().to_int()
             )  # TODO: hex representation
@@ -102,7 +100,7 @@ def find_manifests(
     try:
 
         filter = write_json_object(request.filter) if request.filter else {}
-        with get_repository(CLIENT_ID, DataCollection.ELECTION) as repository:
+        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
             cursor = repository.find(filter, skip, limit)
             manifests: List[Manifest] = []
             for item in cursor:

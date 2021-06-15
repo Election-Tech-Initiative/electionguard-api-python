@@ -8,7 +8,7 @@ from fastapi import APIRouter, Body, HTTPException
 from ..models import (
     AuxiliaryKeyPair,
     ElectionKeyPair,
-    ElectionKeyPairRequest,
+    CreateElectionKeyPairRequest,
     AuxiliaryRequest,
 )
 from ..tags import KEY_CEREMONY
@@ -18,7 +18,7 @@ router = APIRouter()
 
 @router.post("/election/generate", response_model=ElectionKeyPair, tags=[KEY_CEREMONY])
 def generate_election_keys(
-    request: ElectionKeyPairRequest = Body(...),
+    request: CreateElectionKeyPairRequest = Body(...),
 ) -> ElectionKeyPair:
     """
     Generate election key pairs for use in election process
