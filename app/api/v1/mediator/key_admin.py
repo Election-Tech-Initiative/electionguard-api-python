@@ -14,7 +14,7 @@ from electionguard.serializable import write_json_object, read_json_object
 from electionguard.group import int_to_p_unchecked
 
 from ....core.client import get_client_id
-from ....core.guardian import get_guardian
+from ....core.key_guardian import get_key_guardian
 from ....core.key_ceremony import (
     get_key_ceremony,
     update_key_ceremony,
@@ -43,7 +43,7 @@ router = APIRouter()
 
 
 @router.get("/ceremony", tags=[KEY_CEREMONY])
-def get_ceremony(
+def fetch_ceremony(
     key_name: str,
 ) -> KeyCeremonyQueryResponse:
     """
@@ -110,18 +110,18 @@ def create_ceremony(
 
 
 @router.get("/ceremony/state", tags=[KEY_CEREMONY])
-def get_ceremony_state(
+def fetch_ceremony_state(
     key_name: str,
 ) -> KeyCeremonyStateResponse:
     """
     Get a specific key ceremony state by key_name.
     """
-    ceremonies = get_key_ceremony(key_name)
+    ceremony = get_key_ceremony(key_name)
 
     return KeyCeremonyStateResponse(
         key_name=key_name,
-        state=ceremonies.key_ceremonies[0].state,
-        guardian_status=ceremonies.key_ceremonies[0].guardian_status,
+        state=ceremony.state,
+        guardian_status=ceremony.guardian_status,
     )
 
 
@@ -174,7 +174,7 @@ def challenge_ceremony(key_name: str) -> BaseResponse:
     return update_key_ceremony_state(key_name, KeyCeremonyState.CHALLENGED)
 
 
-@router.post("/ceremony/challenge/verify", tags=[KEY_CEREMONY])
+@router.get("/ceremony/challenge/verify", tags=[KEY_CEREMONY])
 def verify_ceremony_challenges(key_name: str) -> BaseResponse:
     """
     Verify a challenged key ceremony.
@@ -183,7 +183,7 @@ def verify_ceremony_challenges(key_name: str) -> BaseResponse:
     challenge_guardians: List[KeyCeremonyGuardian] = []
     for guardian_id, state in ceremony.guardian_status.items():
         if state.backups_verified == KeyCeremonyGuardianStatus.ERROR:
-            challenge_guardians.append(get_guardian(guardian_id))
+            challenge_guardians.append(get_key_guardian(guardian_id))
 
     if not any(challenge_guardians):
         return BaseResponse(
@@ -249,12 +249,13 @@ def publish_joint_key(
 
     election_public_keys = []
     for guardian_id in ceremony.guardian_ids:
-        guardian = get_guardian(guardian_id)
+        guardian = get_key_guardian(guardian_id)
         if not guardian.public_keys:
             raise HTTPException(
                 status_code=status.HTTP_412_PRECONDITION_FAILED,
                 detail=f"Could not find guardian public key {guardian_id}",
             )
+        # TODO: HEX
         election_public_keys.append(int_to_p_unchecked(guardian.public_keys.election))
 
     joint_key = elgamal_combine_public_keys(election_public_keys)

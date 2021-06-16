@@ -49,6 +49,7 @@ class IRepository(Protocol):
 
 class DataCollection:
     GUARDIAN = "Guardian"
+    KEY_GUARDIAN = "KeyGuardian"
     KEY_CEREMONY = "KeyCeremony"
     ELECTION = "Election"
     MANIFEST = "Manifest"

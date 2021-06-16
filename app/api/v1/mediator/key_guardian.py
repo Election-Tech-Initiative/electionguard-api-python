@@ -29,15 +29,17 @@ def get_key_ceremony_guardian(guardian_id: str) -> GuardianQueryResponse:
 
 
 @router.put("", tags=[GUARDIAN])
-def create_guardian(request: KeyCeremonyGuardian = Body(...)) -> BaseResponse:
+def create_key_ceremony_guardian(
+    request: KeyCeremonyGuardian = Body(...),
+) -> BaseResponse:
     """
     Create a Key Ceremony Guardian.
     """
     try:
-        with get_repository(get_client_id(), DataCollection.GUARDIAN) as repository:
+        with get_repository(get_client_id(), DataCollection.KEY_GUARDIAN) as repository:
             query_result = repository.get({"guardian_id": request.guardian_id})
             if not query_result:
-                repository.set(request)
+                repository.set(request.dict())
                 return BaseResponse(status=ResponseStatus.SUCCESS)
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -63,7 +65,7 @@ def find_key_ceremony_guardians(
     """
     try:
         filter = write_json_object(request.filter) if request.filter else {}
-        with get_repository(get_client_id(), DataCollection.GUARDIAN) as repository:
+        with get_repository(get_client_id(), DataCollection.KEY_GUARDIAN) as repository:
             cursor = repository.find(filter, skip, limit)
             guardians: List[KeyCeremonyGuardian] = []
             for item in cursor:

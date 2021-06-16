@@ -8,13 +8,13 @@ from .repository import get_repository, DataCollection
 from ..api.v1.models import (
     BaseResponse,
     ResponseStatus,
-    KeyCeremonyGuardian,
+    Guardian,
 )
 
 
-def get_key_guardian(guardian_id: str) -> KeyCeremonyGuardian:
+def get_guardian(guardian_id: str) -> Guardian:
     try:
-        with get_repository(get_client_id(), DataCollection.KEY_GUARDIAN) as repository:
+        with get_repository(get_client_id(), DataCollection.GUARDIAN) as repository:
             query_result = repository.get({"guardian_id": guardian_id})
             if not query_result:
                 raise HTTPException(
@@ -22,20 +22,18 @@ def get_key_guardian(guardian_id: str) -> KeyCeremonyGuardian:
                     detail=f"Could not find guardian {guardian_id}",
                 )
 
-            return read_json_object(query_result, KeyCeremonyGuardian)
+            return read_json_object(query_result, Guardian)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="get key ceremony guardian failed",
+            detail="get guardian failed",
         ) from error
 
 
-def update_key_guardian(
-    guardian_id: str, guardian: KeyCeremonyGuardian
-) -> BaseResponse:
+def update_guardian(guardian_id: str, guardian: Guardian) -> BaseResponse:
     try:
-        with get_repository(get_client_id(), DataCollection.KEY_GUARDIAN) as repository:
+        with get_repository(get_client_id(), DataCollection.GUARDIAN) as repository:
             query_result = repository.get({"guardian_id": guardian_id})
             if not query_result:
                 raise HTTPException(
@@ -48,5 +46,5 @@ def update_key_guardian(
         print(sys.exc_info())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="update key ceremony guardian failed",
+            detail="update guardian failed",
         ) from error

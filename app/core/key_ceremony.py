@@ -86,5 +86,5 @@ def validate_can_publish(ceremony: KeyCeremony) -> None:
         ):
             raise HTTPException(
                 status_code=status.HTTP_412_PRECONDITION_FAILED,
-                detail=f"Publish Constraint not satisfied for {guardian_id}",
+                detail=f"Publish constraint not satisfied for {guardian_id}",
             )
