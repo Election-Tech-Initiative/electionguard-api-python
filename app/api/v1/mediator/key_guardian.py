@@ -20,11 +20,13 @@ router = APIRouter()
 
 
 @router.get("", tags=[GUARDIAN])
-def get_key_ceremony_guardian(guardian_id: str) -> GuardianQueryResponse:
+def fetch_key_ceremony_guardian(
+    key_name: str, guardian_id: str
+) -> GuardianQueryResponse:
     """
-    Get a guardian.
+    Get a key ceremony guardian.
     """
-    guardian = get_key_guardian(guardian_id)
+    guardian = get_key_guardian(key_name, guardian_id)
     return GuardianQueryResponse(status=ResponseStatus.SUCCESS, guardians=[guardian])
 
 
@@ -34,10 +36,14 @@ def create_key_ceremony_guardian(
 ) -> BaseResponse:
     """
     Create a Key Ceremony Guardian.
+
+    In order for a guardian to participate they must be assiciated with the key ceremony first.
     """
     try:
         with get_repository(get_client_id(), DataCollection.KEY_GUARDIAN) as repository:
-            query_result = repository.get({"guardian_id": request.guardian_id})
+            query_result = repository.get(
+                {"key_name": request.key_name, "guardian_id": request.guardian_id}
+            )
             if not query_result:
                 repository.set(request.dict())
                 return BaseResponse(status=ResponseStatus.SUCCESS)
@@ -45,6 +51,39 @@ def create_key_ceremony_guardian(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Already exists {request.guardian_id}",
             )
+    except Exception as error:
+        print(sys.exc_info())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Submit ballots failed",
+        ) from error
+
+
+# TODO: delete
+
+
+@router.post("", tags=[GUARDIAN])
+def update_key_ceremony_guardian(
+    request: KeyCeremonyGuardian = Body(...),
+) -> BaseResponse:
+    """
+    Update a Key Ceremony Guardian.
+
+    This API is primarily for administrative purposes.
+    """
+    try:
+        with get_repository(get_client_id(), DataCollection.KEY_GUARDIAN) as repository:
+            query_result = repository.get(
+                {"key_name": request.key_name, "guardian_id": request.guardian_id}
+            )
+            if not query_result:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Does not exist {request.guardian_id}",
+                )
+            repository.set(request.dict())
+            return BaseResponse(status=ResponseStatus.SUCCESS)
+
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(

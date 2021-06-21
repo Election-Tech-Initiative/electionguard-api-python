@@ -12,10 +12,12 @@ from ..api.v1.models import (
 )
 
 
-def get_key_guardian(guardian_id: str) -> KeyCeremonyGuardian:
+def get_key_guardian(key_name: str, guardian_id: str) -> KeyCeremonyGuardian:
     try:
         with get_repository(get_client_id(), DataCollection.KEY_GUARDIAN) as repository:
-            query_result = repository.get({"guardian_id": guardian_id})
+            query_result = repository.get(
+                {"key_name": key_name, "guardian_id": guardian_id}
+            )
             if not query_result:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
@@ -32,11 +34,13 @@ def get_key_guardian(guardian_id: str) -> KeyCeremonyGuardian:
 
 
 def update_key_guardian(
-    guardian_id: str, guardian: KeyCeremonyGuardian
+    key_name: str, guardian_id: str, guardian: KeyCeremonyGuardian
 ) -> BaseResponse:
     try:
         with get_repository(get_client_id(), DataCollection.KEY_GUARDIAN) as repository:
-            query_result = repository.get({"guardian_id": guardian_id})
+            query_result = repository.get(
+                {"key_name": key_name, "guardian_id": guardian_id}
+            )
             if not query_result:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,

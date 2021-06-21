@@ -183,7 +183,7 @@ def verify_ceremony_challenges(key_name: str) -> BaseResponse:
     challenge_guardians: List[KeyCeremonyGuardian] = []
     for guardian_id, state in ceremony.guardian_status.items():
         if state.backups_verified == KeyCeremonyGuardianStatus.ERROR:
-            challenge_guardians.append(get_key_guardian(guardian_id))
+            challenge_guardians.append(get_key_guardian(key_name, guardian_id))
 
     if not any(challenge_guardians):
         return BaseResponse(
@@ -249,7 +249,7 @@ def publish_joint_key(
 
     election_public_keys = []
     for guardian_id in ceremony.guardian_ids:
-        guardian = get_key_guardian(guardian_id)
+        guardian = get_key_guardian(key_name, guardian_id)
         if not guardian.public_keys:
             raise HTTPException(
                 status_code=status.HTTP_412_PRECONDITION_FAILED,

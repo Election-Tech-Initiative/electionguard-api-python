@@ -43,12 +43,12 @@ class KeyCeremonyGuardianState(Base):
 class KeyCeremonyGuardian(Base):
     """Key Ceremony Guardain object is a record of the public data exchanged between guardians."""
 
+    key_name: str
     guardian_id: GUARDIAN_ID
     name: str
     sequence_order: int
     number_of_guardians: int
     quorum: int
-    key_name: str
     public_keys: Optional[PublicKeySet]
     backups: Optional[List[ElectionPartialKeyBackup]]
     verifications: Optional[List[ElectionPartialKeyVerification]]

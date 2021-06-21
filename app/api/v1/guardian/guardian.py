@@ -53,7 +53,7 @@ def fetch_guardian(guardian_id: str, with_secrets: Optional[bool]) -> Guardian:
     return get_guardian(guardian_id)
 
 
-@router.put("", tags=[GUARDIAN])
+@router.post("", tags=[GUARDIAN])
 def create_guardian(request: CreateGuardianRequest = Body(...)) -> BaseResponse:
     """
     Create a guardian for the election process with the associated keys
