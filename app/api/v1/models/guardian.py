@@ -18,6 +18,7 @@ __all__ = [
     "ElectionPartialKeyChallenge",
     "Guardian",
     "CreateGuardianRequest",
+    "GuardianPublicKeysResponse",
     "GuardianBackupRequest",
     "GuardianBackupResponse",
     "BackupReceiveVerificationRequest",
@@ -41,9 +42,11 @@ AuxiliaryKeyPair = Any
 AuxiliaryPublicKey = Any
 ElectionPublicKey = Any
 
+PublicKeySet = Any
+
 # TODO: remove all optional colections in favor of empty
 class Guardian(Base):
-    id: str
+    guardian_id: str
     sequence_order: int
     number_of_guardians: int
     quorum: int
@@ -53,7 +56,7 @@ class Guardian(Base):
     cohort_election_keys: Dict[GUARDIAN_ID, ElectionPublicKey] = {}
     cohort_auxiliary_keys: Dict[GUARDIAN_ID, AuxiliaryPublicKey] = {}
     cohort_backups: Dict[GUARDIAN_ID, ElectionPartialKeyBackup] = {}
-    cohort_verifications: Dict[GUARDIAN_ID, ElectionPartialKeyVerification]
+    cohort_verifications: Dict[GUARDIAN_ID, ElectionPartialKeyVerification] = {}
     cohort_challenges: Dict[GUARDIAN_ID, ElectionPartialKeyChallenge] = {}
 
 
@@ -88,9 +91,10 @@ class CreateAuxiliaryKeyPairResponse(BaseResponse):
     auxiliary_key_pair: AuxiliaryKeyPair
 
 
-class GuardianBackupResponse(BaseResponse):
-    guardian_id: str
-    election_partial_key_backups: List[ElectionPartialKeyBackup]
+class GuardianPublicKeysResponse(BaseResponse):
+    """A set of public auxiliary and election keys"""
+
+    public_keys: PublicKeySet
 
 
 class GuardianBackupRequest(BaseRequest):
@@ -100,15 +104,20 @@ class GuardianBackupRequest(BaseRequest):
     override_rsa: bool = False
 
 
+class GuardianBackupResponse(BaseResponse):
+    guardian_id: str
+    backups: List[ElectionPartialKeyBackup]
+
+
 class BackupReceiveVerificationRequest(BaseRequest):
     guardian_id: str
-    election_partial_key_backup: ElectionPartialKeyBackup
+    backup: ElectionPartialKeyBackup
     override_rsa: bool = False
 
 
 class BackupVerificationRequest(BaseRequest):
     verifier_id: str
-    election_partial_key_backup: ElectionPartialKeyBackup
+    backup: ElectionPartialKeyBackup
     election_public_key: ElectionPublicKey
     auxiliary_key_pair: AuxiliaryKeyPair
     override_rsa: bool = False
@@ -120,7 +129,7 @@ class BackupVerificationResponse(BaseResponse):
 
 class BackupChallengeRequest(BaseRequest):
     guardian_id: str
-    election_partial_key_backup: ElectionPartialKeyBackup
+    backup: ElectionPartialKeyBackup
 
 
 class BackupChallengeResponse(BaseResponse):
@@ -129,7 +138,7 @@ class BackupChallengeResponse(BaseResponse):
 
 class ChallengeVerificationRequest(BaseRequest):
     verifier_id: str
-    election_partial_key_challenge: ElectionPartialKeyChallenge
+    challenge: ElectionPartialKeyChallenge
 
 
 # pylint:disable=protected-access
@@ -139,35 +148,17 @@ def to_sdk_guardian(api_guardian: Guardian) -> electionguard.guardian.Guardian:
     """
 
     guardian = electionguard.guardian.Guardian(
-        api_guardian.id,
+        api_guardian.guardian_id,
         api_guardian.sequence_order,
         api_guardian.number_of_guardians,
         api_guardian.quorum,
     )
 
-    guardian._auxiliary_keys = electionguard.auxiliary.AuxiliaryKeyPair(
-        api_guardian.id,
-        api_guardian.sequence_order,
-        api_guardian.auxiliary_keys.public_key,
-        api_guardian.auxiliary_keys.secret_key,
+    guardian._auxiliary_keys = read_json_object(
+        api_guardian.auxiliary_keys, electionguard.auxiliary.AuxiliaryKeyPair
     )
-
-    election_public_key = read_json_object(
-        api_guardian.election_keys.key_pair["public_key"],
-        electionguard.group.ElementModP,
-    )
-    election_secret_key = read_json_object(
-        api_guardian.election_keys.key_pair["secret_key"],
-        electionguard.group.ElementModQ,
-    )
-    guardian._election_keys = electionguard.key_ceremony.ElectionKeyPair(
-        api_guardian.id,
-        api_guardian.sequence_order,
-        electionguard.elgamal.ElGamalKeyPair(election_secret_key, election_public_key),
-        read_json_object(
-            api_guardian.election_keys.polynomial,
-            electionguard.election_polynomial.ElectionPolynomial,
-        ),
+    guardian._election_keys = read_json_object(
+        api_guardian.election_keys, electionguard.key_ceremony.ElectionKeyPair
     )
 
     # TODO: backups and things

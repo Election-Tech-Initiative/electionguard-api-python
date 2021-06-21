@@ -2,18 +2,18 @@
 # - One for each API under test
 # - one for each infrastructure component
 # - One to house the test runner
-# 
+#
 # The test runner will wait for both API containers to run, and validate that
 # the APIs have started by checking their ping endpoints.
-# 
+#
 # This should be run with the --build and --abort-on-container-exit flags
 
 version: "3.8"
 services:
   messagequeue:
     image: rabbitmq:3.8.16-management-alpine
-    container_name: 'postman-electionguard-message-queue'
-    expose: 
+    container_name: "postman-electionguard-message-queue"
+    expose:
       - 5672
       - 15672
     ports:
@@ -47,10 +47,12 @@ services:
       STORAGE_MODE: "mongo"
       PROJECT_NAME: "ElectionGuard Guardian API"
       PORT: 80
-  
+      MESSAGEQUEUE_URI: "amqp://guest:guest@postman-electionguard-message-queue:5672"
+      MONGODB_URI: "mongodb://root:example@postman-electionguard-db:27017"
+
   mongo:
     image: mongo
-    container_name: 'postman-electionguard-db'
+    container_name: "postman-electionguard-db"
     restart: always
     ports:
       - 27017:27017
@@ -58,7 +60,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
       MONGO_INITDB_DATABASE: BallotData
-    volumes: 
+    volumes:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
 
   mongo-express:
@@ -68,10 +70,10 @@ services:
       - 8081:8081
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example   
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
     links:
-      - 'mongo'
-        
+      - "mongo"
+
   test-runner:
     build:
       context: .
@@ -81,5 +83,6 @@ services:
     volumes:
       - ".:/tests"
     entrypoint: dockerize
-    command: -wait http://guardian/api/v1/ping -wait http://mediator/api/v1/ping -timeout 10s
+    command:
+      -wait http://guardian/api/v1/ping -wait http://mediator/api/v1/ping -timeout 10s
       bash -c "newman run /tests/*.postman_collection.json --timeout-request 60000 --env-var guardian-url=http://guardian --env-var mediator-url=http://mediator"

@@ -49,24 +49,10 @@ def fetch_ceremony(
     """
     Get a specific key ceremony by key_name.
     """
-    try:
-        with get_repository(get_client_id(), DataCollection.KEY_CEREMONY) as repository:
-            query_result = repository.get({"key_name": key_name})
-            if not query_result:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Could not find key ceremony {key_name}",
-                )
-            key_ceremony = read_json_object(query_result, KeyCeremony)
-            return KeyCeremonyQueryResponse(
-                status=ResponseStatus.SUCCESS, KeyCeremonies=[key_ceremony]
-            )
-    except Exception as error:
-        print(sys.exc_info())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="get key ceremony failed",
-        ) from error
+    key_ceremony = get_key_ceremony(key_name)
+    return KeyCeremonyQueryResponse(
+        status=ResponseStatus.SUCCESS, key_ceremonies=[key_ceremony]
+    )
 
 
 @router.put("/ceremony", tags=[KEY_CEREMONY])
@@ -95,7 +81,7 @@ def create_ceremony(
         with get_repository(get_client_id(), DataCollection.KEY_CEREMONY) as repository:
             query_result = repository.get({"key_name": request.key_name})
             if not query_result:
-                repository.set(ceremony)
+                repository.set(ceremony.dict())
                 return BaseResponse(status=ResponseStatus.SUCCESS)
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -216,7 +202,7 @@ def cancel_ceremony(key_name: str) -> BaseResponse:
 
 
 @router.get("/ceremony/joint_key", tags=[KEY_CEREMONY])
-def get_joint_key(
+def fetch_joint_key(
     key_name: str,
 ) -> ElectionJointKeyResponse:
     """

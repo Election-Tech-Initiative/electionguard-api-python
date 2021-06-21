@@ -41,7 +41,7 @@ class KeyCeremony(Base):
     quorum: int
     guardian_ids: List[GUARDIAN_ID]
     guardian_status: Dict[GUARDIAN_ID, KeyCeremonyGuardianState]
-    election_joint_key: Optional[ElectionJointKey]
+    election_joint_key: Optional[ElectionJointKey] = None
 
 
 class KeyCeremonyStateResponse(Base):

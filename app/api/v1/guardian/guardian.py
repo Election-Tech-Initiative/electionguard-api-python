@@ -1,3 +1,4 @@
+from app.api.v1.models.guardian import to_sdk_guardian
 from typing import Any, Dict, List, Optional
 import sys
 from electionguard.types import GUARDIAN_ID
@@ -7,6 +8,7 @@ from electionguard.auxiliary import AuxiliaryKeyPair, AuxiliaryPublicKey
 from electionguard.election_polynomial import ElectionPolynomial
 from electionguard.group import int_to_q_unchecked
 from electionguard.key_ceremony import (
+    PublicKeySet,
     ElectionKeyPair,
     ElectionPublicKey,
     ElectionPartialKeyBackup,
@@ -37,6 +39,7 @@ from ..models import (
     ChallengeVerificationRequest,
     Guardian,
     CreateGuardianRequest,
+    GuardianPublicKeysResponse,
     GuardianBackupResponse,
     GuardianBackupRequest,
 )
@@ -48,9 +51,21 @@ identity = lambda message, key: message
 
 
 @router.get("", tags=[GUARDIAN])
-def fetch_guardian(guardian_id: str, with_secrets: Optional[bool]) -> Guardian:
+def fetch_guardian(guardian_id: str, with_secrets: Optional[bool] = False) -> Guardian:
     """"""
     return get_guardian(guardian_id)
+
+
+@router.get("/public-keys", tags=[GUARDIAN])
+def fetch_public_keys(guardian_id: str) -> GuardianPublicKeysResponse:
+    """"""
+    guardian = get_guardian(guardian_id)
+    sdk_guardian = to_sdk_guardian(guardian)
+
+    return GuardianPublicKeysResponse(
+        status=ResponseStatus.SUCCESS,
+        public_keys=write_json_object(sdk_guardian.share_public_keys()),
+    )
 
 
 @router.post("", tags=[GUARDIAN])
@@ -80,22 +95,12 @@ def create_guardian(request: CreateGuardianRequest = Body(...)) -> BaseResponse:
             status_code=500, detail="Auxiliary keys failed to be generated"
         )
     guardian = Guardian(
-        id=request.guardian_id,
+        guardian_id=request.guardian_id,
         sequence_order=request.sequence_order,
         number_of_guardians=request.number_of_guardians,
         quorum=request.quorum,
-        election_keys=ElectionKeyPair(
-            owner_id=request.guardian_id,
-            sequence_order=request.sequence_order,
-            key_pair=election_keys.key_pair,
-            polynomial=election_keys.polynomial,
-        ),
-        auxiliary_keys=AuxiliaryKeyPair(
-            owner_id=request.guardian_id,
-            sequence_order=request.sequence_order,
-            public_key=auxiliary_keys.public_key,
-            secret_key=auxiliary_keys.secret_key,
-        ),
+        election_keys=write_json_object(election_keys),
+        auxiliary_keys=write_json_object(auxiliary_keys),
     )
 
     try:
@@ -124,18 +129,20 @@ def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackupResp
     :return: Guardian backup
     """
     guardian = get_guardian(request.guardian_id)
+    polynomial = read_json_object(
+        guardian.election_keys["polynomial"], ElectionPolynomial
+    )
 
     encrypt = identity if request.override_rsa else rsa_encrypt
     backups: Dict[GUARDIAN_ID, ElectionPartialKeyBackup] = {}
+    auxiliary_keys: Dict[GUARDIAN_ID, AuxiliaryPublicKey] = {}
     for auxiliary_public_key in request.auxiliary_public_keys:
+        auxiliary = read_json_object(auxiliary_public_key, AuxiliaryPublicKey)
+
         backup = generate_election_partial_key_backup(
-            request.guardian_id,
-            read_json_object(guardian.election_keys["polynomial"], ElectionPolynomial),
-            AuxiliaryPublicKey(
-                auxiliary_public_key.owner_id,
-                auxiliary_public_key.sequence_order,
-                auxiliary_public_key.key,
-            ),
+            guardian.guardian_id,
+            polynomial,
+            auxiliary,
             encrypt,
         )
         if not backup:
@@ -143,14 +150,21 @@ def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackupResp
                 status_code=500,
                 detail=f"Backup failed to be generated for {auxiliary_public_key.owner_id}",
             )
-        backups[auxiliary_public_key.owner_id] = backup
+        backups[auxiliary.owner_id] = backup
+        auxiliary_keys[auxiliary.owner_id] = auxiliary
 
-    # TODO: serialize the backups, probably through the dicts
+    guardian.backups = {
+        owner_id: write_json_object(backup) for (owner_id, backup) in backups.items()
+    }
+    guardian.cohort_auxiliary_keys = {
+        owner_id: write_json_object(aux) for (owner_id, aux) in auxiliary_keys.items()
+    }
+    update_guardian(guardian.guardian_id, guardian)
 
     return GuardianBackupResponse(
         status=ResponseStatus.SUCCESS,
         guardian_id=request.guardian_id,
-        election_partial_key_backups=backups,
+        backups=[write_json_object(backup) for (id, backup) in backups.items()],
     )
 
 
@@ -158,9 +172,7 @@ def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackupResp
 def receive_backup(request: BackupReceiveVerificationRequest) -> BaseResponse:
     """Receive and verify election partial key backup value is in polynomial."""
     guardian = get_guardian(request.guardian_id)
-    backup = read_json_object(
-        request.election_partial_key_backup, ElectionPartialKeyBackup
-    )
+    backup = read_json_object(request.backup, ElectionPartialKeyBackup)
     election_key = read_json_object(
         guardian.cohort_election_keys[backup.owner_id], ElectionPublicKey
     )
@@ -192,7 +204,7 @@ def verify_backup(request: BackupVerificationRequest) -> BackupVerificationRespo
     decrypt = identity if request.override_rsa else rsa_decrypt
     verification = verify_election_partial_key_backup(
         request.verifier_id,
-        read_json_object(request.election_partial_key_backup, ElectionPartialKeyBackup),
+        read_json_object(request.backup, ElectionPartialKeyBackup),
         read_json_object(request.election_public_key, ElectionPublicKey),
         read_json_object(request.auxiliary_key_pair, AuxiliaryKeyPair),
         decrypt,
@@ -211,10 +223,14 @@ def verify_backup(request: BackupVerificationRequest) -> BackupVerificationRespo
 def create_backup_challenge(request: BackupChallengeRequest) -> BaseResponse:
     """Publish election backup challenge of election partial key verification."""
     guardian = get_guardian(request.guardian_id)
+    polynomial = read_json_object(
+        guardian.election_keys["polynomial"], ElectionPolynomial
+    )
+    backup = read_json_object(request.backup, ElectionPartialKeyBackup)
 
     challenge = generate_election_partial_key_challenge(
-        read_json_object(request.election_partial_key_backup, ElectionPartialKeyBackup),
-        read_json_object(guardian.election_keys.polynomial, ElectionPolynomial),
+        backup,
+        polynomial,
     )
     if not challenge:
         raise HTTPException(
@@ -234,9 +250,7 @@ def verify_challenge(
     """Verify challenge of previous verification of election partial key."""
     verification = verify_election_partial_key_challenge(
         request.verifier_id,
-        read_json_object(
-            request.election_partial_key_challenge, ElectionPartialKeyChallenge
-        ),
+        read_json_object(request.challenge, ElectionPartialKeyChallenge),
     )
     if not verification:
         raise HTTPException(

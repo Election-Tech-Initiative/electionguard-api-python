@@ -23,8 +23,19 @@ def get_key_guardian(key_name: str, guardian_id: str) -> KeyCeremonyGuardian:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Could not find guardian {guardian_id}",
                 )
-
-            return read_json_object(query_result, KeyCeremonyGuardian)
+            guardian = KeyCeremonyGuardian(
+                key_name=query_result["key_name"],
+                guardian_id=query_result["guardian_id"],
+                name=query_result["name"],
+                sequence_order=query_result["sequence_order"],
+                number_of_guardians=query_result["number_of_guardians"],
+                quorum=query_result["quorum"],
+                public_keys=query_result["public_keys"],
+                backups=query_result["backups"],
+                verifications=query_result["verifications"],
+                challenges=query_result["challenges"],
+            )
+            return guardian
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(

@@ -1,7 +1,7 @@
 import sys
 from fastapi import HTTPException, status
 
-from electionguard.serializable import read_json_object
+from electionguard.serializable import read_json_object, write_json_object
 
 from .client import get_client_id
 from .repository import get_repository, DataCollection
@@ -21,8 +21,22 @@ def get_guardian(guardian_id: str) -> Guardian:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Could not find guardian {guardian_id}",
                 )
-
-            return read_json_object(query_result, Guardian)
+            guardian = Guardian(
+                guardian_id=query_result["guardian_id"],
+                sequence_order=query_result["sequence_order"],
+                number_of_guardians=query_result["number_of_guardians"],
+                quorum=query_result["quorum"],
+                election_keys=write_json_object(query_result["election_keys"]),
+                auxiliary_keys=write_json_object(query_result["auxiliary_keys"]),
+                backups=query_result["backups"],
+                cohort_election_keys=query_result["cohort_election_keys"],
+                cohort_auxiliary_keys=query_result["cohort_auxiliary_keys"],
+                cohort_backups=query_result["cohort_backups"],
+                cohort_verifications=query_result["cohort_verifications"],
+                cohort_challenges=query_result["cohort_challenges"],
+            )
+            # TODO: backups and things
+            return guardian
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(

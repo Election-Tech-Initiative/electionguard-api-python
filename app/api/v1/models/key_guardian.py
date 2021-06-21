@@ -35,9 +35,9 @@ class KeyCeremonyGuardianStatus(str, Enum):
 class KeyCeremonyGuardianState(Base):
     """The Key Ceremony Guardian State describes the operations each guardian must fulfill to complete a key ceremony."""
 
-    public_key_shared: KeyCeremonyGuardianStatus
-    backups_shared: KeyCeremonyGuardianStatus
-    backups_verified: KeyCeremonyGuardianStatus
+    public_key_shared: KeyCeremonyGuardianStatus = KeyCeremonyGuardianStatus.INCOMPLETE
+    backups_shared: KeyCeremonyGuardianStatus = KeyCeremonyGuardianStatus.INCOMPLETE
+    backups_verified: KeyCeremonyGuardianStatus = KeyCeremonyGuardianStatus.INCOMPLETE
 
 
 class KeyCeremonyGuardian(Base):
@@ -49,10 +49,10 @@ class KeyCeremonyGuardian(Base):
     sequence_order: int
     number_of_guardians: int
     quorum: int
-    public_keys: Optional[PublicKeySet]
-    backups: Optional[List[ElectionPartialKeyBackup]]
-    verifications: Optional[List[ElectionPartialKeyVerification]]
-    challenges: Optional[List[ElectionPartialKeyChallenge]]
+    public_keys: Optional[PublicKeySet] = None
+    backups: List[ElectionPartialKeyBackup] = []
+    verifications: List[ElectionPartialKeyVerification] = []
+    challenges: List[ElectionPartialKeyChallenge] = []
 
 
 class GuardianAnnounceRequest(BaseRequest):

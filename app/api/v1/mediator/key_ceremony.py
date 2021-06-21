@@ -38,7 +38,7 @@ def announce_guardian(
     guardian_id = keyset.election.owner_id
 
     ceremony = get_key_ceremony(request.key_name)
-    guardian = get_key_guardian(guardian_id)
+    guardian = get_key_guardian(request.key_name, guardian_id)
 
     _validate_can_participate(ceremony, guardian)
 
@@ -47,7 +47,7 @@ def announce_guardian(
         guardian_id
     ].public_key_shared = KeyCeremonyGuardianStatus.COMPLETE
 
-    update_key_guardian(guardian_id, guardian)
+    update_key_guardian(request.key_name, guardian_id, guardian)
     return update_key_ceremony(request.key_name, ceremony)
 
 
@@ -60,7 +60,7 @@ def share_backups(
     Share Election Partial Key Backups to be distributed to the other guardians.
     """
     ceremony = get_key_ceremony(request.key_name)
-    guardian = get_key_guardian(request.guardian_id)
+    guardian = get_key_guardian(request.key_name, request.guardian_id)
 
     _validate_can_participate(ceremony, guardian)
 
@@ -73,7 +73,7 @@ def share_backups(
         request.guardian_id
     ].backups_shared = KeyCeremonyGuardianStatus.COMPLETE
 
-    update_key_guardian(request.guardian_id, guardian)
+    update_key_guardian(request.key_name, request.guardian_id, guardian)
     return update_key_ceremony(request.key_name, ceremony)
 
 
@@ -86,7 +86,7 @@ def verify_backups(
     Share the reulsts of verifying the other guardians' backups
     """
     ceremony = get_key_ceremony(request.key_name)
-    guardian = get_key_guardian(request.guardian_id)
+    guardian = get_key_guardian(request.key_name, request.guardian_id)
 
     _validate_can_participate(ceremony, guardian)
 
@@ -102,7 +102,7 @@ def verify_backups(
         request.guardian_id
     ].backups_verified = KeyCeremonyGuardianStatus.COMPLETE
 
-    update_key_guardian(request.guardian_id, guardian)
+    update_key_guardian(request.key_name, request.guardian_id, guardian)
     return update_key_ceremony(request.key_name, ceremony)
 
 
@@ -115,7 +115,7 @@ def challenge_backups(
     Submit challenges to the other guardians' backups
     """
     ceremony = get_key_ceremony(request.key_name)
-    guardian = get_key_guardian(request.guardian_id)
+    guardian = get_key_guardian(request.key_name, request.guardian_id)
 
     _validate_can_participate(ceremony, guardian)
 
@@ -129,7 +129,7 @@ def challenge_backups(
         request.guardian_id
     ].backups_verified = KeyCeremonyGuardianStatus.ERROR
 
-    update_key_guardian(request.guardian_id, guardian)
+    update_key_guardian(request.key_name, request.guardian_id, guardian)
     return update_key_ceremony(request.key_name, ceremony)
 
 
