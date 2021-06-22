@@ -53,8 +53,7 @@ class Guardian(Base):
     election_keys: ElectionKeyPair
     auxiliary_keys: AuxiliaryKeyPair
     backups: Dict[GUARDIAN_ID, ElectionPartialKeyBackup] = {}
-    cohort_election_keys: Dict[GUARDIAN_ID, ElectionPublicKey] = {}
-    cohort_auxiliary_keys: Dict[GUARDIAN_ID, AuxiliaryPublicKey] = {}
+    cohort_public_keys: Dict[GUARDIAN_ID, PublicKeySet] = {}
     cohort_backups: Dict[GUARDIAN_ID, ElectionPartialKeyBackup] = {}
     cohort_verifications: Dict[GUARDIAN_ID, ElectionPartialKeyVerification] = {}
     cohort_challenges: Dict[GUARDIAN_ID, ElectionPartialKeyChallenge] = {}
@@ -100,7 +99,7 @@ class GuardianPublicKeysResponse(BaseResponse):
 class GuardianBackupRequest(BaseRequest):
     guardian_id: str
     quorum: int
-    auxiliary_public_keys: List[AuxiliaryPublicKey]
+    public_keys: List[PublicKeySet]
     override_rsa: bool = False
 
 

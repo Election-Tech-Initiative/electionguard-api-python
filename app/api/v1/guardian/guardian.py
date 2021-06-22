@@ -21,7 +21,7 @@ from electionguard.key_ceremony import (
     verify_election_partial_key_challenge,
 )
 from electionguard.rsa import rsa_decrypt, rsa_encrypt
-from electionguard.serializable import read_json_object, write_json_object
+from electionguard.serializable import read_json_object, write_json, write_json_object
 from electionguard.utils import get_optional
 
 from ....core.client import get_client_id
@@ -135,29 +135,31 @@ def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackupResp
 
     encrypt = identity if request.override_rsa else rsa_encrypt
     backups: Dict[GUARDIAN_ID, ElectionPartialKeyBackup] = {}
-    auxiliary_keys: Dict[GUARDIAN_ID, AuxiliaryPublicKey] = {}
-    for auxiliary_public_key in request.auxiliary_public_keys:
-        auxiliary = read_json_object(auxiliary_public_key, AuxiliaryPublicKey)
+    cohort_public_keys: Dict[GUARDIAN_ID, PublicKeySet] = {}
+    for key_set in request.public_keys:
+        cohort_key_set = read_json_object(key_set, PublicKeySet)
+        cohort_owner_id = cohort_key_set.election.owner_id
 
         backup = generate_election_partial_key_backup(
             guardian.guardian_id,
             polynomial,
-            auxiliary,
+            cohort_key_set.auxiliary,
             encrypt,
         )
         if not backup:
             raise HTTPException(
                 status_code=500,
-                detail=f"Backup failed to be generated for {auxiliary_public_key.owner_id}",
+                detail=f"Backup failed to be generated for {cohort_owner_id}",
             )
-        backups[auxiliary.owner_id] = backup
-        auxiliary_keys[auxiliary.owner_id] = auxiliary
+        backups[cohort_owner_id] = backup
+        cohort_public_keys[cohort_owner_id] = cohort_key_set
 
     guardian.backups = {
         owner_id: write_json_object(backup) for (owner_id, backup) in backups.items()
     }
-    guardian.cohort_auxiliary_keys = {
-        owner_id: write_json_object(aux) for (owner_id, aux) in auxiliary_keys.items()
+    guardian.cohort_public_keys = {
+        owner_id: write_json_object(key_set)
+        for (owner_id, key_set) in cohort_public_keys.items()
     }
     update_guardian(guardian.guardian_id, guardian)
 
@@ -168,23 +170,21 @@ def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackupResp
     )
 
 
-@router.post("/backup/receive", tags=[GUARDIAN])
-def receive_backup(request: BackupReceiveVerificationRequest) -> BaseResponse:
+@router.post("/backup/verify", tags=[GUARDIAN])
+def verify_backup(request: BackupReceiveVerificationRequest) -> BaseResponse:
     """Receive and verify election partial key backup value is in polynomial."""
     guardian = get_guardian(request.guardian_id)
+    auxiliary_keys = read_json_object(guardian.auxiliary_keys, AuxiliaryKeyPair)
     backup = read_json_object(request.backup, ElectionPartialKeyBackup)
-    election_key = read_json_object(
-        guardian.cohort_election_keys[backup.owner_id], ElectionPublicKey
-    )
-    auxiliary_key = read_json_object(
-        guardian.cohort_auxiliary_keys[backup.owner_id], AuxiliaryKeyPair
+    cohort_keys = read_json_object(
+        guardian.cohort_public_keys[backup.owner_id], PublicKeySet
     )
     decrypt = identity if request.override_rsa else rsa_decrypt
     verification = verify_election_partial_key_backup(
         request.guardian_id,
         backup,
-        election_key,
-        auxiliary_key,
+        cohort_keys.election,
+        auxiliary_keys,
         decrypt,
     )
     if not verification:
@@ -193,30 +193,11 @@ def receive_backup(request: BackupReceiveVerificationRequest) -> BaseResponse:
             detail="Backup verification process failed",
         )
 
-    guardian.cohort_backups[backup.owner_id] = backup
+    guardian.cohort_backups[backup.owner_id] = write_json_object(backup)
+    guardian.cohort_verifications[backup.owner_id] = write_json_object(verification)
+    update_guardian(guardian.guardian_id, guardian)
+
     return BaseResponse(status=ResponseStatus.SUCCESS)
-
-
-@router.post("/backup/verify", tags=[GUARDIAN])
-def verify_backup(request: BackupVerificationRequest) -> BackupVerificationResponse:
-    """Verify election partial key backup value is in polynomial."""
-
-    decrypt = identity if request.override_rsa else rsa_decrypt
-    verification = verify_election_partial_key_backup(
-        request.verifier_id,
-        read_json_object(request.backup, ElectionPartialKeyBackup),
-        read_json_object(request.election_public_key, ElectionPublicKey),
-        read_json_object(request.auxiliary_key_pair, AuxiliaryKeyPair),
-        decrypt,
-    )
-    if not verification:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Backup verification process failed",
-        )
-    return BackupVerificationResponse(
-        status=ResponseStatus.SUCCESS, verification=write_json_object(verification)
-    )
 
 
 @router.post("/challenge", tags=[GUARDIAN])
@@ -238,6 +219,8 @@ def create_backup_challenge(request: BackupChallengeRequest) -> BaseResponse:
             detail="Backup challenge generation failed",
         )
 
+    guardian.cohort_challenges[backup.owner_id] = write_json_object(challenge)
+    update_guardian(guardian.guardian_id, guardian)
     return BackupChallengeResponse(
         status=ResponseStatus.SUCCESS, challenge=write_json_object(challenge)
     )
