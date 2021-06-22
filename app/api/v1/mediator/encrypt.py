@@ -47,7 +47,6 @@ def encrypt_ballots(
         current_hash = get_optional(encrypted_ballot.crypto_hash)
 
     response = EncryptBallotsResponse(
-        status=ResponseStatus.SUCCESS,
         message="Successfully encrypted ballots",
         encrypted_ballots=[ballot.to_json_object() for ballot in encrypted_ballots],
         next_seed_hash=write_json_object(current_hash),

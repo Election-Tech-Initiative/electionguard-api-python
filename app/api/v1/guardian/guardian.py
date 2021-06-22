@@ -63,7 +63,6 @@ def fetch_public_keys(guardian_id: str) -> GuardianPublicKeysResponse:
     sdk_guardian = to_sdk_guardian(guardian)
 
     return GuardianPublicKeysResponse(
-        status=ResponseStatus.SUCCESS,
         public_keys=write_json_object(sdk_guardian.share_public_keys()),
     )
 
@@ -108,7 +107,7 @@ def create_guardian(request: CreateGuardianRequest = Body(...)) -> BaseResponse:
             query_result = repository.get({"guardian_id": request.guardian_id})
             if not query_result:
                 repository.set(guardian.dict())
-                return BaseResponse(status=ResponseStatus.SUCCESS)
+                return BaseResponse()
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Already exists {request.guardian_id}",
@@ -162,7 +161,6 @@ def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackupResp
     update_guardian(guardian.guardian_id, guardian)
 
     return GuardianBackupResponse(
-        status=ResponseStatus.SUCCESS,
         guardian_id=request.guardian_id,
         backups=[write_json_object(backup) for (id, backup) in backups.items()],
     )
@@ -195,7 +193,7 @@ def verify_backup(request: BackupVerificationRequest) -> BaseResponse:
     guardian.cohort_verifications[backup.owner_id] = write_json_object(verification)
     update_guardian(guardian.guardian_id, guardian)
 
-    return BaseResponse(status=ResponseStatus.SUCCESS)
+    return BaseResponse()
 
 
 @router.post("/challenge", tags=[GUARDIAN])
@@ -219,9 +217,7 @@ def create_backup_challenge(request: BackupChallengeRequest) -> BaseResponse:
 
     guardian.cohort_challenges[backup.owner_id] = write_json_object(challenge)
     update_guardian(guardian.guardian_id, guardian)
-    return BackupChallengeResponse(
-        status=ResponseStatus.SUCCESS, challenge=write_json_object(challenge)
-    )
+    return BackupChallengeResponse(challenge=write_json_object(challenge))
 
 
 @router.post("/challenge/verify", tags=[GUARDIAN])
@@ -238,6 +234,4 @@ def verify_challenge(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Challenge verification process failed",
         )
-    return BackupVerificationResponse(
-        status=ResponseStatus.SUCCESS, verification=write_json_object(verification)
-    )
+    return BackupVerificationResponse(verification=write_json_object(verification))

@@ -62,7 +62,6 @@ def get_election(election_id: str) -> ElectionQueryResponse:
             )
 
             return ElectionQueryResponse(
-                status=ResponseStatus.SUCCESS,
                 elections=[election],
             )
     except Exception as error:
@@ -116,9 +115,7 @@ def submit_election(
     try:
         with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
             _ = repository.set(write_json_object(election.dict()))
-            return SubmitElectionResponse(
-                status=ResponseStatus.SUCCESS, election_id=election_id
-            )
+            return SubmitElectionResponse(election_id=election_id)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
@@ -152,9 +149,7 @@ def find_elections(
                         manifest=item["manifest"],
                     )
                 )
-            return ElectionQueryResponse(
-                status=ResponseStatus.SUCCESS, elections=elections
-            )
+            return ElectionQueryResponse(elections=elections)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
@@ -223,9 +218,7 @@ def build_election_context(
         manifest.crypto_hash(),
     )
 
-    return MakeElectionContextResponse(
-        status=ResponseStatus.SUCCESS, context=context.to_json_object()
-    )
+    return MakeElectionContextResponse(context=context.to_json_object())
 
 
 def _update_election_state(election_id: str, new_state: ElectionState) -> BaseResponse:
@@ -245,7 +238,7 @@ def _update_election_state(election_id: str, new_state: ElectionState) -> BaseRe
             )
 
             repository.update({"election_id": election_id}, election.dict())
-            return BaseResponse(status=ResponseStatus.SUCCESS)
+            return BaseResponse()
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(

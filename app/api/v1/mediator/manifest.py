@@ -43,7 +43,6 @@ def get_manifest(manifest_hash: str) -> ManifestQueryResponse:
                 )
 
             return ManifestQueryResponse(
-                status=ResponseStatus.SUCCESS,
                 manifests=[query_result["manifest"]],
             )
     except Exception as error:
@@ -74,9 +73,7 @@ def submit_manifest(
             _ = repository.set(
                 {"manifest_hash": manifest_hash, "manifest": manifest.to_json_object()}
             )
-            return ManifestSubmitResponse(
-                status=ResponseStatus.SUCCESS, manifest_hash=manifest_hash
-            )
+            return ManifestSubmitResponse(manifest_hash=manifest_hash)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
@@ -103,9 +100,7 @@ def find_manifests(
             manifests: List[Manifest] = []
             for item in cursor:
                 manifests.append(Manifest.from_json_object(item["manifest"]))
-            return ManifestQueryResponse(
-                status=ResponseStatus.SUCCESS, manifests=manifests
-            )
+            return ManifestQueryResponse(manifests=manifests)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
@@ -152,7 +147,6 @@ def _validate_manifest(
 
     if success:
         return manifest, ValidateManifestResponse(
-            status=ResponseStatus.SUCCESS,
             message="Manifest successfully validated",
             manifest_hash=get_optional(manifest).crypto_hash().to_hex(),
         )

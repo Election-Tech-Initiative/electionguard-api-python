@@ -54,7 +54,7 @@ def update_key_ceremony(key_name: str, ceremony: KeyCeremony) -> BaseResponse:
                     detail=f"Could not find key ceremony {key_name}",
                 )
             repository.update({"key_name": key_name}, ceremony.dict())
-            return BaseResponse(status=ResponseStatus.SUCCESS)
+            return BaseResponse()
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
@@ -78,7 +78,7 @@ def update_key_ceremony_state(
             key_ceremony.state = new_state
 
             repository.update({"key_name": key_name}, key_ceremony.dict())
-            return BaseResponse(status=ResponseStatus.SUCCESS)
+            return BaseResponse()
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(

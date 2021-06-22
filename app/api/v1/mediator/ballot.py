@@ -47,7 +47,6 @@ def get_ballot(election_id: str, ballot_id: str) -> BallotQueryResponse:
             )
 
         return BallotQueryResponse(
-            status=ResponseStatus.SUCCESS,
             election_id=election_id,
             ballots=[write_json_object(ballot)],
         )
@@ -68,7 +67,7 @@ def find_ballots(
             ballots: List[Any] = []
             for item in cursor:
                 ballots.append(write_json_object(item))
-            return BallotQueryResponse(status=ResponseStatus.SUCCESS, ballots=ballots)
+            return BallotQueryResponse(ballots=ballots)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
@@ -162,9 +161,7 @@ def validate_ballot(
     Validate a ballot for the given election data
     """
     _validate_ballot(request)
-    return BaseResponse(
-        status=ResponseStatus.SUCCESS, message="Ballot is valid for election"
-    )
+    return BaseResponse(message="Ballot is valid for election")
 
 
 def _get_election_parameters(
@@ -207,7 +204,6 @@ def _submit_ballots(
             cacheable_ballots = [ballot.to_json_object() for ballot in ballots]
             keys = repository.set(cacheable_ballots)
             return SubmitBallotsResponse(
-                status=ResponseStatus.SUCCESS,
                 message="Ballot Successfully Submitted",
                 cache_keys=keys,
                 election_id=election_id,
@@ -262,9 +258,7 @@ def test_submit_ballot(
             status_code=500,
             detail="Ballot failed to be submitted",
         ) from error
-    return BaseResponse(
-        status=ResponseStatus.SUCCESS, message="Ballot Successfully Submitted"
-    )
+    return BaseResponse(message="Ballot Successfully Submitted")
 
 
 def _process_ballots(queue: IMessageQueue, election_id: str) -> None:

@@ -51,9 +51,7 @@ def fetch_ceremony(
     Get a specific key ceremony by key_name.
     """
     key_ceremony = get_key_ceremony(key_name)
-    return KeyCeremonyQueryResponse(
-        status=ResponseStatus.SUCCESS, key_ceremonies=[key_ceremony]
-    )
+    return KeyCeremonyQueryResponse(key_ceremonies=[key_ceremony])
 
 
 @router.put("/ceremony", tags=[KEY_CEREMONY])
@@ -83,7 +81,7 @@ def create_ceremony(
             query_result = repository.get({"key_name": request.key_name})
             if not query_result:
                 repository.set(ceremony.dict())
-                return BaseResponse(status=ResponseStatus.SUCCESS)
+                return BaseResponse()
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Already exists {request.key_name}",
@@ -126,9 +124,7 @@ def find_ceremonies(
             key_ceremonies: List[KeyCeremony] = []
             for item in cursor:
                 key_ceremonies.append(from_query(item))
-            return KeyCeremonyQueryResponse(
-                status=ResponseStatus.SUCCESS, key_ceremonies=key_ceremonies
-            )
+            return KeyCeremonyQueryResponse(key_ceremonies=key_ceremonies)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
@@ -173,9 +169,7 @@ def verify_ceremony_challenges(key_name: str) -> BaseResponse:
             challenge_guardians.append(get_key_guardian(key_name, guardian_id))
 
     if not any(challenge_guardians):
-        return BaseResponse(
-            status=ResponseStatus.SUCCESS, message="no challenges exist"
-        )
+        return BaseResponse(message="no challenges exist")
 
     verifications: List[ElectionPartialKeyVerification] = []
     for guardian in challenge_guardians:
@@ -189,9 +183,7 @@ def verify_ceremony_challenges(key_name: str) -> BaseResponse:
                 )
             )
 
-    return KeyCeremonyVerifyChallengesResponse(
-        status=ResponseStatus.SUCCESS, verifications=verifications
-    )
+    return KeyCeremonyVerifyChallengesResponse(verifications=verifications)
 
 
 @router.post("/ceremony/cancel", tags=[KEY_CEREMONY])

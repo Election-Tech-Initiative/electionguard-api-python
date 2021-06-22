@@ -27,7 +27,7 @@ def fetch_key_ceremony_guardian(
     Get a key ceremony guardian.
     """
     guardian = get_key_guardian(key_name, guardian_id)
-    return GuardianQueryResponse(status=ResponseStatus.SUCCESS, guardians=[guardian])
+    return GuardianQueryResponse(guardians=[guardian])
 
 
 @router.put("", tags=[GUARDIAN])
@@ -46,7 +46,7 @@ def create_key_ceremony_guardian(
             )
             if not query_result:
                 repository.set(request.dict())
-                return BaseResponse(status=ResponseStatus.SUCCESS)
+                return BaseResponse()
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Already exists {request.guardian_id}",
@@ -79,7 +79,7 @@ def update_key_ceremony_guardian(
                     detail=f"Does not exist {request.guardian_id}",
                 )
             repository.set(request.dict())
-            return BaseResponse(status=ResponseStatus.SUCCESS)
+            return BaseResponse()
 
     except Exception as error:
         print(sys.exc_info())
@@ -106,9 +106,7 @@ def find_key_ceremony_guardians(
             guardians: List[KeyCeremonyGuardian] = []
             for item in cursor:
                 guardians.append(read_json_object(item, KeyCeremonyGuardian))
-            return GuardianQueryResponse(
-                status=ResponseStatus.SUCCESS, guardians=guardians
-            )
+            return GuardianQueryResponse(guardians=guardians)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(

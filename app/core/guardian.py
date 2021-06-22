@@ -58,7 +58,7 @@ def update_guardian(guardian_id: str, guardian: Guardian) -> BaseResponse:
                     detail=f"Could not find guardian {guardian_id}",
                 )
             repository.update({"guardian_id": guardian_id}, guardian.dict())
-            return BaseResponse(status=ResponseStatus.SUCCESS)
+            return BaseResponse()
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(

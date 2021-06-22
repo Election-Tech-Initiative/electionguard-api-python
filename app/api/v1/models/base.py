@@ -31,7 +31,7 @@ class BaseRequest(BaseModel):
 class BaseResponse(BaseModel):
     """A basic response"""
 
-    status: ResponseStatus
+    status: ResponseStatus = ResponseStatus.SUCCESS
     """The status of the response"""
 
     message: Optional[str] = None
