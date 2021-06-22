@@ -73,7 +73,7 @@ def get_election(election_id: str) -> ElectionQueryResponse:
 
 
 @router.put("", tags=[ELECTION])
-def submit_election(
+def create_election(
     election_id: Optional[str], request: SubmitElectionRequest = Body(...)
 ) -> SubmitElectionResponse:
     """
@@ -95,11 +95,11 @@ def submit_election(
     if request.manifest:
         manifest = Manifest.from_json_object(request.manifest)
     else:
-        manifest_query = get_manifest(context.description_hash)
+        manifest_query = get_manifest(context.manifest_hash)
         manifest = Manifest.from_json_object(manifest_query.manifests[0])
 
     # validate that the context was built against the correct manifest
-    if context.description_hash != manifest.crypto_hash():
+    if context.manifest_hash != manifest.crypto_hash():
         raise HTTPException(
             status_code=status.HTTP_412_PRECONDITION_FAILED,
             detail="manifest hash does not match provided context hash",
@@ -194,7 +194,7 @@ def build_election_context(
     or by providing the manifest directly in the request body
     """
     if not manifest_hash:
-        manifest_hash = request.description_hash
+        manifest_hash = request.manifest_hash
 
     if manifest_hash:
         print(manifest_hash)
