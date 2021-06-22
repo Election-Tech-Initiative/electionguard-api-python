@@ -5,6 +5,7 @@ from fastapi import APIRouter, Body, HTTPException, status
 from electionguard.hash import hash_elems
 from electionguard.key_ceremony import (
     PublicKeySet,
+    ElectionPublicKey,
     ElectionPartialKeyVerification,
     ElectionPartialKeyChallenge,
     verify_election_partial_key_challenge,
@@ -35,6 +36,7 @@ from ..models import (
     KeyCeremonyStateResponse,
     KeyCeremonyQueryResponse,
     KeyCeremonyVerifyChallengesResponse,
+    PublishElectionJointKeyRequest,
     ElectionJointKeyResponse,
 )
 from ..tags import KEY_CEREMONY_ADMIN
@@ -234,6 +236,28 @@ def fetch_joint_key(
     )
 
 
+@router.post(
+    "/ceremony/combine",
+    response_model=ElectionJointKeyResponse,
+    tags=[KEY_CEREMONY_ADMIN],
+)
+def combine_election_keys(
+    request: PublishElectionJointKeyRequest,
+) -> ElectionJointKeyResponse:
+    """
+    Combine public election keys into a final one without mutating the state of the key ceremony.
+    :return: Combine Election key
+    """
+    election_public_keys: List[ElementModP] = []
+    coefficient_commitments: List[ElementModP] = []
+    for public_key in request.election_public_keys:
+        key = read_json_object(public_key, ElectionPublicKey)
+        election_public_keys.append(key.key)
+        for commitment in key.coefficient_commitments:
+            coefficient_commitments.append(commitment)
+    return _elgamal_combine_keys(election_public_keys, coefficient_commitments)
+
+
 # FINAL: Publish joint public election key
 @router.post(
     "/ceremony/publish",
@@ -265,13 +289,21 @@ def publish_joint_key(
         for commitment in public_keys.election.coefficient_commitments:
             coefficient_commitments.append(commitment)
 
-    joint_key = elgamal_combine_public_keys(election_public_keys)
-    commitment_hash = hash_elems(coefficient_commitments)
-    ceremony.elgamal_public_key = write_json_object(joint_key)
-    ceremony.commitment_hash = write_json_object(commitment_hash)
+    response = _elgamal_combine_keys(election_public_keys, coefficient_commitments)
+
+    ceremony.elgamal_public_key = response.elgamal_public_key
+    ceremony.commitment_hash = response.commitment_hash
     update_key_ceremony(key_name, ceremony)
 
+    return response
+
+
+def _elgamal_combine_keys(
+    election_public_keys: List[ElementModP], coefficient_commitments: List[ElementModP]
+) -> ElectionJointKeyResponse:
+    elgamal_public_key = elgamal_combine_public_keys(election_public_keys)
+    commitment_hash = hash_elems(coefficient_commitments)
     return ElectionJointKeyResponse(
-        elgamal_public_key=write_json_object(ceremony.elgamal_public_key),
-        commitment_hash=write_json_object(ceremony.commitment_hash),
+        elgamal_public_key=write_json_object(elgamal_public_key),
+        commitment_hash=write_json_object(commitment_hash),
     )

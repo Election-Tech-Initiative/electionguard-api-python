@@ -14,7 +14,7 @@ def create_guardian(
     guardian_id: str, sequence_order: int, number_of_guardians: int, quorum: int
 ) -> Dict:
     request = {
-        "id": guardian_id,
+        "guardian_id": guardian_id,
         "sequence_order": sequence_order,
         "number_of_guardians": number_of_guardians,
         "quorum": quorum,

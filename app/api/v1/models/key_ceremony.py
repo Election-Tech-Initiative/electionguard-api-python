@@ -13,6 +13,7 @@ __all__ = [
     "KeyCeremonyStateResponse",
     "KeyCeremonyQueryResponse",
     "KeyCeremonyVerifyChallengesResponse",
+    "PublishElectionJointKeyRequest",
     "ElectionJointKeyResponse",
 ]
 

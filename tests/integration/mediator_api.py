@@ -9,13 +9,13 @@ from . import api_utils
 _api_client = TestClient(get_app(Settings(API_MODE=ApiMode.MEDIATOR)))
 
 
-def combine_election_keys(election_public_keys: List[Dict]) -> Dict:
+def combine_election_keys(key_name: str, election_public_keys: List[Dict]) -> Dict:
     """
     Combine the public keys of all guardians into a single ElGamal public key
     for use throughout the election
     """
-    request = {"election_public_keys": election_public_keys}
-    return api_utils.send_post_request(_api_client, "key/election/combine", request)
+    request = {"key_name": key_name, "election_public_keys": election_public_keys}
+    return api_utils.send_post_request(_api_client, "key/ceremony/combine", request)
 
 
 def get_election(election_id: str) -> Dict:

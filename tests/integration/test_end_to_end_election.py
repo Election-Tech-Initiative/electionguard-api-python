@@ -7,7 +7,9 @@ from .data import test_data
 NUMBER_OF_GUARDIANS = 3
 QUORUM = 2
 
-guardian_ids = ["g_1", "g_2", "g_3"]
+key_name = "key_ceremony_1"
+
+guardian_ids = ["guardian_1", "guardian_2", "guardian_3"]
 
 
 def test_election_with_all_guardians() -> None:
@@ -36,23 +38,17 @@ def prepare_election(description: Dict) -> Tuple[List[Dict], Dict]:
     Note that this includes a small portion of the key ceremony, but does not
     run through the full process!
     """
-    guardians = create_guardians()
-
-    guardian_public_keys = [
-        guardian["election_key_pair"]["key_pair"]["public_key"]
-        for guardian in guardians
-    ]
-    elgamal_public_key = mediator_api.combine_election_keys(guardian_public_keys)[
-        "joint_key"
-    ]
-
-    commitment_hash = "2"
+    responses = create_guardians()
+    public_keys = [response["public_keys"]["election"] for response in responses]
+    joint_key_respopnse = mediator_api.combine_election_keys(key_name, public_keys)
+    elgamal_public_key = joint_key_respopnse["elgamal_public_key"]
+    commitment_hash = joint_key_respopnse["commitment_hash"]
 
     context = mediator_api.build_election_context(
         description, elgamal_public_key, commitment_hash, NUMBER_OF_GUARDIANS, QUORUM
     )
 
-    return guardians, context
+    return public_keys, context
 
 
 def run_election(description: Dict, context: Dict) -> Tuple[Dict, List[Dict]]:

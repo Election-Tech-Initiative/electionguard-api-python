@@ -66,8 +66,10 @@ def fetch_public_keys(guardian_id: str) -> GuardianPublicKeysResponse:
     )
 
 
-@router.post("", response_model=BaseResponse, tags=[GUARDIAN])
-def create_guardian(request: CreateGuardianRequest = Body(...)) -> BaseResponse:
+@router.post("", response_model=GuardianPublicKeysResponse, tags=[GUARDIAN])
+def create_guardian(
+    request: CreateGuardianRequest = Body(...),
+) -> GuardianPublicKeysResponse:
     """
     Create a guardian for the election process with the associated keys.
     """
@@ -100,23 +102,28 @@ def create_guardian(request: CreateGuardianRequest = Body(...)) -> BaseResponse:
         election_keys=write_json_object(election_keys),
         auxiliary_keys=write_json_object(auxiliary_keys),
     )
+    sdk_guardian = to_sdk_guardian(guardian)
 
     try:
         with get_repository(get_client_id(), DataCollection.GUARDIAN) as repository:
             query_result = repository.get({"guardian_id": request.guardian_id})
             if not query_result:
                 repository.set(guardian.dict())
-                return BaseResponse()
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Already exists {request.guardian_id}",
-            )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Already exists {request.guardian_id}",
+                )
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Submit ballots failed",
         ) from error
+
+    return GuardianPublicKeysResponse(
+        public_keys=write_json_object(sdk_guardian.share_public_keys()),
+    )
 
 
 @router.post("/backup", response_model=GuardianBackupResponse, tags=[GUARDIAN])
