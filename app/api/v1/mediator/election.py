@@ -23,7 +23,6 @@ from ..models import (
     ElectionState,
     ElectionQueryRequest,
     ElectionQueryResponse,
-    ResponseStatus,
     MakeElectionContextRequest,
     MakeElectionContextResponse,
     SubmitElectionRequest,

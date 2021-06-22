@@ -1,7 +1,7 @@
 from typing import Any, List, Optional, Tuple
 import sys
 
-from fastapi import APIRouter, Body, HTTPException, status, Response
+from fastapi import APIRouter, Body, HTTPException, status
 
 from electionguard.ballot import (
     SubmittedBallot,
@@ -17,7 +17,6 @@ from electionguard.serializable import write_json_object
 from ....core.repository import get_repository, DataCollection
 from ....core.queue import get_message_queue, IMessageQueue
 from ..models import (
-    ResponseStatus,
     BaseResponse,
     BaseQueryRequest,
     BaseBallotRequest,

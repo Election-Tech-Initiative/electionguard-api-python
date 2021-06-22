@@ -33,7 +33,7 @@ class KeyCeremonyGuardianStatus(str, Enum):
 
 
 class KeyCeremonyGuardianState(Base):
-    """The Key Ceremony Guardian State describes the operations each guardian must fulfill to complete a key ceremony."""
+    """Describes the operations each guardian must fulfill to complete a key ceremony."""
 
     public_key_shared: KeyCeremonyGuardianStatus = KeyCeremonyGuardianStatus.INCOMPLETE
     backups_shared: KeyCeremonyGuardianStatus = KeyCeremonyGuardianStatus.INCOMPLETE
@@ -41,7 +41,9 @@ class KeyCeremonyGuardianState(Base):
 
 
 class KeyCeremonyGuardian(Base):
-    """Key Ceremony Guardain object is a record of the public data exchanged between guardians."""
+    """
+    A record of the public data exchanged between guardians.
+    """
 
     key_name: str
     guardian_id: GUARDIAN_ID

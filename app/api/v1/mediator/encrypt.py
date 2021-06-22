@@ -10,7 +10,6 @@ from electionguard.utils import get_optional
 from fastapi import APIRouter, Body, HTTPException
 
 from ..models import (
-    ResponseStatus,
     EncryptBallotsRequest,
     EncryptBallotsResponse,
 )

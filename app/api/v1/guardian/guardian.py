@@ -26,7 +26,6 @@ from ....core.guardian import get_guardian, update_guardian
 from ....core.repository import get_repository, DataCollection
 from ..models import (
     BaseResponse,
-    ResponseStatus,
     BackupChallengeRequest,
     BackupChallengeResponse,
     BackupVerificationRequest,
