@@ -2,6 +2,7 @@ from typing import Any, List, Optional
 import sys
 from fastapi import APIRouter, Body, HTTPException, status
 
+from electionguard.hash import hash_elems
 from electionguard.key_ceremony import (
     PublicKeySet,
     ElectionPartialKeyBackup,
@@ -202,15 +203,20 @@ def fetch_joint_key(
     Get The Joint Election Key
     """
     ceremony = get_key_ceremony(key_name)
-    if not ceremony.election_joint_key:
+    if not ceremony.elgamal_public_key:
         raise HTTPException(
             status_code=status.HTTP_412_PRECONDITION_FAILED,
             detail=f"No joint key for {key_name}",
         )
+    if not ceremony.commitment_hash:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            detail=f"No commitment hash for {key_name}",
+        )
 
     return ElectionJointKeyResponse(
-        status=ResponseStatus.SUCCESS,
-        joint_key=write_json_object(ceremony.election_joint_key),
+        elgamal_public_key=write_json_object(ceremony.elgamal_public_key),
+        commitment_hash=write_json_object(ceremony.commitment_hash),
     )
 
 
@@ -227,6 +233,7 @@ def publish_joint_key(
     validate_can_publish(ceremony)
 
     election_public_keys: List[ElementModP] = []
+    coefficient_commitments: List[ElementModP] = []
     for guardian_id in ceremony.guardian_ids:
         guardian = get_key_guardian(key_name, guardian_id)
         if not guardian.public_keys:
@@ -237,12 +244,16 @@ def publish_joint_key(
 
         public_keys = read_json_object(guardian.public_keys, PublicKeySet)
         election_public_keys.append(public_keys.election.key)
+        for commitment in public_keys.election.coefficient_commitments:
+            coefficient_commitments.append(commitment)
 
     joint_key = elgamal_combine_public_keys(election_public_keys)
-    ceremony.election_joint_key = write_json_object(joint_key)
+    commitment_hash = hash_elems(coefficient_commitments)
+    ceremony.elgamal_public_key = write_json_object(joint_key)
+    ceremony.commitment_hash = write_json_object(commitment_hash)
     update_key_ceremony(key_name, ceremony)
 
     return ElectionJointKeyResponse(
-        status=ResponseStatus.SUCCESS,
-        joint_key=write_json_object(ceremony.election_joint_key),
+        elgamal_public_key=write_json_object(ceremony.elgamal_public_key),
+        commitment_hash=write_json_object(ceremony.commitment_hash),
     )

@@ -20,6 +20,7 @@ ElectionPublicKey = Any
 ElGamalKeyPair = Any
 
 ElectionJointKey = Any
+ElementModQ = Any
 
 
 class KeyCeremonyState(str, Enum):
@@ -41,7 +42,8 @@ class KeyCeremony(Base):
     quorum: int
     guardian_ids: List[GUARDIAN_ID]
     guardian_status: Dict[GUARDIAN_ID, KeyCeremonyGuardianState]
-    election_joint_key: Optional[ElectionJointKey] = None
+    elgamal_public_key: Optional[ElectionJointKey] = None
+    commitment_hash: Optional[ElementModQ] = None
 
 
 class KeyCeremonyStateResponse(Base):
@@ -83,4 +85,5 @@ class PublishElectionJointKeyRequest(BaseRequest):
 class ElectionJointKeyResponse(BaseResponse):
     """Response object containing the Election Joint Key."""
 
-    joint_key: ElectionJointKey
+    elgamal_public_key: ElectionJointKey
+    commitment_hash: ElementModQ

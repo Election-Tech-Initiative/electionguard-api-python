@@ -21,7 +21,8 @@ def from_query(query_result: Any) -> KeyCeremony:
         quorum=query_result["quorum"],
         guardian_ids=query_result["guardian_ids"],
         guardian_status=query_result["guardian_status"],
-        election_joint_key=query_result["election_joint_key"],
+        elgamal_public_key=query_result["elgamal_public_key"],
+        commitment_hash=query_result["commitment_hash"],
     )
 
 
