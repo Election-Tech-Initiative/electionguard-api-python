@@ -59,9 +59,6 @@ def create_key_ceremony_guardian(
         ) from error
 
 
-# TODO: delete
-
-
 @router.post("", tags=[GUARDIAN])
 def update_key_ceremony_guardian(
     request: KeyCeremonyGuardian = Body(...),

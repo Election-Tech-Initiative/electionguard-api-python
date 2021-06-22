@@ -16,6 +16,7 @@ from electionguard.group import ElementModP, hex_to_p_unchecked
 from ....core.client import get_client_id
 from ....core.key_guardian import get_key_guardian
 from ....core.key_ceremony import (
+    from_query,
     get_key_ceremony,
     update_key_ceremony,
     update_key_ceremony_state,
@@ -124,7 +125,7 @@ def find_ceremonies(
             cursor = repository.find(filter, skip, limit)
             key_ceremonies: List[KeyCeremony] = []
             for item in cursor:
-                key_ceremonies.append(read_json_object(item, KeyCeremony))
+                key_ceremonies.append(from_query(item))
             return KeyCeremonyQueryResponse(
                 status=ResponseStatus.SUCCESS, key_ceremonies=key_ceremonies
             )

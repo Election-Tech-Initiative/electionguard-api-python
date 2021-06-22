@@ -2,8 +2,6 @@ from typing import Any
 import sys
 from fastapi import HTTPException, status
 
-from electionguard.serializable import read_json_object
-
 from .client import get_client_id
 from .repository import get_repository, DataCollection
 from ..api.v1.models import (

@@ -21,7 +21,6 @@ __all__ = [
     "GuardianPublicKeysResponse",
     "GuardianBackupRequest",
     "GuardianBackupResponse",
-    "BackupReceiveVerificationRequest",
     "BackupVerificationRequest",
     "BackupVerificationResponse",
     "BackupChallengeRequest",
@@ -46,6 +45,8 @@ PublicKeySet = Any
 
 
 class Guardian(Base):
+    """The API guardian tracks the state of a guardain's interactions with other guardians."""
+
     guardian_id: str
     sequence_order: int
     number_of_guardians: int
@@ -60,6 +61,7 @@ class Guardian(Base):
 
 
 class CreateGuardianRequest(BaseRequest):
+    """Request to create a Guardain."""
 
     guardian_id: str
     sequence_order: int
@@ -70,6 +72,7 @@ class CreateGuardianRequest(BaseRequest):
 
 
 class CreateElectionKeyPairRequest(BaseRequest):
+    """Request to create an Election Key Pair."""
 
     owner_id: str
     sequence_order: int
@@ -78,25 +81,33 @@ class CreateElectionKeyPairRequest(BaseRequest):
 
 
 class CreateElectionKeyPairResponse(BaseResponse):
+    """Returns an ElectionKeyPair."""
+
     election_key_pair: ElectionKeyPair
 
 
 class CreateAuxiliaryKeyPairRequest(BaseRequest):
+    """Request to create an AuxiliaryKeyPair."""
+
     owner_id: str
     sequence_order: int
 
 
 class CreateAuxiliaryKeyPairResponse(BaseResponse):
+    """Returns an AuxiliaryKeyPair."""
+
     auxiliary_key_pair: AuxiliaryKeyPair
 
 
 class GuardianPublicKeysResponse(BaseResponse):
-    """A set of public auxiliary and election keys"""
+    """Returns a set of public auxiliary and election keys"""
 
     public_keys: PublicKeySet
 
 
 class GuardianBackupRequest(BaseRequest):
+    """Request to generate ElectionPartialKeyBackups for the given PublicKeySets."""
+
     guardian_id: str
     quorum: int
     public_keys: List[PublicKeySet]
@@ -104,38 +115,42 @@ class GuardianBackupRequest(BaseRequest):
 
 
 class GuardianBackupResponse(BaseResponse):
+    """Returns a collection of ElectionPartialKeyBackups to be shared with other guardians."""
+
     guardian_id: str
     backups: List[ElectionPartialKeyBackup]
 
 
-class BackupReceiveVerificationRequest(BaseRequest):
+class BackupVerificationRequest(BaseRequest):
+    """Request to verify the associated backups shared with the guardian."""
+
     guardian_id: str
     backup: ElectionPartialKeyBackup
     override_rsa: bool = False
 
 
-class BackupVerificationRequest(BaseRequest):
-    verifier_id: str
-    backup: ElectionPartialKeyBackup
-    election_public_key: ElectionPublicKey
-    auxiliary_key_pair: AuxiliaryKeyPair
-    override_rsa: bool = False
-
-
 class BackupVerificationResponse(BaseResponse):
+    """Returns a collection of verifications."""
+
     verification: ElectionPartialKeyVerification
 
 
 class BackupChallengeRequest(BaseRequest):
+    """Request to challenge a specific backup."""
+
     guardian_id: str
     backup: ElectionPartialKeyBackup
 
 
 class BackupChallengeResponse(BaseResponse):
+    """Returns a challenge to a given backup."""
+
     challenge: ElectionPartialKeyChallenge
 
 
 class ChallengeVerificationRequest(BaseRequest):
+    """Request to verify a challenge."""
+
     verifier_id: str
     challenge: ElectionPartialKeyChallenge
 
@@ -160,6 +175,31 @@ def to_sdk_guardian(api_guardian: Guardian) -> electionguard.guardian.Guardian:
         api_guardian.election_keys, electionguard.key_ceremony.ElectionKeyPair
     )
 
-    # TODO: backups and things
+    cohort_keys = {
+        owner_id: read_json_object(key_set, electionguard.key_ceremony.PublicKeySet)
+        for (owner_id, key_set) in api_guardian.cohort_public_keys.items()
+    }
+
+    guardian._guardian_auxiliary_public_keys = {
+        owner_id: key_set.auxiliary for (owner_id, key_set) in cohort_keys.items()
+    }
+
+    guardian._guardian_election_public_keys = {
+        owner_id: key_set.election for (owner_id, key_set) in cohort_keys.items()
+    }
+
+    guardian._guardian_election_partial_key_backups = {
+        owner_id: read_json_object(
+            backup, electionguard.key_ceremony.ElectionPartialKeyBackup
+        )
+        for (owner_id, backup) in api_guardian.cohort_backups.items()
+    }
+
+    guardian._guardian_election_partial_key_verifications = {
+        owner_id: read_json_object(
+            verification, electionguard.key_ceremony.ElectionPartialKeyVerification
+        )
+        for (owner_id, verification) in api_guardian.cohort_verifications.items()
+    }
 
     return guardian

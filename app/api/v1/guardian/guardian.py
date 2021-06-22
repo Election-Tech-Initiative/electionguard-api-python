@@ -1,16 +1,13 @@
-from app.api.v1.models.guardian import to_sdk_guardian
-from typing import Any, Dict, List, Optional
+from typing import Dict
 import sys
-from electionguard.types import GUARDIAN_ID
+
 from fastapi import APIRouter, Body, status, HTTPException
 
-from electionguard.auxiliary import AuxiliaryKeyPair, AuxiliaryPublicKey
+from electionguard.auxiliary import AuxiliaryKeyPair
 from electionguard.election_polynomial import ElectionPolynomial
 from electionguard.group import hex_to_q_unchecked
 from electionguard.key_ceremony import (
     PublicKeySet,
-    ElectionKeyPair,
-    ElectionPublicKey,
     ElectionPartialKeyBackup,
     ElectionPartialKeyChallenge,
     generate_election_key_pair,
@@ -21,27 +18,26 @@ from electionguard.key_ceremony import (
     verify_election_partial_key_challenge,
 )
 from electionguard.rsa import rsa_decrypt, rsa_encrypt
-from electionguard.serializable import read_json_object, write_json, write_json_object
-from electionguard.utils import get_optional
+from electionguard.serializable import read_json_object, write_json_object
+from electionguard.types import GUARDIAN_ID
 
 from ....core.client import get_client_id
 from ....core.guardian import get_guardian, update_guardian
 from ....core.repository import get_repository, DataCollection
 from ..models import (
-    BaseQueryRequest,
     BaseResponse,
     ResponseStatus,
     BackupChallengeRequest,
     BackupChallengeResponse,
-    BackupReceiveVerificationRequest,
-    BackupVerificationResponse,
     BackupVerificationRequest,
+    BackupVerificationResponse,
     ChallengeVerificationRequest,
     Guardian,
     CreateGuardianRequest,
     GuardianPublicKeysResponse,
     GuardianBackupResponse,
     GuardianBackupRequest,
+    to_sdk_guardian,
 )
 from ..tags import GUARDIAN
 
@@ -51,14 +47,18 @@ identity = lambda message, key: message
 
 
 @router.get("", tags=[GUARDIAN])
-def fetch_guardian(guardian_id: str, with_secrets: Optional[bool] = False) -> Guardian:
-    """"""
+def fetch_guardian(guardian_id: str) -> Guardian:
+    """
+    Fetch a guardian.  The response includes the private key information of the guardian.
+    """
     return get_guardian(guardian_id)
 
 
 @router.get("/public-keys", tags=[GUARDIAN])
 def fetch_public_keys(guardian_id: str) -> GuardianPublicKeysResponse:
-    """"""
+    """
+    Fetch the public key information for a guardian.
+    """
     guardian = get_guardian(guardian_id)
     sdk_guardian = to_sdk_guardian(guardian)
 
@@ -71,7 +71,7 @@ def fetch_public_keys(guardian_id: str) -> GuardianPublicKeysResponse:
 @router.post("", tags=[GUARDIAN])
 def create_guardian(request: CreateGuardianRequest = Body(...)) -> BaseResponse:
     """
-    Create a guardian for the election process with the associated keys
+    Create a guardian for the election process with the associated keys.
     """
     election_keys = generate_election_key_pair(
         request.guardian_id,
@@ -124,9 +124,7 @@ def create_guardian(request: CreateGuardianRequest = Body(...)) -> BaseResponse:
 @router.post("/backup", response_model=GuardianBackupResponse, tags=[GUARDIAN])
 def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackupResponse:
     """
-    Generate all election partial key backups based on existing public keys
-    :param request: Guardian backup request
-    :return: Guardian backup
+    Generate election partial key backups by using the public keys included in the request.
     """
     guardian = get_guardian(request.guardian_id)
     polynomial = read_json_object(
@@ -171,7 +169,7 @@ def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackupResp
 
 
 @router.post("/backup/verify", tags=[GUARDIAN])
-def verify_backup(request: BackupReceiveVerificationRequest) -> BaseResponse:
+def verify_backup(request: BackupVerificationRequest) -> BaseResponse:
     """Receive and verify election partial key backup value is in polynomial."""
     guardian = get_guardian(request.guardian_id)
     auxiliary_keys = read_json_object(guardian.auxiliary_keys, AuxiliaryKeyPair)

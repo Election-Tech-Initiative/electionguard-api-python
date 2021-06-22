@@ -45,21 +45,27 @@ class KeyCeremony(Base):
 
 
 class KeyCeremonyStateResponse(Base):
+    """Returns a subset of KeyCeremony data that describes only the state."""
+
     key_name: str
     state: KeyCeremonyState
     guardian_status: Dict[GUARDIAN_ID, KeyCeremonyGuardianState]
 
 
 class KeyCeremonyQueryResponse(BaseResponse):
+    """Returns a collection of Key Ceremonies."""
+
     key_ceremonies: List[KeyCeremony]
 
 
 class KeyCeremonyVerifyChallengesResponse(BaseResponse):
+    """Returns a collection of Partial Key Verifications."""
+
     verifications: List[ElectionPartialKeyVerification]
 
 
 class KeyCeremonyCreateRequest(BaseRequest):
-    """Request to create a new key ceremony"""
+    """Request to create a new key ceremony."""
 
     key_name: str
     number_of_guardians: int
@@ -68,13 +74,13 @@ class KeyCeremonyCreateRequest(BaseRequest):
 
 
 class PublishElectionJointKeyRequest(BaseRequest):
-    """Request to publish the election joint key"""
+    """Request to publish the election joint key."""
 
     key_name: str
     election_public_keys: List[ElectionPublicKey]
 
 
 class ElectionJointKeyResponse(BaseResponse):
-    """Response object containing the Election Joint Key"""
+    """Response object containing the Election Joint Key."""
 
     joint_key: ElectionJointKey

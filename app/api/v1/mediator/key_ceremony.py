@@ -83,7 +83,7 @@ def verify_backups(
     request: GuardianSubmitVerificationRequest = Body(...),
 ) -> BaseResponse:
     """
-    Share the reulsts of verifying the other guardians' backups
+    Share the reulsts of verifying the other guardians' backups.
     """
     ceremony = get_key_ceremony(request.key_name)
     guardian = get_key_guardian(request.key_name, request.guardian_id)
@@ -98,9 +98,11 @@ def verify_backups(
     guardian.verifications = [
         write_json_object(verification) for verification in verifications
     ]
-    ceremony.guardian_status[
-        request.guardian_id
-    ].backups_verified = KeyCeremonyGuardianStatus.COMPLETE
+    ceremony.guardian_status[request.guardian_id].backups_verified = (
+        KeyCeremonyGuardianStatus.COMPLETE
+        if all([verification.verified for verification in verifications])
+        else KeyCeremonyGuardianStatus.ERROR
+    )
 
     update_key_guardian(request.key_name, request.guardian_id, guardian)
     return update_key_ceremony(request.key_name, ceremony)
@@ -112,7 +114,7 @@ def challenge_backups(
     request: GuardianSubmitChallengeRequest = Body(...),
 ) -> BaseResponse:
     """
-    Submit challenges to the other guardians' backups
+    Submit challenges to the other guardians' backups.
     """
     ceremony = get_key_ceremony(request.key_name)
     guardian = get_key_guardian(request.key_name, request.guardian_id)

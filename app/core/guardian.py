@@ -1,3 +1,4 @@
+from typing import Any
 import sys
 from fastapi import HTTPException, status
 
@@ -12,6 +13,22 @@ from ..api.v1.models import (
 )
 
 
+def from_query(query_result: Any) -> Guardian:
+    return Guardian(
+        guardian_id=query_result["guardian_id"],
+        sequence_order=query_result["sequence_order"],
+        number_of_guardians=query_result["number_of_guardians"],
+        quorum=query_result["quorum"],
+        election_keys=write_json_object(query_result["election_keys"]),
+        auxiliary_keys=write_json_object(query_result["auxiliary_keys"]),
+        backups=query_result["backups"],
+        cohort_public_keys=query_result["cohort_public_keys"],
+        cohort_backups=query_result["cohort_backups"],
+        cohort_verifications=query_result["cohort_verifications"],
+        cohort_challenges=query_result["cohort_challenges"],
+    )
+
+
 def get_guardian(guardian_id: str) -> Guardian:
     try:
         with get_repository(get_client_id(), DataCollection.GUARDIAN) as repository:
@@ -21,19 +38,7 @@ def get_guardian(guardian_id: str) -> Guardian:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Could not find guardian {guardian_id}",
                 )
-            guardian = Guardian(
-                guardian_id=query_result["guardian_id"],
-                sequence_order=query_result["sequence_order"],
-                number_of_guardians=query_result["number_of_guardians"],
-                quorum=query_result["quorum"],
-                election_keys=write_json_object(query_result["election_keys"]),
-                auxiliary_keys=write_json_object(query_result["auxiliary_keys"]),
-                backups=query_result["backups"],
-                cohort_public_keys=query_result["cohort_public_keys"],
-                cohort_backups=query_result["cohort_backups"],
-                cohort_verifications=query_result["cohort_verifications"],
-                cohort_challenges=query_result["cohort_challenges"],
-            )
+            guardian = from_query(query_result)
             return guardian
     except Exception as error:
         print(sys.exc_info())

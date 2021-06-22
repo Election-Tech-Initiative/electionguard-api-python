@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 from enum import Enum
 
 from electionguard.types import GUARDIAN_ID
@@ -56,7 +56,7 @@ class KeyCeremonyGuardian(Base):
 
 
 class GuardianAnnounceRequest(BaseRequest):
-    """A set of public auxiliary and election keys"""
+    """A set of public auxiliary and election keys."""
 
     key_name: str
     """The Key Ceremony to announce"""
@@ -64,22 +64,30 @@ class GuardianAnnounceRequest(BaseRequest):
 
 
 class GuardianQueryResponse(BaseResponse):
+    """Returns a collection of KeyCeremonyGuardians."""
+
     guardians: List[KeyCeremonyGuardian]
 
 
 class GuardianSubmitBackupRequest(BaseRequest):
+    """Submit a collection of backups for a guardian."""
+
     key_name: str
     guardian_id: str
     backups: List[ElectionPartialKeyBackup]
 
 
 class GuardianSubmitVerificationRequest(BaseRequest):
+    """Submit a collection of verifications for a guardian."""
+
     key_name: str
     guardian_id: str
     verifications: List[ElectionPartialKeyVerification]
 
 
 class GuardianSubmitChallengeRequest(BaseRequest):
+    """Submit a collection of challenges for a guardian."""
+
     key_name: str
     guardian_id: str
     challenges: List[ElectionPartialKeyChallenge]
