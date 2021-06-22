@@ -6,7 +6,7 @@ from fastapi import APIRouter, Body, status, HTTPException
 
 from electionguard.auxiliary import AuxiliaryKeyPair, AuxiliaryPublicKey
 from electionguard.election_polynomial import ElectionPolynomial
-from electionguard.group import int_to_q_unchecked
+from electionguard.group import hex_to_q_unchecked
 from electionguard.key_ceremony import (
     PublicKeySet,
     ElectionKeyPair,
@@ -77,7 +77,7 @@ def create_guardian(request: CreateGuardianRequest = Body(...)) -> BaseResponse:
         request.guardian_id,
         request.sequence_order,
         request.quorum,
-        int_to_q_unchecked(request.nonce) if request.nonce is not None else None,
+        hex_to_q_unchecked(request.nonce) if request.nonce is not None else None,
     )
     if request.auxiliary_key_pair is None:
         auxiliary_keys = generate_rsa_auxiliary_key_pair(

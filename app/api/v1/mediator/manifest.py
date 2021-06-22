@@ -2,7 +2,7 @@ from typing import Any, List, Optional, Tuple
 import sys
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 
-from electionguard.group import int_to_q
+from electionguard.group import hex_to_q
 from electionguard.manifest import Manifest
 from electionguard.schema import validate_json_schema
 from electionguard.serializable import write_json_object
@@ -28,7 +28,7 @@ router = APIRouter()
 @router.get("", tags=[MANIFEST])
 def get_manifest(manifest_hash: str) -> ManifestQueryResponse:
     """Get an election manifest by hash"""
-    crypto_hash = int_to_q(manifest_hash)  # TODO: hex_to_q
+    crypto_hash = hex_to_q(manifest_hash)
     if not crypto_hash:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="manifest hash not valid"
@@ -70,9 +70,7 @@ def submit_manifest(
 
     try:
         with get_repository(get_client_id(), DataCollection.MANIFEST) as repository:
-            manifest_hash = str(
-                manifest.crypto_hash().to_int()
-            )  # TODO: hex representation
+            manifest_hash = manifest.crypto_hash().to_hex()
             _ = repository.set(
                 {"manifest_hash": manifest_hash, "manifest": manifest.to_json_object()}
             )
@@ -156,9 +154,7 @@ def _validate_manifest(
         return manifest, ValidateManifestResponse(
             status=ResponseStatus.SUCCESS,
             message="Manifest successfully validated",
-            manifest_hash=str(
-                get_optional(manifest).crypto_hash().to_int()
-            ),  # TODO: to hex
+            manifest_hash=get_optional(manifest).crypto_hash().to_hex(),
         )
 
     return manifest, ValidateManifestResponse(

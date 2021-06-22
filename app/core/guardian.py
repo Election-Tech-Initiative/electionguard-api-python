@@ -34,7 +34,6 @@ def get_guardian(guardian_id: str) -> Guardian:
                 cohort_verifications=query_result["cohort_verifications"],
                 cohort_challenges=query_result["cohort_challenges"],
             )
-            # TODO: backups and things
             return guardian
     except Exception as error:
         print(sys.exc_info())

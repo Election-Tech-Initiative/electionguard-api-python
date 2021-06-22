@@ -44,7 +44,7 @@ ElectionPublicKey = Any
 
 PublicKeySet = Any
 
-# TODO: remove all optional colections in favor of empty
+
 class Guardian(Base):
     guardian_id: str
     sequence_order: int

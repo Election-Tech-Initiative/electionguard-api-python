@@ -11,7 +11,7 @@ from electionguard.key_ceremony import (
 )
 from electionguard.elgamal import elgamal_combine_public_keys
 from electionguard.serializable import write_json_object, read_json_object
-from electionguard.group import int_to_p_unchecked
+from electionguard.group import ElementModP, hex_to_p_unchecked
 
 from ....core.client import get_client_id
 from ....core.key_guardian import get_key_guardian
@@ -147,7 +147,7 @@ def open_ceremony(key_name: str) -> BaseResponse:
 @router.post("/ceremony/close", tags=[KEY_CEREMONY])
 def close_ceremony(key_name: str) -> BaseResponse:
     """
-    Close a key ceremony for participation
+    Close a key ceremony for participation.
     """
     return update_key_ceremony_state(key_name, KeyCeremonyState.CLOSED)
 
@@ -225,7 +225,7 @@ def fetch_joint_key(
 @router.post("/ceremony/publish", tags=[KEY_CEREMONY])
 def publish_joint_key(
     key_name: str,
-) -> KeyCeremonyQueryResponse:
+) -> ElectionJointKeyResponse:
     """
     Publish joint election key from the public keys of all guardians
     """
@@ -233,7 +233,7 @@ def publish_joint_key(
 
     validate_can_publish(ceremony)
 
-    election_public_keys = []
+    election_public_keys: List[ElementModP] = []
     for guardian_id in ceremony.guardian_ids:
         guardian = get_key_guardian(key_name, guardian_id)
         if not guardian.public_keys:
@@ -241,13 +241,15 @@ def publish_joint_key(
                 status_code=status.HTTP_412_PRECONDITION_FAILED,
                 detail=f"Could not find guardian public key {guardian_id}",
             )
-        # TODO: HEX
-        election_public_keys.append(int_to_p_unchecked(guardian.public_keys.election))
+
+        public_keys = read_json_object(guardian.public_keys, PublicKeySet)
+        election_public_keys.append(public_keys.election.key)
 
     joint_key = elgamal_combine_public_keys(election_public_keys)
     ceremony.election_joint_key = write_json_object(joint_key)
     update_key_ceremony(key_name, ceremony)
 
-    return KeyCeremonyQueryResponse(
-        joint_key=write_json_object(ceremony.election_joint_key)
+    return ElectionJointKeyResponse(
+        status=ResponseStatus.SUCCESS,
+        joint_key=write_json_object(ceremony.election_joint_key),
     )
