@@ -1,18 +1,17 @@
-from typing import Any, List, Optional
+from typing import List
 import sys
 from fastapi import APIRouter, Body, HTTPException, status
 
 from electionguard.hash import hash_elems
 from electionguard.key_ceremony import (
     PublicKeySet,
-    ElectionPartialKeyBackup,
     ElectionPartialKeyVerification,
     ElectionPartialKeyChallenge,
     verify_election_partial_key_challenge,
 )
 from electionguard.elgamal import elgamal_combine_public_keys
 from electionguard.serializable import write_json_object, read_json_object
-from electionguard.group import ElementModP, hex_to_p_unchecked
+from electionguard.group import ElementModP
 
 from ....core.client import get_client_id
 from ....core.key_guardian import get_key_guardian
@@ -27,7 +26,6 @@ from ....core.repository import get_repository, DataCollection
 from ..models import (
     BaseQueryRequest,
     BaseResponse,
-    ResponseStatus,
     KeyCeremony,
     KeyCeremonyState,
     KeyCeremonyGuardian,
@@ -39,12 +37,14 @@ from ..models import (
     KeyCeremonyVerifyChallengesResponse,
     ElectionJointKeyResponse,
 )
-from ..tags import KEY_CEREMONY
+from ..tags import KEY_CEREMONY_ADMIN
 
 router = APIRouter()
 
 
-@router.get("/ceremony", tags=[KEY_CEREMONY])
+@router.get(
+    "/ceremony", response_model=KeyCeremonyQueryResponse, tags=[KEY_CEREMONY_ADMIN]
+)
 def fetch_ceremony(
     key_name: str,
 ) -> KeyCeremonyQueryResponse:
@@ -55,7 +55,7 @@ def fetch_ceremony(
     return KeyCeremonyQueryResponse(key_ceremonies=[key_ceremony])
 
 
-@router.put("/ceremony", tags=[KEY_CEREMONY])
+@router.put("/ceremony", response_model=BaseResponse, tags=[KEY_CEREMONY_ADMIN])
 def create_ceremony(
     request: KeyCeremonyCreateRequest = Body(...),
 ) -> BaseResponse:
@@ -95,7 +95,11 @@ def create_ceremony(
         ) from error
 
 
-@router.get("/ceremony/state", tags=[KEY_CEREMONY])
+@router.get(
+    "/ceremony/state",
+    response_model=KeyCeremonyStateResponse,
+    tags=[KEY_CEREMONY_ADMIN],
+)
 def fetch_ceremony_state(
     key_name: str,
 ) -> KeyCeremonyStateResponse:
@@ -111,7 +115,9 @@ def fetch_ceremony_state(
     )
 
 
-@router.get("/ceremony/find")
+@router.get(
+    "/ceremony/find", response_model=KeyCeremonyQueryResponse, tags=[KEY_CEREMONY_ADMIN]
+)
 def find_ceremonies(
     skip: int = 0, limit: int = 100, request: BaseQueryRequest = Body(...)
 ) -> KeyCeremonyQueryResponse:
@@ -134,7 +140,7 @@ def find_ceremonies(
         ) from error
 
 
-@router.post("/ceremony/open", tags=[KEY_CEREMONY])
+@router.post("/ceremony/open", response_model=BaseResponse, tags=[KEY_CEREMONY_ADMIN])
 def open_ceremony(key_name: str) -> BaseResponse:
     """
     Open a key ceremony for participation.
@@ -142,7 +148,7 @@ def open_ceremony(key_name: str) -> BaseResponse:
     return update_key_ceremony_state(key_name, KeyCeremonyState.OPEN)
 
 
-@router.post("/ceremony/close", tags=[KEY_CEREMONY])
+@router.post("/ceremony/close", response_model=BaseResponse, tags=[KEY_CEREMONY_ADMIN])
 def close_ceremony(key_name: str) -> BaseResponse:
     """
     Close a key ceremony for participation.
@@ -150,7 +156,9 @@ def close_ceremony(key_name: str) -> BaseResponse:
     return update_key_ceremony_state(key_name, KeyCeremonyState.CLOSED)
 
 
-@router.post("/ceremony/challenge", tags=[KEY_CEREMONY])
+@router.post(
+    "/ceremony/challenge", response_model=BaseResponse, tags=[KEY_CEREMONY_ADMIN]
+)
 def challenge_ceremony(key_name: str) -> BaseResponse:
     """
     Mark the key ceremony challenged.
@@ -158,7 +166,9 @@ def challenge_ceremony(key_name: str) -> BaseResponse:
     return update_key_ceremony_state(key_name, KeyCeremonyState.CHALLENGED)
 
 
-@router.get("/ceremony/challenge/verify", tags=[KEY_CEREMONY])
+@router.get(
+    "/ceremony/challenge/verify", response_model=BaseResponse, tags=[KEY_CEREMONY_ADMIN]
+)
 def verify_ceremony_challenges(key_name: str) -> BaseResponse:
     """
     Verify a challenged key ceremony.
@@ -187,7 +197,7 @@ def verify_ceremony_challenges(key_name: str) -> BaseResponse:
     return KeyCeremonyVerifyChallengesResponse(verifications=verifications)
 
 
-@router.post("/ceremony/cancel", tags=[KEY_CEREMONY])
+@router.post("/ceremony/cancel", response_model=BaseResponse, tags=[KEY_CEREMONY_ADMIN])
 def cancel_ceremony(key_name: str) -> BaseResponse:
     """
     Cancel a Key Ceremony.
@@ -195,7 +205,11 @@ def cancel_ceremony(key_name: str) -> BaseResponse:
     return update_key_ceremony_state(key_name, KeyCeremonyState.CANCELLED)
 
 
-@router.get("/ceremony/joint_key", tags=[KEY_CEREMONY])
+@router.get(
+    "/ceremony/joint_key",
+    response_model=ElectionJointKeyResponse,
+    tags=[KEY_CEREMONY_ADMIN],
+)
 def fetch_joint_key(
     key_name: str,
 ) -> ElectionJointKeyResponse:
@@ -221,7 +235,11 @@ def fetch_joint_key(
 
 
 # FINAL: Publish joint public election key
-@router.post("/ceremony/publish", tags=[KEY_CEREMONY])
+@router.post(
+    "/ceremony/publish",
+    response_model=ElectionJointKeyResponse,
+    tags=[KEY_CEREMONY_ADMIN],
+)
 def publish_joint_key(
     key_name: str,
 ) -> ElectionJointKeyResponse:

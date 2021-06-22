@@ -10,16 +10,15 @@ from ....core.repository import get_repository, DataCollection
 from ..models import (
     BaseQueryRequest,
     BaseResponse,
-    ResponseStatus,
     GuardianQueryResponse,
     KeyCeremonyGuardian,
 )
-from ..tags import GUARDIAN
+from ..tags import KEY_GUARDIAN
 
 router = APIRouter()
 
 
-@router.get("", tags=[GUARDIAN])
+@router.get("", response_model=GuardianQueryResponse, tags=[KEY_GUARDIAN])
 def fetch_key_ceremony_guardian(
     key_name: str, guardian_id: str
 ) -> GuardianQueryResponse:
@@ -30,7 +29,7 @@ def fetch_key_ceremony_guardian(
     return GuardianQueryResponse(guardians=[guardian])
 
 
-@router.put("", tags=[GUARDIAN])
+@router.put("", response_model=BaseResponse, tags=[KEY_GUARDIAN])
 def create_key_ceremony_guardian(
     request: KeyCeremonyGuardian = Body(...),
 ) -> BaseResponse:
@@ -59,7 +58,7 @@ def create_key_ceremony_guardian(
         ) from error
 
 
-@router.post("", tags=[GUARDIAN])
+@router.post("", response_model=BaseResponse, tags=[KEY_GUARDIAN])
 def update_key_ceremony_guardian(
     request: KeyCeremonyGuardian = Body(...),
 ) -> BaseResponse:
@@ -89,7 +88,7 @@ def update_key_ceremony_guardian(
         ) from error
 
 
-@router.get("/find", tags=[GUARDIAN])
+@router.get("/find", response_model=GuardianQueryResponse, tags=[KEY_GUARDIAN])
 def find_key_ceremony_guardians(
     skip: int = 0, limit: int = 100, request: BaseQueryRequest = Body(...)
 ) -> GuardianQueryResponse:

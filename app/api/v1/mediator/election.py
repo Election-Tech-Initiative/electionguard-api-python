@@ -43,7 +43,7 @@ def get_election_constants() -> Any:
     return constants.to_json_object()
 
 
-@router.get("", tags=[ELECTION])
+@router.get("", response_model=ElectionQueryResponse, tags=[ELECTION])
 def get_election(election_id: str) -> ElectionQueryResponse:
     """Get an election by election id"""
     try:
@@ -72,7 +72,7 @@ def get_election(election_id: str) -> ElectionQueryResponse:
         ) from error
 
 
-@router.put("", tags=[ELECTION])
+@router.put("", response_model=SubmitElectionResponse, tags=[ELECTION])
 def create_election(
     election_id: Optional[str], request: SubmitElectionRequest = Body(...)
 ) -> SubmitElectionResponse:
@@ -124,7 +124,7 @@ def create_election(
         ) from error
 
 
-@router.get("/find", tags=[ELECTION])
+@router.get("/find", response_model=ElectionQueryResponse, tags=[ELECTION])
 def find_elections(
     skip: int = 0, limit: int = 100, request: ElectionQueryRequest = Body(...)
 ) -> ElectionQueryResponse:
@@ -158,7 +158,7 @@ def find_elections(
         ) from error
 
 
-@router.post("/open", tags=[ELECTION])
+@router.post("/open", response_model=BaseResponse, tags=[ELECTION])
 def open_election(election_id: str) -> BaseResponse:
     """
     Open an election.
@@ -166,7 +166,7 @@ def open_election(election_id: str) -> BaseResponse:
     return _update_election_state(election_id, ElectionState.OPEN)
 
 
-@router.post("/close", tags=[ELECTION])
+@router.post("/close", response_model=BaseResponse, tags=[ELECTION])
 def close_election(election_id: str) -> BaseResponse:
     """
     Close an election.
@@ -174,7 +174,7 @@ def close_election(election_id: str) -> BaseResponse:
     return _update_election_state(election_id, ElectionState.CLOSED)
 
 
-@router.post("/publish", tags=[ELECTION])
+@router.post("/publish", response_model=BaseResponse, tags=[ELECTION])
 def publish_election(election_id: str) -> BaseResponse:
     """
     Publish an election
@@ -182,7 +182,7 @@ def publish_election(election_id: str) -> BaseResponse:
     return _update_election_state(election_id, ElectionState.PUBLISHED)
 
 
-@router.post("/context", tags=[ELECTION])
+@router.post("/context", response_model=MakeElectionContextResponse, tags=[ELECTION])
 def build_election_context(
     manifest_hash: Optional[str] = None, request: MakeElectionContextRequest = Body(...)
 ) -> MakeElectionContextResponse:

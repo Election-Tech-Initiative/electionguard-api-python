@@ -46,7 +46,7 @@ router = APIRouter()
 identity = lambda message, key: message
 
 
-@router.get("", tags=[GUARDIAN])
+@router.get("", response_model=Guardian, tags=[GUARDIAN])
 def fetch_guardian(guardian_id: str) -> Guardian:
     """
     Fetch a guardian.  The response includes the private key information of the guardian.
@@ -54,7 +54,7 @@ def fetch_guardian(guardian_id: str) -> Guardian:
     return get_guardian(guardian_id)
 
 
-@router.get("/public-keys", tags=[GUARDIAN])
+@router.get("/public-keys", response_model=GuardianPublicKeysResponse, tags=[GUARDIAN])
 def fetch_public_keys(guardian_id: str) -> GuardianPublicKeysResponse:
     """
     Fetch the public key information for a guardian.
@@ -67,7 +67,7 @@ def fetch_public_keys(guardian_id: str) -> GuardianPublicKeysResponse:
     )
 
 
-@router.post("", tags=[GUARDIAN])
+@router.post("", response_model=BaseResponse, tags=[GUARDIAN])
 def create_guardian(request: CreateGuardianRequest = Body(...)) -> BaseResponse:
     """
     Create a guardian for the election process with the associated keys.
@@ -166,7 +166,7 @@ def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackupResp
     )
 
 
-@router.post("/backup/verify", tags=[GUARDIAN])
+@router.post("/backup/verify", response_model=BaseResponse, tags=[GUARDIAN])
 def verify_backup(request: BackupVerificationRequest) -> BaseResponse:
     """Receive and verify election partial key backup value is in polynomial."""
     guardian = get_guardian(request.guardian_id)
@@ -196,7 +196,7 @@ def verify_backup(request: BackupVerificationRequest) -> BaseResponse:
     return BaseResponse()
 
 
-@router.post("/challenge", tags=[GUARDIAN])
+@router.post("/challenge", response_model=BaseResponse, tags=[GUARDIAN])
 def create_backup_challenge(request: BackupChallengeRequest) -> BaseResponse:
     """Publish election backup challenge of election partial key verification."""
     guardian = get_guardian(request.guardian_id)
@@ -220,7 +220,9 @@ def create_backup_challenge(request: BackupChallengeRequest) -> BaseResponse:
     return BackupChallengeResponse(challenge=write_json_object(challenge))
 
 
-@router.post("/challenge/verify", tags=[GUARDIAN])
+@router.post(
+    "/challenge/verify", response_model=BackupVerificationResponse, tags=[GUARDIAN]
+)
 def verify_challenge(
     request: ChallengeVerificationRequest,
 ) -> BackupVerificationResponse:

@@ -21,13 +21,13 @@ from ..models import (
     KeyCeremonyGuardian,
     KeyCeremonyGuardianStatus,
 )
-from ..tags import KEY_GUARDIAN
+from ..tags import KEY_CEREMONY
 
 router = APIRouter()
 
 
 # ROUND 1: Announce guardians with public keys
-@router.post("/guardian/announce", tags=[KEY_GUARDIAN])
+@router.post("/guardian/announce", response_model=BaseResponse, tags=[KEY_CEREMONY])
 def announce_guardian(
     request: GuardianAnnounceRequest = Body(...),
 ) -> BaseResponse:
@@ -52,7 +52,7 @@ def announce_guardian(
 
 
 # ROUND 2: Share Election Partial Key Backups for compensating
-@router.post("/guardian/backup", tags=[KEY_GUARDIAN])
+@router.post("/guardian/backup", response_model=BaseResponse, tags=[KEY_CEREMONY])
 def share_backups(
     request: GuardianSubmitBackupRequest = Body(...),
 ) -> BaseResponse:
@@ -78,7 +78,7 @@ def share_backups(
 
 
 # ROUND 3: Share verifications of backups
-@router.post("/guardian/verify", tags=[KEY_GUARDIAN])
+@router.post("/guardian/verify", response_model=BaseResponse, tags=[KEY_CEREMONY])
 def verify_backups(
     request: GuardianSubmitVerificationRequest = Body(...),
 ) -> BaseResponse:
@@ -109,7 +109,7 @@ def verify_backups(
 
 
 # ROUND 4 (Optional): If a verification fails, guardian must issue challenge
-@router.post("/guardian/challenge", tags=[KEY_GUARDIAN])
+@router.post("/guardian/challenge", response_model=BaseResponse, tags=[KEY_CEREMONY])
 def challenge_backups(
     request: GuardianSubmitChallengeRequest = Body(...),
 ) -> BaseResponse:

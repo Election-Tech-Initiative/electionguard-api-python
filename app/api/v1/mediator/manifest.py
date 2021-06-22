@@ -25,7 +25,7 @@ from ..tags import MANIFEST
 router = APIRouter()
 
 
-@router.get("", tags=[MANIFEST])
+@router.get("", response_model=ManifestQueryResponse, tags=[MANIFEST])
 def get_manifest(manifest_hash: str) -> ManifestQueryResponse:
     """Get an election manifest by hash"""
     crypto_hash = hex_to_q(manifest_hash)
@@ -53,7 +53,12 @@ def get_manifest(manifest_hash: str) -> ManifestQueryResponse:
         ) from error
 
 
-@router.put("", tags=[MANIFEST], status_code=status.HTTP_202_ACCEPTED)
+@router.put(
+    "",
+    response_model=ManifestSubmitResponse,
+    tags=[MANIFEST],
+    status_code=status.HTTP_202_ACCEPTED,
+)
 def submit_manifest(
     request: ValidateManifestRequest = Body(...),
     schema: Any = Depends(get_description_schema),
@@ -82,7 +87,7 @@ def submit_manifest(
         ) from error
 
 
-@router.get("/find", tags=[MANIFEST])
+@router.get("/find", response_model=ManifestQueryResponse, tags=[MANIFEST])
 def find_manifests(
     skip: int = 0, limit: int = 100, request: ManifestQueryRequest = Body(...)
 ) -> ManifestQueryResponse:
@@ -109,7 +114,7 @@ def find_manifests(
         ) from error
 
 
-@router.post("/validate", tags=[MANIFEST], status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/validate", response_model=ValidateManifestResponse, tags=[MANIFEST])
 def validate_manifest(
     request: ValidateManifestRequest = Body(...),
     schema: Any = Depends(get_description_schema),
