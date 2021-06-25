@@ -109,6 +109,7 @@ def verify_backups(
     guardian.verifications = [
         write_json_object(verification) for verification in verifications
     ]
+    # pylint: disable=use-a-generator
     ceremony.guardian_status[data.guardian_id].backups_verified = (
         KeyCeremonyGuardianStatus.COMPLETE
         if all([verification.verified for verification in verifications])

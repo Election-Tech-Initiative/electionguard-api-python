@@ -30,7 +30,7 @@ def decrypt_ballot_shares(
     ]
     context = CiphertextElectionContext.from_json_object(request.context)
     election_key_pair = read_json_object(
-        request.guardian.election_key_pair, ElectionKeyPair
+        request.guardian.election_keys, ElectionKeyPair
     )
 
     shares = [
