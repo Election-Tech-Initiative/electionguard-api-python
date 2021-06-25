@@ -6,6 +6,7 @@ from electionguard.serializable import write_json_object
 
 from .client import get_client_id
 from .repository import get_repository, DataCollection
+from .settings import Settings
 from ..api.v1.models import (
     BaseResponse,
     Guardian,
@@ -28,9 +29,11 @@ def from_query(query_result: Any) -> Guardian:
     )
 
 
-def get_guardian(guardian_id: str) -> Guardian:
+def get_guardian(guardian_id: str, settings: Settings = Settings()) -> Guardian:
     try:
-        with get_repository(get_client_id(), DataCollection.GUARDIAN) as repository:
+        with get_repository(
+            get_client_id(), DataCollection.GUARDIAN, settings
+        ) as repository:
             query_result = repository.get({"guardian_id": guardian_id})
             if not query_result:
                 raise HTTPException(
@@ -47,9 +50,13 @@ def get_guardian(guardian_id: str) -> Guardian:
         ) from error
 
 
-def update_guardian(guardian_id: str, guardian: Guardian) -> BaseResponse:
+def update_guardian(
+    guardian_id: str, guardian: Guardian, settings: Settings = Settings()
+) -> BaseResponse:
     try:
-        with get_repository(get_client_id(), DataCollection.GUARDIAN) as repository:
+        with get_repository(
+            get_client_id(), DataCollection.GUARDIAN, settings
+        ) as repository:
             query_result = repository.get({"guardian_id": guardian_id})
             if not query_result:
                 raise HTTPException(

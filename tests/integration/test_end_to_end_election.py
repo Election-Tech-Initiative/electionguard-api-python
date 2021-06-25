@@ -1,5 +1,8 @@
 from typing import Dict, Generator, List, Optional, Tuple, TypeVar
 
+import os
+from shutil import rmtree
+
 from . import guardian_api
 from . import mediator_api
 from .data import test_data
@@ -12,6 +15,12 @@ key_name = "key_ceremony_1"
 guardian_ids = ["guardian_1", "guardian_2", "guardian_3"]
 
 
+def clear_storage() -> None:
+    storage = os.path.join(os.getcwd(), "storage")
+    if os.path.exists(storage):
+        rmtree(storage)
+
+
 def test_election_with_all_guardians() -> None:
     """
     Run through an entire election from end to end, simulating a scenario
@@ -21,6 +30,8 @@ def test_election_with_all_guardians() -> None:
     - The full key ceremony
     - Decrypting tallies and ballots with fewer than the full number of guardians present.
     """
+
+    clear_storage()
 
     description = test_data.get_election_description()
     # pylint: disable=unused-variable

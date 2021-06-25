@@ -4,6 +4,7 @@ from collections.abc import MutableMapping
 import mmap
 import os
 import json
+import re
 
 from pymongo import MongoClient
 from pymongo.database import Database
@@ -14,7 +15,6 @@ from .settings import Settings, StorageMode
 
 __all__ = ["IRepository", "MemoryRepository", "MongoRepository", "get_repository"]
 
-settings = Settings()
 
 DOCUMENT_VALUE_TYPE = Union[MutableMapping, List[MutableMapping]]
 
@@ -58,7 +58,7 @@ class DataCollection:
 
 
 class LocalRepository(IRepository):
-    """A simple local storage interface."""
+    """A simple local storage interface.  For testing only."""
 
     def __init__(
         self,
@@ -70,22 +70,25 @@ class LocalRepository(IRepository):
         self._container = container
         self._collection = collection
         self._storage = os.path.join(
-            os.getcwd(), "data", self._container, self._collection
+            os.getcwd(), "storage", self._container, self._collection
         )
 
     def __enter__(self) -> Any:
         if not os.path.exists(self._storage):
             os.makedirs(self._storage)
+        return self
 
     def __exit__(self, exc_type: Any, exc_value: Any, exc_traceback: Any) -> None:
         pass
 
     def find(self, filter: MutableMapping, skip: int = 0, limit: int = 0) -> Any:
+        # TODO: implement a find function
         pass
 
     def get(self, filter: MutableMapping) -> Any:
-        """An inefficient search through all files in the directory"""
-        query_string = json.dumps(dict(filter))
+        """An inefficient search through all files in the directory."""
+        # query_string = json.dumps(dict(filter))
+        query_string = re.sub(r"\{|\}", r"", json.dumps(dict(filter)))
 
         search_files = [
             file
@@ -94,25 +97,31 @@ class LocalRepository(IRepository):
         ]
 
         for filename in search_files:
-            with open(os.path.join(self._storage, filename)) as file, mmap.mmap(
-                file.fileno(), 0, access=mmap.ACCESS_READ
-            ) as search:
-                if search.find(bytes(query_string, "utf-8")) != -1:
-                    json_string = file.read()
-                    return json.loads(json_string)
+            try:
+                with open(os.path.join(self._storage, filename)) as file, mmap.mmap(
+                    file.fileno(), 0, access=mmap.ACCESS_READ
+                ) as search:
+                    if search.find(bytes(query_string, "utf-8")) != -1:
+                        json_string = file.read()
+                        return json.loads(json_string)
+            except FileNotFoundError:
+                # swallow errors
+                pass
         return None
 
     def set(self, value: DOCUMENT_VALUE_TYPE) -> Any:
+        """A naive set function that hashes the data and writes the file."""
         # just ignore lists for now
         if isinstance(value, List):
             return None
         json_string = json.dumps(dict(value))
         filename = hash_elems(json_string).to_hex()
-        with open(os.path.join(self._storage, filename)) as file:
+        with open(f"{os.path.join(self._storage, filename)}.json", "w") as file:
             file.write(json_string)
         return filename
 
     def update(self, filter: MutableMapping, value: DOCUMENT_VALUE_TYPE) -> Any:
+        # TODO: implement an update function
         pass
 
 
@@ -195,7 +204,10 @@ class MongoRepository(IRepository):
         return collection.update_one(filter=filter, update={"$set": value})
 
 
-def get_repository(container: str, collection: str) -> IRepository:
+def get_repository(
+    container: str, collection: str, settings: Settings = Settings()
+) -> IRepository:
+    """Get a repository by settings strage mode."""
     if settings.STORAGE_MODE == StorageMode.MONGO:
         return MongoRepository(settings.MONGODB_URI, container, collection)
 

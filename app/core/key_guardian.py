@@ -3,15 +3,20 @@ from fastapi import HTTPException, status
 
 from .client import get_client_id
 from .repository import get_repository, DataCollection
+from .settings import Settings
 from ..api.v1.models import (
     BaseResponse,
     KeyCeremonyGuardian,
 )
 
 
-def get_key_guardian(key_name: str, guardian_id: str) -> KeyCeremonyGuardian:
+def get_key_guardian(
+    key_name: str, guardian_id: str, settings: Settings = Settings()
+) -> KeyCeremonyGuardian:
     try:
-        with get_repository(get_client_id(), DataCollection.KEY_GUARDIAN) as repository:
+        with get_repository(
+            get_client_id(), DataCollection.KEY_GUARDIAN, settings
+        ) as repository:
             query_result = repository.get(
                 {"key_name": key_name, "guardian_id": guardian_id}
             )
@@ -42,10 +47,15 @@ def get_key_guardian(key_name: str, guardian_id: str) -> KeyCeremonyGuardian:
 
 
 def update_key_guardian(
-    key_name: str, guardian_id: str, guardian: KeyCeremonyGuardian
+    key_name: str,
+    guardian_id: str,
+    guardian: KeyCeremonyGuardian,
+    settings: Settings = Settings(),
 ) -> BaseResponse:
     try:
-        with get_repository(get_client_id(), DataCollection.KEY_GUARDIAN) as repository:
+        with get_repository(
+            get_client_id(), DataCollection.KEY_GUARDIAN, settings
+        ) as repository:
             query_result = repository.get(
                 {"key_name": key_name, "guardian_id": guardian_id}
             )

@@ -1,6 +1,6 @@
 from typing import List
 import sys
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, HTTPException, Request, status
 
 from electionguard.hash import hash_elems
 from electionguard.key_ceremony import (
@@ -48,18 +48,20 @@ router = APIRouter()
     "/ceremony", response_model=KeyCeremonyQueryResponse, tags=[KEY_CEREMONY_ADMIN]
 )
 def fetch_ceremony(
+    request: Request,
     key_name: str,
 ) -> KeyCeremonyQueryResponse:
     """
     Get a specific key ceremony by key_name.
     """
-    key_ceremony = get_key_ceremony(key_name)
+    key_ceremony = get_key_ceremony(key_name, request.app.state.settings)
     return KeyCeremonyQueryResponse(key_ceremonies=[key_ceremony])
 
 
 @router.put("/ceremony", response_model=BaseResponse, tags=[KEY_CEREMONY_ADMIN])
 def create_ceremony(
-    request: KeyCeremonyCreateRequest = Body(...),
+    request: Request,
+    data: KeyCeremonyCreateRequest = Body(...),
 ) -> BaseResponse:
     """
     Create a Key Ceremony.
@@ -68,26 +70,27 @@ def create_ceremony(
     """
 
     ceremony = KeyCeremony(
-        key_name=request.key_name,
+        key_name=data.key_name,
         state=KeyCeremonyState.CREATED,
-        number_of_guardians=request.number_of_guardians,
-        quorum=request.quorum,
-        guardian_ids=request.guardian_ids,
+        number_of_guardians=data.number_of_guardians,
+        quorum=data.quorum,
+        guardian_ids=data.guardian_ids,
         guardian_status={
-            guardian_id: KeyCeremonyGuardianState()
-            for guardian_id in request.guardian_ids
+            guardian_id: KeyCeremonyGuardianState() for guardian_id in data.guardian_ids
         },
     )
 
     try:
-        with get_repository(get_client_id(), DataCollection.KEY_CEREMONY) as repository:
-            query_result = repository.get({"key_name": request.key_name})
+        with get_repository(
+            get_client_id(), DataCollection.KEY_CEREMONY, request.app.state.settings
+        ) as repository:
+            query_result = repository.get({"key_name": data.key_name})
             if not query_result:
                 repository.set(ceremony.dict())
                 return BaseResponse()
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Already exists {request.key_name}",
+                detail=f"Already exists {data.key_name}",
             )
     except Exception as error:
         print(sys.exc_info())
@@ -103,12 +106,13 @@ def create_ceremony(
     tags=[KEY_CEREMONY_ADMIN],
 )
 def fetch_ceremony_state(
+    request: Request,
     key_name: str,
 ) -> KeyCeremonyStateResponse:
     """
     Get a specific key ceremony state by key_name.
     """
-    ceremony = get_key_ceremony(key_name)
+    ceremony = get_key_ceremony(key_name, request.app.state.settings)
 
     return KeyCeremonyStateResponse(
         key_name=key_name,
@@ -121,14 +125,19 @@ def fetch_ceremony_state(
     "/ceremony/find", response_model=KeyCeremonyQueryResponse, tags=[KEY_CEREMONY_ADMIN]
 )
 def find_ceremonies(
-    skip: int = 0, limit: int = 100, request: BaseQueryRequest = Body(...)
+    request: Request,
+    skip: int = 0,
+    limit: int = 100,
+    data: BaseQueryRequest = Body(...),
 ) -> KeyCeremonyQueryResponse:
     """
     Find Key Ceremonies according ot the filter criteria.
     """
     try:
-        filter = write_json_object(request.filter) if request.filter else {}
-        with get_repository(get_client_id(), DataCollection.KEY_CEREMONY) as repository:
+        filter = write_json_object(data.filter) if data.filter else {}
+        with get_repository(
+            get_client_id(), DataCollection.KEY_CEREMONY, request.app.state.settings
+        ) as repository:
             cursor = repository.find(filter, skip, limit)
             key_ceremonies: List[KeyCeremony] = []
             for item in cursor:
@@ -143,39 +152,45 @@ def find_ceremonies(
 
 
 @router.post("/ceremony/open", response_model=BaseResponse, tags=[KEY_CEREMONY_ADMIN])
-def open_ceremony(key_name: str) -> BaseResponse:
+def open_ceremony(request: Request, key_name: str) -> BaseResponse:
     """
     Open a key ceremony for participation.
     """
-    return update_key_ceremony_state(key_name, KeyCeremonyState.OPEN)
+    return update_key_ceremony_state(
+        key_name, KeyCeremonyState.OPEN, request.app.state.settings
+    )
 
 
 @router.post("/ceremony/close", response_model=BaseResponse, tags=[KEY_CEREMONY_ADMIN])
-def close_ceremony(key_name: str) -> BaseResponse:
+def close_ceremony(request: Request, key_name: str) -> BaseResponse:
     """
     Close a key ceremony for participation.
     """
-    return update_key_ceremony_state(key_name, KeyCeremonyState.CLOSED)
+    return update_key_ceremony_state(
+        key_name, KeyCeremonyState.CLOSED, request.app.state.settings
+    )
 
 
 @router.post(
     "/ceremony/challenge", response_model=BaseResponse, tags=[KEY_CEREMONY_ADMIN]
 )
-def challenge_ceremony(key_name: str) -> BaseResponse:
+def challenge_ceremony(request: Request, key_name: str) -> BaseResponse:
     """
     Mark the key ceremony challenged.
     """
-    return update_key_ceremony_state(key_name, KeyCeremonyState.CHALLENGED)
+    return update_key_ceremony_state(
+        key_name, KeyCeremonyState.CHALLENGED, request.app.state.settings
+    )
 
 
 @router.get(
     "/ceremony/challenge/verify", response_model=BaseResponse, tags=[KEY_CEREMONY_ADMIN]
 )
-def verify_ceremony_challenges(key_name: str) -> BaseResponse:
+def verify_ceremony_challenges(request: Request, key_name: str) -> BaseResponse:
     """
     Verify a challenged key ceremony.
     """
-    ceremony = get_key_ceremony(key_name)
+    ceremony = get_key_ceremony(key_name, request.app.state.settings)
     challenge_guardians: List[KeyCeremonyGuardian] = []
     for guardian_id, state in ceremony.guardian_status.items():
         if state.backups_verified == KeyCeremonyGuardianStatus.ERROR:
@@ -200,11 +215,13 @@ def verify_ceremony_challenges(key_name: str) -> BaseResponse:
 
 
 @router.post("/ceremony/cancel", response_model=BaseResponse, tags=[KEY_CEREMONY_ADMIN])
-def cancel_ceremony(key_name: str) -> BaseResponse:
+def cancel_ceremony(request: Request, key_name: str) -> BaseResponse:
     """
     Cancel a Key Ceremony.
     """
-    return update_key_ceremony_state(key_name, KeyCeremonyState.CANCELLED)
+    return update_key_ceremony_state(
+        key_name, KeyCeremonyState.CANCELLED, request.app.state.settings
+    )
 
 
 @router.get(
@@ -213,12 +230,13 @@ def cancel_ceremony(key_name: str) -> BaseResponse:
     tags=[KEY_CEREMONY_ADMIN],
 )
 def fetch_joint_key(
+    request: Request,
     key_name: str,
 ) -> ElectionJointKeyResponse:
     """
     Get The Joint Election Key
     """
-    ceremony = get_key_ceremony(key_name)
+    ceremony = get_key_ceremony(key_name, request.app.state.settings)
     if not ceremony.elgamal_public_key:
         raise HTTPException(
             status_code=status.HTTP_412_PRECONDITION_FAILED,
@@ -242,7 +260,7 @@ def fetch_joint_key(
     tags=[KEY_CEREMONY_ADMIN],
 )
 def combine_election_keys(
-    request: PublishElectionJointKeyRequest,
+    data: PublishElectionJointKeyRequest,
 ) -> ElectionJointKeyResponse:
     """
     Combine public election keys into a final one without mutating the state of the key ceremony.
@@ -250,7 +268,7 @@ def combine_election_keys(
     """
     election_public_keys: List[ElementModP] = []
     coefficient_commitments: List[ElementModP] = []
-    for public_key in request.election_public_keys:
+    for public_key in data.election_public_keys:
         key = read_json_object(public_key, ElectionPublicKey)
         election_public_keys.append(key.key)
         for commitment in key.coefficient_commitments:
@@ -265,19 +283,20 @@ def combine_election_keys(
     tags=[KEY_CEREMONY_ADMIN],
 )
 def publish_joint_key(
+    request: Request,
     key_name: str,
 ) -> ElectionJointKeyResponse:
     """
-    Publish joint election key from the public keys of all guardians
+    Publish joint election key from the public keys of all guardians.
     """
-    ceremony = get_key_ceremony(key_name)
+    ceremony = get_key_ceremony(key_name, request.app.state.settings)
 
     validate_can_publish(ceremony)
 
     election_public_keys: List[ElementModP] = []
     coefficient_commitments: List[ElementModP] = []
     for guardian_id in ceremony.guardian_ids:
-        guardian = get_key_guardian(key_name, guardian_id)
+        guardian = get_key_guardian(key_name, guardian_id, request.app.state.settings)
         if not guardian.public_keys:
             raise HTTPException(
                 status_code=status.HTTP_412_PRECONDITION_FAILED,
@@ -293,7 +312,7 @@ def publish_joint_key(
 
     ceremony.elgamal_public_key = response.elgamal_public_key
     ceremony.commitment_hash = response.commitment_hash
-    update_key_ceremony(key_name, ceremony)
+    update_key_ceremony(key_name, ceremony, request.app.state.settings)
 
     return response
 

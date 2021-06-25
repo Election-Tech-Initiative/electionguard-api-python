@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, HTTPException, Request, status
 
 from electionguard.key_ceremony import (
     PublicKeySet,
@@ -29,16 +29,17 @@ router = APIRouter()
 # ROUND 1: Announce guardians with public keys
 @router.post("/guardian/announce", response_model=BaseResponse, tags=[KEY_CEREMONY])
 def announce_guardian(
-    request: GuardianAnnounceRequest = Body(...),
+    request: Request,
+    data: GuardianAnnounceRequest = Body(...),
 ) -> BaseResponse:
     """
     Announce the guardian as present and participating in the Key Ceremony.
     """
-    keyset = read_json_object(request.public_keys, PublicKeySet)
+    keyset = read_json_object(data.public_keys, PublicKeySet)
     guardian_id = keyset.election.owner_id
 
-    ceremony = get_key_ceremony(request.key_name)
-    guardian = get_key_guardian(request.key_name, guardian_id)
+    ceremony = get_key_ceremony(data.key_name, request.app.state.settings)
+    guardian = get_key_guardian(data.key_name, guardian_id, request.app.state.settings)
 
     _validate_can_participate(ceremony, guardian)
 
@@ -47,92 +48,109 @@ def announce_guardian(
         guardian_id
     ].public_key_shared = KeyCeremonyGuardianStatus.COMPLETE
 
-    update_key_guardian(request.key_name, guardian_id, guardian)
-    return update_key_ceremony(request.key_name, ceremony)
+    update_key_guardian(
+        data.key_name, guardian_id, guardian, request.app.state.settings
+    )
+    return update_key_ceremony(data.key_name, ceremony, request.app.state.settings)
 
 
 # ROUND 2: Share Election Partial Key Backups for compensating
 @router.post("/guardian/backup", response_model=BaseResponse, tags=[KEY_CEREMONY])
 def share_backups(
-    request: GuardianSubmitBackupRequest = Body(...),
+    request: Request,
+    data: GuardianSubmitBackupRequest = Body(...),
 ) -> BaseResponse:
     """
     Share Election Partial Key Backups to be distributed to the other guardians.
     """
-    ceremony = get_key_ceremony(request.key_name)
-    guardian = get_key_guardian(request.key_name, request.guardian_id)
+    ceremony = get_key_ceremony(data.key_name, request.app.state.settings)
+    guardian = get_key_guardian(
+        data.key_name, data.guardian_id, request.app.state.settings
+    )
 
     _validate_can_participate(ceremony, guardian)
 
     backups = [
-        read_json_object(backup, ElectionPartialKeyBackup) for backup in request.backups
+        read_json_object(backup, ElectionPartialKeyBackup) for backup in data.backups
     ]
 
     guardian.backups = [write_json_object(backup) for backup in backups]
     ceremony.guardian_status[
-        request.guardian_id
+        data.guardian_id
     ].backups_shared = KeyCeremonyGuardianStatus.COMPLETE
 
-    update_key_guardian(request.key_name, request.guardian_id, guardian)
-    return update_key_ceremony(request.key_name, ceremony)
+    update_key_guardian(
+        data.key_name, data.guardian_id, guardian, request.app.state.settings
+    )
+    return update_key_ceremony(data.key_name, ceremony, request.app.state.settings)
 
 
 # ROUND 3: Share verifications of backups
 @router.post("/guardian/verify", response_model=BaseResponse, tags=[KEY_CEREMONY])
 def verify_backups(
-    request: GuardianSubmitVerificationRequest = Body(...),
+    request: Request,
+    data: GuardianSubmitVerificationRequest = Body(...),
 ) -> BaseResponse:
     """
     Share the reulsts of verifying the other guardians' backups.
     """
-    ceremony = get_key_ceremony(request.key_name)
-    guardian = get_key_guardian(request.key_name, request.guardian_id)
+    ceremony = get_key_ceremony(data.key_name, request.app.state.settings)
+    guardian = get_key_guardian(
+        data.key_name, data.guardian_id, request.app.state.settings
+    )
 
     _validate_can_participate(ceremony, guardian)
 
     verifications = [
         read_json_object(verification, ElectionPartialKeyVerification)
-        for verification in request.verifications
+        for verification in data.verifications
     ]
 
     guardian.verifications = [
         write_json_object(verification) for verification in verifications
     ]
-    ceremony.guardian_status[request.guardian_id].backups_verified = (
+    ceremony.guardian_status[data.guardian_id].backups_verified = (
         KeyCeremonyGuardianStatus.COMPLETE
         if all([verification.verified for verification in verifications])
         else KeyCeremonyGuardianStatus.ERROR
     )
 
-    update_key_guardian(request.key_name, request.guardian_id, guardian)
-    return update_key_ceremony(request.key_name, ceremony)
+    update_key_guardian(
+        data.key_name, data.guardian_id, guardian, request.app.state.settings
+    )
+    return update_key_ceremony(data.key_name, ceremony, request.app.state.settings)
 
 
 # ROUND 4 (Optional): If a verification fails, guardian must issue challenge
 @router.post("/guardian/challenge", response_model=BaseResponse, tags=[KEY_CEREMONY])
 def challenge_backups(
-    request: GuardianSubmitChallengeRequest = Body(...),
+    request: Request,
+    data: GuardianSubmitChallengeRequest = Body(...),
 ) -> BaseResponse:
     """
     Submit challenges to the other guardians' backups.
     """
-    ceremony = get_key_ceremony(request.key_name)
-    guardian = get_key_guardian(request.key_name, request.guardian_id)
+    ceremony = get_key_ceremony(data.key_name, request.app.state.settings)
+    guardian = get_key_guardian(
+        data.key_name, data.guardian_id, request.app.state.settings
+    )
 
     _validate_can_participate(ceremony, guardian)
 
     challenges = [
         read_json_object(challenge, ElectionPartialKeyChallenge)
-        for challenge in request.challenges
+        for challenge in data.challenges
     ]
 
     guardian.challenges = [write_json_object(challenge) for challenge in challenges]
     ceremony.guardian_status[
-        request.guardian_id
+        data.guardian_id
     ].backups_verified = KeyCeremonyGuardianStatus.ERROR
 
-    update_key_guardian(request.key_name, request.guardian_id, guardian)
-    return update_key_ceremony(request.key_name, ceremony)
+    update_key_guardian(
+        data.key_name, data.guardian_id, guardian, request.app.state.settings
+    )
+    return update_key_ceremony(data.key_name, ceremony, request.app.state.settings)
 
 
 def _validate_can_participate(

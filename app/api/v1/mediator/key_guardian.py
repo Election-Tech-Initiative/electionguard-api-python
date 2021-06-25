@@ -1,11 +1,11 @@
 from typing import List
 import sys
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, HTTPException, Request, status
 
 from electionguard.serializable import write_json_object, read_json_object
 
 from ....core.client import get_client_id
-from ....core.key_guardian import get_key_guardian
+from ....core.key_guardian import get_key_guardian, update_key_guardian
 from ....core.repository import get_repository, DataCollection
 from ..models import (
     BaseQueryRequest,
@@ -20,18 +20,19 @@ router = APIRouter()
 
 @router.get("", response_model=GuardianQueryResponse, tags=[KEY_GUARDIAN])
 def fetch_key_ceremony_guardian(
-    key_name: str, guardian_id: str
+    request: Request, key_name: str, guardian_id: str
 ) -> GuardianQueryResponse:
     """
     Get a key ceremony guardian.
     """
-    guardian = get_key_guardian(key_name, guardian_id)
+    guardian = get_key_guardian(key_name, guardian_id, request.app.state.settings)
     return GuardianQueryResponse(guardians=[guardian])
 
 
 @router.put("", response_model=BaseResponse, tags=[KEY_GUARDIAN])
 def create_key_ceremony_guardian(
-    request: KeyCeremonyGuardian = Body(...),
+    request: Request,
+    data: KeyCeremonyGuardian = Body(...),
 ) -> BaseResponse:
     """
     Create a Key Ceremony Guardian.
@@ -39,16 +40,18 @@ def create_key_ceremony_guardian(
     In order for a guardian to participate they must be assiciated with the key ceremony first.
     """
     try:
-        with get_repository(get_client_id(), DataCollection.KEY_GUARDIAN) as repository:
+        with get_repository(
+            get_client_id(), DataCollection.KEY_GUARDIAN, request.app.state.settings
+        ) as repository:
             query_result = repository.get(
-                {"key_name": request.key_name, "guardian_id": request.guardian_id}
+                {"key_name": data.key_name, "guardian_id": data.guardian_id}
             )
             if not query_result:
-                repository.set(request.dict())
+                repository.set(data.dict())
                 return BaseResponse()
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Already exists {request.guardian_id}",
+                detail=f"Already exists {data.guardian_id}",
             )
     except Exception as error:
         print(sys.exc_info())
@@ -60,37 +63,25 @@ def create_key_ceremony_guardian(
 
 @router.post("", response_model=BaseResponse, tags=[KEY_GUARDIAN])
 def update_key_ceremony_guardian(
-    request: KeyCeremonyGuardian = Body(...),
+    request: Request,
+    data: KeyCeremonyGuardian = Body(...),
 ) -> BaseResponse:
     """
     Update a Key Ceremony Guardian.
 
     This API is primarily for administrative purposes.
     """
-    try:
-        with get_repository(get_client_id(), DataCollection.KEY_GUARDIAN) as repository:
-            query_result = repository.get(
-                {"key_name": request.key_name, "guardian_id": request.guardian_id}
-            )
-            if not query_result:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Does not exist {request.guardian_id}",
-                )
-            repository.set(request.dict())
-            return BaseResponse()
-
-    except Exception as error:
-        print(sys.exc_info())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Submit ballots failed",
-        ) from error
+    return update_key_guardian(
+        data.key_name, data.guardian_id, data, request.app.state.settings
+    )
 
 
 @router.get("/find", response_model=GuardianQueryResponse, tags=[KEY_GUARDIAN])
 def find_key_ceremony_guardians(
-    skip: int = 0, limit: int = 100, request: BaseQueryRequest = Body(...)
+    request: Request,
+    skip: int = 0,
+    limit: int = 100,
+    data: BaseQueryRequest = Body(...),
 ) -> GuardianQueryResponse:
     """
     Find Guardians.
@@ -99,8 +90,10 @@ def find_key_ceremony_guardians(
     If no filter criteria is specified the API will iterate all available data.
     """
     try:
-        filter = write_json_object(request.filter) if request.filter else {}
-        with get_repository(get_client_id(), DataCollection.KEY_GUARDIAN) as repository:
+        filter = write_json_object(data.filter) if data.filter else {}
+        with get_repository(
+            get_client_id(), DataCollection.KEY_GUARDIAN, request.app.state.settings
+        ) as repository:
             cursor = repository.find(filter, skip, limit)
             guardians: List[KeyCeremonyGuardian] = []
             for item in cursor:
