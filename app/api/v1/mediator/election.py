@@ -15,6 +15,7 @@ from electionguard.manifest import Manifest
 from electionguard.serializable import read_json_object, write_json_object
 
 from .manifest import get_manifest
+from ....core.client import get_client_id
 from ....core.repository import get_repository, DataCollection
 from ..models import (
     BaseResponse,
@@ -22,7 +23,6 @@ from ..models import (
     ElectionState,
     ElectionQueryRequest,
     ElectionQueryResponse,
-    ResponseStatus,
     MakeElectionContextRequest,
     MakeElectionContextResponse,
     SubmitElectionRequest,
@@ -31,9 +31,6 @@ from ..models import (
 from ..tags import ELECTION
 
 router = APIRouter()
-
-# TODO: multi-tenancy
-CLIENT_ID = "electionguard-default-client-id"
 
 
 @router.get("/constants", tags=[ELECTION])
@@ -45,11 +42,11 @@ def get_election_constants() -> Any:
     return constants.to_json_object()
 
 
-@router.get("", tags=[ELECTION])
+@router.get("", response_model=ElectionQueryResponse, tags=[ELECTION])
 def get_election(election_id: str) -> ElectionQueryResponse:
     """Get an election by election id"""
     try:
-        with get_repository(CLIENT_ID, DataCollection.ELECTION) as repository:
+        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
             query_result = repository.get({"election_id": election_id})
             if not query_result:
                 raise HTTPException(
@@ -64,7 +61,6 @@ def get_election(election_id: str) -> ElectionQueryResponse:
             )
 
             return ElectionQueryResponse(
-                status=ResponseStatus.SUCCESS,
                 elections=[election],
             )
     except Exception as error:
@@ -75,8 +71,8 @@ def get_election(election_id: str) -> ElectionQueryResponse:
         ) from error
 
 
-@router.put("", tags=[ELECTION])
-def submit_election(
+@router.put("", response_model=SubmitElectionResponse, tags=[ELECTION])
+def create_election(
     election_id: Optional[str], request: SubmitElectionRequest = Body(...)
 ) -> SubmitElectionResponse:
     """
@@ -98,11 +94,11 @@ def submit_election(
     if request.manifest:
         manifest = Manifest.from_json_object(request.manifest)
     else:
-        manifest_query = get_manifest(context.description_hash)
+        manifest_query = get_manifest(context.manifest_hash)
         manifest = Manifest.from_json_object(manifest_query.manifests[0])
 
     # validate that the context was built against the correct manifest
-    if context.description_hash != manifest.crypto_hash():
+    if context.manifest_hash != manifest.crypto_hash():
         raise HTTPException(
             status_code=status.HTTP_412_PRECONDITION_FAILED,
             detail="manifest hash does not match provided context hash",
@@ -116,11 +112,9 @@ def submit_election(
     )
 
     try:
-        with get_repository(CLIENT_ID, DataCollection.ELECTION) as repository:
+        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
             _ = repository.set(write_json_object(election.dict()))
-            return SubmitElectionResponse(
-                status=ResponseStatus.SUCCESS, election_id=election_id
-            )
+            return SubmitElectionResponse(election_id=election_id)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
@@ -129,7 +123,7 @@ def submit_election(
         ) from error
 
 
-@router.get("/find", tags=[ELECTION])
+@router.get("/find", response_model=ElectionQueryResponse, tags=[ELECTION])
 def find_elections(
     skip: int = 0, limit: int = 100, request: ElectionQueryRequest = Body(...)
 ) -> ElectionQueryResponse:
@@ -142,7 +136,7 @@ def find_elections(
     try:
 
         filter = write_json_object(request.filter) if request.filter else {}
-        with get_repository(CLIENT_ID, DataCollection.ELECTION) as repository:
+        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
             cursor = repository.find(filter, skip, limit)
             elections: List[Election] = []
             for item in cursor:
@@ -154,9 +148,7 @@ def find_elections(
                         manifest=item["manifest"],
                     )
                 )
-            return ElectionQueryResponse(
-                status=ResponseStatus.SUCCESS, elections=elections
-            )
+            return ElectionQueryResponse(elections=elections)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
@@ -165,7 +157,7 @@ def find_elections(
         ) from error
 
 
-@router.post("/open", tags=[ELECTION])
+@router.post("/open", response_model=BaseResponse, tags=[ELECTION])
 def open_election(election_id: str) -> BaseResponse:
     """
     Open an election.
@@ -173,7 +165,7 @@ def open_election(election_id: str) -> BaseResponse:
     return _update_election_state(election_id, ElectionState.OPEN)
 
 
-@router.post("/close", tags=[ELECTION])
+@router.post("/close", response_model=BaseResponse, tags=[ELECTION])
 def close_election(election_id: str) -> BaseResponse:
     """
     Close an election.
@@ -181,7 +173,7 @@ def close_election(election_id: str) -> BaseResponse:
     return _update_election_state(election_id, ElectionState.CLOSED)
 
 
-@router.post("/publish", tags=[ELECTION])
+@router.post("/publish", response_model=BaseResponse, tags=[ELECTION])
 def publish_election(election_id: str) -> BaseResponse:
     """
     Publish an election
@@ -189,7 +181,7 @@ def publish_election(election_id: str) -> BaseResponse:
     return _update_election_state(election_id, ElectionState.PUBLISHED)
 
 
-@router.post("/context", tags=[ELECTION])
+@router.post("/context", response_model=MakeElectionContextResponse, tags=[ELECTION])
 def build_election_context(
     manifest_hash: Optional[str] = None, request: MakeElectionContextRequest = Body(...)
 ) -> MakeElectionContextResponse:
@@ -201,7 +193,7 @@ def build_election_context(
     or by providing the manifest directly in the request body
     """
     if not manifest_hash:
-        manifest_hash = request.description_hash
+        manifest_hash = request.manifest_hash
 
     if manifest_hash:
         print(manifest_hash)
@@ -225,14 +217,12 @@ def build_election_context(
         manifest.crypto_hash(),
     )
 
-    return MakeElectionContextResponse(
-        status=ResponseStatus.SUCCESS, context=context.to_json_object()
-    )
+    return MakeElectionContextResponse(context=context.to_json_object())
 
 
 def _update_election_state(election_id: str, new_state: ElectionState) -> BaseResponse:
     try:
-        with get_repository(CLIENT_ID, DataCollection.ELECTION) as repository:
+        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
             query_result = repository.get({"election_id": election_id})
             if not query_result:
                 raise HTTPException(
@@ -247,7 +237,7 @@ def _update_election_state(election_id: str, new_state: ElectionState) -> BaseRe
             )
 
             repository.update({"election_id": election_id}, election.dict())
-            return BaseResponse(status=ResponseStatus.SUCCESS)
+            return BaseResponse()
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(

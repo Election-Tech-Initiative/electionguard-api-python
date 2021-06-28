@@ -2,19 +2,27 @@ from copy import deepcopy
 from typing import Dict, List
 from fastapi.testclient import TestClient
 
-from app.core.settings import ApiMode, Settings
+from app.core.settings import ApiMode, StorageMode, Settings
 from app.main import get_app
 
 from . import api_utils
 
-_api_client = TestClient(get_app(Settings(API_MODE=ApiMode.GUARDIAN)))
+_api_client = TestClient(
+    get_app(Settings(API_MODE=ApiMode.GUARDIAN, STORAGE_MODE=StorageMode.LOCAL_STORAGE))
+)
+
+
+def fetch_public_keys(guardian_id: str) -> Dict:
+    return api_utils.send_get_request(
+        _api_client, f"guardian/public-keys?guardian_id={guardian_id}"
+    )
 
 
 def create_guardian(
     guardian_id: str, sequence_order: int, number_of_guardians: int, quorum: int
 ) -> Dict:
     request = {
-        "id": guardian_id,
+        "guardian_id": guardian_id,
         "sequence_order": sequence_order,
         "number_of_guardians": number_of_guardians,
         "quorum": quorum,

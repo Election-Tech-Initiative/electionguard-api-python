@@ -6,6 +6,7 @@ __all__ = [
     "Base",
     "BaseRequest",
     "BaseResponse",
+    "BaseQueryRequest",
     "BaseValidationRequest",
     "BaseValidationResponse",
     "ResponseStatus",
@@ -30,11 +31,17 @@ class BaseRequest(BaseModel):
 class BaseResponse(BaseModel):
     """A basic response"""
 
-    status: ResponseStatus
+    status: ResponseStatus = ResponseStatus.SUCCESS
     """The status of the response"""
 
     message: Optional[str] = None
     """An optional message describing the response"""
+
+
+class BaseQueryRequest(BaseRequest):
+    """Find something"""
+
+    filter: Optional[Any] = None
 
 
 class BaseValidationRequest(BaseRequest):

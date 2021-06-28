@@ -145,7 +145,7 @@ auto-lint:
 
 test-integration:
 	@echo ✅ INTEGRATION TESTS
-	poetry run pytest . -x
+	poetry run pytest -s . -x
 
 # Documentation
 docs-serve:

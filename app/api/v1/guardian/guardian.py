@@ -1,8 +1,13 @@
-from typing import Any, List
-import electionguard.auxiliary as EG_AUX
+from typing import Dict
+import sys
+
+from fastapi import APIRouter, Body, status, HTTPException, Request
+
+from electionguard.auxiliary import AuxiliaryKeyPair
 from electionguard.election_polynomial import ElectionPolynomial
-from electionguard.group import int_to_q_unchecked
+from electionguard.group import hex_to_q_unchecked
 from electionguard.key_ceremony import (
+    PublicKeySet,
     ElectionPartialKeyBackup,
     ElectionPartialKeyChallenge,
     generate_election_key_pair,
@@ -14,46 +19,73 @@ from electionguard.key_ceremony import (
 )
 from electionguard.rsa import rsa_decrypt, rsa_encrypt
 from electionguard.serializable import read_json_object, write_json_object
-from fastapi import APIRouter, HTTPException
+from electionguard.types import GUARDIAN_ID
 
+from ....core.client import get_client_id
+from ....core.guardian import get_guardian, update_guardian
+from ....core.repository import get_repository, DataCollection
 from ..models import (
-    AuxiliaryKeyPair,
+    BaseResponse,
     BackupChallengeRequest,
+    BackupChallengeResponse,
     BackupVerificationRequest,
+    BackupVerificationResponse,
     ChallengeVerificationRequest,
-    ElectionKeyPair,
-    ElectionPublicKey,
     Guardian,
-    GuardianRequest,
-    GuardianBackup,
+    CreateGuardianRequest,
+    GuardianPublicKeysResponse,
+    GuardianBackupResponse,
     GuardianBackupRequest,
+    to_sdk_guardian,
 )
-from ..tags import KEY_CEREMONY
+from ..tags import GUARDIAN
 
 router = APIRouter()
 
 identity = lambda message, key: message
 
 
-@router.post("", response_model=Guardian, tags=[KEY_CEREMONY])
-def create_guardian(request: GuardianRequest) -> Guardian:
+@router.get("", response_model=Guardian, tags=[GUARDIAN])
+def fetch_guardian(request: Request, guardian_id: str) -> Guardian:
     """
-    Create a guardian for the election process with the associated keys
+    Fetch a guardian.  The response includes the private key information of the guardian.
+    """
+    return get_guardian(guardian_id, request.app.state.settings)
+
+
+@router.get("/public-keys", response_model=GuardianPublicKeysResponse, tags=[GUARDIAN])
+def fetch_public_keys(request: Request, guardian_id: str) -> GuardianPublicKeysResponse:
+    """
+    Fetch the public key information for a guardian.
+    """
+    guardian = get_guardian(guardian_id, request.app.state.settings)
+    sdk_guardian = to_sdk_guardian(guardian)
+
+    return GuardianPublicKeysResponse(
+        public_keys=write_json_object(sdk_guardian.share_public_keys()),
+    )
+
+
+@router.post("", response_model=GuardianPublicKeysResponse, tags=[GUARDIAN])
+def create_guardian(
+    request: Request,
+    data: CreateGuardianRequest = Body(...),
+) -> GuardianPublicKeysResponse:
+    """
+    Create a guardian for the election process with the associated keys.
     """
     election_keys = generate_election_key_pair(
-        request.id,
-        request.sequence_order,
-        request.quorum,
-        int_to_q_unchecked(request.nonce) if request.nonce is not None else None,
+        data.guardian_id,
+        data.sequence_order,
+        data.quorum,
+        hex_to_q_unchecked(data.nonce) if data.nonce is not None else None,
     )
-    if request.auxiliary_key_pair is None:
+    if data.auxiliary_key_pair is None:
         auxiliary_keys = generate_rsa_auxiliary_key_pair(
-            request.id, request.sequence_order
+            data.guardian_id, data.sequence_order
         )
     else:
-        auxiliary_keys = read_json_object(
-            request.auxiliary_key_pair, EG_AUX.AuxiliaryKeyPair
-        )
+        auxiliary_keys = read_json_object(data.auxiliary_key_pair, AuxiliaryKeyPair)
     if not election_keys:
         raise HTTPException(
             status_code=500,
@@ -63,97 +95,158 @@ def create_guardian(request: GuardianRequest) -> Guardian:
         raise HTTPException(
             status_code=500, detail="Auxiliary keys failed to be generated"
         )
-    return Guardian(
-        id=request.id,
-        sequence_order=request.sequence_order,
-        number_of_guardians=request.number_of_guardians,
-        quorum=request.quorum,
-        election_key_pair=ElectionKeyPair(
-            owner_id=request.id,
-            sequence_order=request.sequence_order,
-            key_pair=write_json_object(election_keys.key_pair),
-            polynomial=write_json_object(election_keys.polynomial),
-        ),
-        auxiliary_key_pair=AuxiliaryKeyPair(
-            owner_id=request.id,
-            sequence_order=request.sequence_order,
-            public_key=auxiliary_keys.public_key,
-            secret_key=auxiliary_keys.secret_key,
-        ),
+    guardian = Guardian(
+        guardian_id=data.guardian_id,
+        sequence_order=data.sequence_order,
+        number_of_guardians=data.number_of_guardians,
+        quorum=data.quorum,
+        election_keys=write_json_object(election_keys),
+        auxiliary_keys=write_json_object(auxiliary_keys),
+    )
+    sdk_guardian = to_sdk_guardian(guardian)
+
+    try:
+        with get_repository(
+            get_client_id(), DataCollection.GUARDIAN, request.app.state.settings
+        ) as repository:
+            query_result = repository.get({"guardian_id": data.guardian_id})
+            if not query_result:
+                repository.set(guardian.dict())
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Already exists {data.guardian_id}",
+                )
+    except Exception as error:
+        print(sys.exc_info())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Submit ballots failed",
+        ) from error
+
+    return GuardianPublicKeysResponse(
+        public_keys=write_json_object(sdk_guardian.share_public_keys()),
     )
 
 
-@router.post("/backup", response_model=GuardianBackup, tags=[KEY_CEREMONY])
-def create_guardian_backup(request: GuardianBackupRequest) -> GuardianBackup:
+@router.post("/backup", response_model=GuardianBackupResponse, tags=[GUARDIAN])
+def create_guardian_backup(
+    request: Request, data: GuardianBackupRequest
+) -> GuardianBackupResponse:
     """
-    Generate all election partial key backups based on existing public keys
-    :param request: Guardian backup request
-    :return: Guardian backup
+    Generate election partial key backups by using the public keys included in the request.
     """
-    encrypt = identity if request.override_rsa else rsa_encrypt
-    backups: List[Any] = []
-    for auxiliary_public_key in request.auxiliary_public_keys:
+    guardian = get_guardian(data.guardian_id, request.app.state.settings)
+    polynomial = read_json_object(
+        guardian.election_keys["polynomial"], ElectionPolynomial
+    )
+
+    encrypt = identity if data.override_rsa else rsa_encrypt
+    backups: Dict[GUARDIAN_ID, ElectionPartialKeyBackup] = {}
+    cohort_public_keys: Dict[GUARDIAN_ID, PublicKeySet] = {}
+    for key_set in data.public_keys:
+        cohort_key_set = read_json_object(key_set, PublicKeySet)
+        cohort_owner_id = cohort_key_set.election.owner_id
+
         backup = generate_election_partial_key_backup(
-            request.guardian_id,
-            read_json_object(request.election_polynomial, ElectionPolynomial),
-            EG_AUX.AuxiliaryPublicKey(
-                auxiliary_public_key.owner_id,
-                auxiliary_public_key.sequence_order,
-                auxiliary_public_key.key,
-            ),
+            guardian.guardian_id,
+            polynomial,
+            cohort_key_set.auxiliary,
             encrypt,
         )
         if not backup:
-            raise HTTPException(status_code=500, detail="Backup failed to be generated")
-        backups.append(write_json_object(backup))
+            raise HTTPException(
+                status_code=500,
+                detail=f"Backup failed to be generated for {cohort_owner_id}",
+            )
+        backups[cohort_owner_id] = backup
+        cohort_public_keys[cohort_owner_id] = cohort_key_set
 
-    return GuardianBackup(
-        id=request.guardian_id,
-        election_partial_key_backups=backups,
+    guardian.backups = {
+        owner_id: write_json_object(backup) for (owner_id, backup) in backups.items()
+    }
+    guardian.cohort_public_keys = {
+        owner_id: write_json_object(key_set)
+        for (owner_id, key_set) in cohort_public_keys.items()
+    }
+    update_guardian(guardian.guardian_id, guardian, request.app.state.settings)
+
+    return GuardianBackupResponse(
+        guardian_id=data.guardian_id,
+        backups=[write_json_object(backup) for (id, backup) in backups.items()],
     )
 
 
-@router.post("/backup/verify", tags=[KEY_CEREMONY])
-def verify_backup(request: BackupVerificationRequest) -> Any:
-    decrypt = identity if request.override_rsa else rsa_decrypt
+@router.post("/backup/verify", response_model=BaseResponse, tags=[GUARDIAN])
+def verify_backup(request: Request, data: BackupVerificationRequest) -> BaseResponse:
+    """Receive and verify election partial key backup value is in polynomial."""
+    guardian = get_guardian(data.guardian_id, request.app.state.settings)
+    auxiliary_keys = read_json_object(guardian.auxiliary_keys, AuxiliaryKeyPair)
+    backup = read_json_object(data.backup, ElectionPartialKeyBackup)
+    cohort_keys = read_json_object(
+        guardian.cohort_public_keys[backup.owner_id], PublicKeySet
+    )
+    decrypt = identity if data.override_rsa else rsa_decrypt
     verification = verify_election_partial_key_backup(
-        request.verifier_id,
-        read_json_object(request.election_partial_key_backup, ElectionPartialKeyBackup),
-        read_json_object(request.election_public_key, ElectionPublicKey),
-        read_json_object(request.auxiliary_key_pair, EG_AUX.AuxiliaryKeyPair),
+        data.guardian_id,
+        backup,
+        cohort_keys.election,
+        auxiliary_keys,
         decrypt,
     )
     if not verification:
         raise HTTPException(
-            status_code=500, detail="Backup verification process failed"
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Backup verification process failed",
         )
-    return write_json_object(verification)
+
+    guardian.cohort_backups[backup.owner_id] = write_json_object(backup)
+    guardian.cohort_verifications[backup.owner_id] = write_json_object(verification)
+    update_guardian(guardian.guardian_id, guardian, request.app.state.settings)
+
+    return BaseResponse()
 
 
-@router.post("/challenge", tags=[KEY_CEREMONY])
-def create_backup_challenge(request: BackupChallengeRequest) -> Any:
+@router.post("/challenge", response_model=BaseResponse, tags=[GUARDIAN])
+def create_backup_challenge(
+    request: Request, data: BackupChallengeRequest
+) -> BaseResponse:
+    """Publish election backup challenge of election partial key verification."""
+    guardian = get_guardian(data.guardian_id, request.app.state.settings)
+    polynomial = read_json_object(
+        guardian.election_keys["polynomial"], ElectionPolynomial
+    )
+    backup = read_json_object(data.backup, ElectionPartialKeyBackup)
+
     challenge = generate_election_partial_key_challenge(
-        read_json_object(request.election_partial_key_backup, ElectionPartialKeyBackup),
-        read_json_object(request.election_polynomial, ElectionPolynomial),
+        backup,
+        polynomial,
     )
     if not challenge:
         raise HTTPException(
-            status_code=500, detail="Backup challenge generation failed"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Backup challenge generation failed",
         )
 
-    return write_json_object(challenge)
+    guardian.cohort_challenges[backup.owner_id] = write_json_object(challenge)
+    update_guardian(guardian.guardian_id, guardian, request.app.state.settings)
+    return BackupChallengeResponse(challenge=write_json_object(challenge))
 
 
-@router.post("/challenge/verify", tags=[KEY_CEREMONY])
-def verify_challenge(request: ChallengeVerificationRequest) -> Any:
+@router.post(
+    "/challenge/verify", response_model=BackupVerificationResponse, tags=[GUARDIAN]
+)
+def verify_challenge(
+    request: ChallengeVerificationRequest,
+) -> BackupVerificationResponse:
+    """Verify challenge of previous verification of election partial key."""
     verification = verify_election_partial_key_challenge(
         request.verifier_id,
-        read_json_object(
-            request.election_partial_key_challenge, ElectionPartialKeyChallenge
-        ),
+        read_json_object(request.challenge, ElectionPartialKeyChallenge),
     )
     if not verification:
         raise HTTPException(
-            status_code=500, detail="Challenge verification process failed"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Challenge verification process failed",
         )
-    return write_json_object(verification)
+    return BackupVerificationResponse(verification=write_json_object(verification))

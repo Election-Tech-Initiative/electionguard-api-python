@@ -9,7 +9,7 @@ from fastapi import APIRouter, Body, Depends
 
 from app.core.scheduler import get_scheduler
 from ..models import (
-    convert_guardian,
+    to_sdk_guardian,
     convert_tally,
     DecryptTallyShareRequest,
 )
@@ -28,7 +28,7 @@ def decrypt_share(
     """
     description = InternalManifest(Manifest.from_json_object(request.description))
     context = CiphertextElectionContext.from_json_object(request.context)
-    guardian = convert_guardian(request.guardian)
+    guardian = to_sdk_guardian(request.guardian)
     tally = convert_tally(request.encrypted_tally, description, context)
     election_key_pair = generate_election_key_pair(
         guardian.id, guardian.sequence_order, guardian.ceremony_details.quorum

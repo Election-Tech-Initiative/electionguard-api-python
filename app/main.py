@@ -20,7 +20,9 @@ def get_app(settings: Optional[Settings] = None) -> FastAPI:
         version="1.0.5",
     )
 
-    logger.error(f"Starting API in {settings.API_MODE} mode")
+    web_app.state.settings = settings
+
+    logger.info(f"Starting API in {web_app.state.settings.API_MODE} mode")
 
     # Set all CORS enabled origins
     if settings.BACKEND_CORS_ORIGINS:
@@ -39,6 +41,11 @@ def get_app(settings: Optional[Settings] = None) -> FastAPI:
 
 
 app = get_app()
+
+
+@app.on_event("startup")
+def on_startup() -> None:
+    ...
 
 
 @app.on_event("shutdown")

@@ -13,8 +13,6 @@ __all__ = [
     "get_message_queue",
 ]
 
-settings = Settings()
-
 
 class IMessageQueue(Protocol):
     def __enter__(self) -> Any:
@@ -95,7 +93,9 @@ class RabbitMQMessageQueue(IMessageQueue):
         channel.close()
 
 
-def get_message_queue(queue: str, topic: str) -> IMessageQueue:
+def get_message_queue(
+    queue: str, topic: str, settings: Settings = Settings()
+) -> IMessageQueue:
     if settings.QUEUE_MODE == QueueMode.REMOTE:
         return RabbitMQMessageQueue(settings.MESSAGEQUEUE_URI, queue, topic)
     return MemoryMessageQueue(queue, topic)

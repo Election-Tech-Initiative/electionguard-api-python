@@ -2,7 +2,7 @@ from typing import Any, List, Optional, Tuple
 import sys
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 
-from electionguard.group import int_to_q
+from electionguard.group import hex_to_q
 from electionguard.manifest import Manifest
 from electionguard.schema import validate_json_schema
 from electionguard.serializable import write_json_object
@@ -10,6 +10,7 @@ from electionguard.utils import get_optional
 
 from app.core.schema import get_description_schema
 
+from ....core.client import get_client_id
 from ....core.repository import get_repository, DataCollection
 from ..models import (
     ManifestQueryRequest,
@@ -23,20 +24,17 @@ from ..tags import MANIFEST
 
 router = APIRouter()
 
-# TODO: multi-tenancy
-CLIENT_ID = "electionguard-default-client-id"
 
-
-@router.get("", tags=[MANIFEST])
+@router.get("", response_model=ManifestQueryResponse, tags=[MANIFEST])
 def get_manifest(manifest_hash: str) -> ManifestQueryResponse:
     """Get an election manifest by hash"""
-    crypto_hash = int_to_q(manifest_hash)  # TODO: hex_to_q
+    crypto_hash = hex_to_q(manifest_hash)
     if not crypto_hash:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="manifest hash not valid"
         )
     try:
-        with get_repository(CLIENT_ID, DataCollection.MANIFEST) as repository:
+        with get_repository(get_client_id(), DataCollection.MANIFEST) as repository:
             query_result = repository.get({"manifest_hash": crypto_hash.to_hex()})
             if not query_result:
                 raise HTTPException(
@@ -45,7 +43,6 @@ def get_manifest(manifest_hash: str) -> ManifestQueryResponse:
                 )
 
             return ManifestQueryResponse(
-                status=ResponseStatus.SUCCESS,
                 manifests=[query_result["manifest"]],
             )
     except Exception as error:
@@ -56,7 +53,12 @@ def get_manifest(manifest_hash: str) -> ManifestQueryResponse:
         ) from error
 
 
-@router.put("", tags=[MANIFEST], status_code=status.HTTP_202_ACCEPTED)
+@router.put(
+    "",
+    response_model=ManifestSubmitResponse,
+    tags=[MANIFEST],
+    status_code=status.HTTP_202_ACCEPTED,
+)
 def submit_manifest(
     request: ValidateManifestRequest = Body(...),
     schema: Any = Depends(get_description_schema),
@@ -71,16 +73,12 @@ def submit_manifest(
         )
 
     try:
-        with get_repository(CLIENT_ID, DataCollection.MANIFEST) as repository:
-            manifest_hash = str(
-                manifest.crypto_hash().to_int()
-            )  # TODO: hex representation
+        with get_repository(get_client_id(), DataCollection.MANIFEST) as repository:
+            manifest_hash = manifest.crypto_hash().to_hex()
             _ = repository.set(
                 {"manifest_hash": manifest_hash, "manifest": manifest.to_json_object()}
             )
-            return ManifestSubmitResponse(
-                status=ResponseStatus.SUCCESS, manifest_hash=manifest_hash
-            )
+            return ManifestSubmitResponse(manifest_hash=manifest_hash)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
@@ -89,7 +87,7 @@ def submit_manifest(
         ) from error
 
 
-@router.get("/find", tags=[MANIFEST])
+@router.get("/find", response_model=ManifestQueryResponse, tags=[MANIFEST])
 def find_manifests(
     skip: int = 0, limit: int = 100, request: ManifestQueryRequest = Body(...)
 ) -> ManifestQueryResponse:
@@ -102,14 +100,12 @@ def find_manifests(
     try:
 
         filter = write_json_object(request.filter) if request.filter else {}
-        with get_repository(CLIENT_ID, DataCollection.ELECTION) as repository:
+        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
             cursor = repository.find(filter, skip, limit)
             manifests: List[Manifest] = []
             for item in cursor:
                 manifests.append(Manifest.from_json_object(item["manifest"]))
-            return ManifestQueryResponse(
-                status=ResponseStatus.SUCCESS, manifests=manifests
-            )
+            return ManifestQueryResponse(manifests=manifests)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
@@ -118,7 +114,7 @@ def find_manifests(
         ) from error
 
 
-@router.post("/validate", tags=[MANIFEST], status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/validate", response_model=ValidateManifestResponse, tags=[MANIFEST])
 def validate_manifest(
     request: ValidateManifestRequest = Body(...),
     schema: Any = Depends(get_description_schema),
@@ -156,11 +152,8 @@ def _validate_manifest(
 
     if success:
         return manifest, ValidateManifestResponse(
-            status=ResponseStatus.SUCCESS,
             message="Manifest successfully validated",
-            manifest_hash=str(
-                get_optional(manifest).crypto_hash().to_int()
-            ),  # TODO: to hex
+            manifest_hash=get_optional(manifest).crypto_hash().to_hex(),
         )
 
     return manifest, ValidateManifestResponse(

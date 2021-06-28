@@ -76,7 +76,7 @@ class MakeElectionContextRequest(BaseRequest):
     commitment_hash: str
     number_of_guardians: int
     quorum: int
-    description_hash: Optional[str] = None  # TODO: rename to manifest_hash
+    manifest_hash: Optional[str] = None
     manifest: Optional[ElectionManifest] = None
 
 
