@@ -87,7 +87,7 @@ def submit_manifest(
         ) from error
 
 
-@router.get("/find", response_model=ManifestQueryResponse, tags=[MANIFEST])
+@router.post("/find", response_model=ManifestQueryResponse, tags=[MANIFEST])
 def find_manifests(
     skip: int = 0, limit: int = 100, request: ManifestQueryRequest = Body(...)
 ) -> ManifestQueryResponse:

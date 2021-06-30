@@ -123,7 +123,7 @@ def create_election(
         ) from error
 
 
-@router.get("/find", response_model=ElectionQueryResponse, tags=[ELECTION])
+@router.post("/find", response_model=ElectionQueryResponse, tags=[ELECTION])
 def find_elections(
     skip: int = 0, limit: int = 100, request: ElectionQueryRequest = Body(...)
 ) -> ElectionQueryResponse:

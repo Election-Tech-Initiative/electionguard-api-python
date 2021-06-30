@@ -51,7 +51,7 @@ def get_ballot(election_id: str, ballot_id: str) -> BallotQueryResponse:
         )
 
 
-@router.get("/find", tags=[BALLOTS])
+@router.post("/find", tags=[BALLOTS])
 def find_ballots(
     election_id: str,
     skip: int = 0,

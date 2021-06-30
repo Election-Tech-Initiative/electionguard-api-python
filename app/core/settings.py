@@ -27,7 +27,12 @@ class Settings(BaseSettings):
     STORAGE_MODE: StorageMode = StorageMode.MEMORY
     API_V1_STR: str = "/api/v1"
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = Field(
-        default=["http://localhost", "http://localhost:8080", "https://localhost"]
+        default=[
+            "http://localhost",
+            "http://localhost:8080",
+            "http://localhost:6006",
+            "https://localhost",
+        ]
     )
     PROJECT_NAME: str = "electionguard-api-python"
     MONGODB_URI: str = "mongodb://root:example@localhost:27017"
