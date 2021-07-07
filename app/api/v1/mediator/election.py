@@ -3,7 +3,7 @@ from uuid import uuid4
 import sys
 
 
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, HTTPException, Request, status
 
 from electionguard.election import (
     ElectionConstants,
@@ -16,6 +16,7 @@ from electionguard.serializable import read_json_object, write_json_object
 
 from .manifest import get_manifest
 from ....core.client import get_client_id
+from ....core.election import get_election, set_election, update_election_state
 from ....core.repository import get_repository, DataCollection
 from ..models import (
     BaseResponse,
@@ -26,7 +27,6 @@ from ..models import (
     MakeElectionContextRequest,
     MakeElectionContextResponse,
     SubmitElectionRequest,
-    SubmitElectionResponse,
 )
 from ..tags import ELECTION
 
@@ -43,38 +43,20 @@ def get_election_constants() -> Any:
 
 
 @router.get("", response_model=ElectionQueryResponse, tags=[ELECTION])
-def get_election(election_id: str) -> ElectionQueryResponse:
+def fetch_election(request: Request, election_id: str) -> ElectionQueryResponse:
     """Get an election by election id"""
-    try:
-        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
-            query_result = repository.get({"election_id": election_id})
-            if not query_result:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Could not find election {election_id}",
-                )
-            election = Election(
-                election_id=query_result["election_id"],
-                state=query_result["state"],
-                context=query_result["context"],
-                manifest=query_result["manifest"],
-            )
-
-            return ElectionQueryResponse(
-                elections=[election],
-            )
-    except Exception as error:
-        print(sys.exc_info())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="get election failed",
-        ) from error
+    election = get_election(election_id, request.app.state.settings)
+    return ElectionQueryResponse(
+        elections=[election],
+    )
 
 
-@router.put("", response_model=SubmitElectionResponse, tags=[ELECTION])
+@router.put("", response_model=BaseResponse, tags=[ELECTION])
 def create_election(
-    election_id: Optional[str], request: SubmitElectionRequest = Body(...)
-) -> SubmitElectionResponse:
+    request: Request,
+    election_id: Optional[str],
+    data: SubmitElectionRequest = Body(...),
+) -> BaseResponse:
     """
     Submit an election.
 
@@ -84,15 +66,15 @@ def create_election(
     contained in the CiphertextelectionContext
     """
     if not election_id:
-        election_id = request.election_id
+        election_id = data.election_id
 
     if not election_id:
         election_id = str(uuid4())
 
-    context = CiphertextElectionContext.from_json_object(request.context)
+    context = CiphertextElectionContext.from_json_object(data.context)
 
-    if request.manifest:
-        manifest = Manifest.from_json_object(request.manifest)
+    if data.manifest:
+        manifest = Manifest.from_json_object(data.manifest)
     else:
         manifest_query = get_manifest(context.manifest_hash)
         manifest = Manifest.from_json_object(manifest_query.manifests[0])
@@ -111,16 +93,7 @@ def create_election(
         manifest=manifest.to_json_object(),
     )
 
-    try:
-        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
-            _ = repository.set(write_json_object(election.dict()))
-            return SubmitElectionResponse(election_id=election_id)
-    except Exception as error:
-        print(sys.exc_info())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Submit election failed",
-        ) from error
+    return set_election(election, request.app.state.settings)
 
 
 @router.post("/find", response_model=ElectionQueryResponse, tags=[ELECTION])
@@ -162,7 +135,7 @@ def open_election(election_id: str) -> BaseResponse:
     """
     Open an election.
     """
-    return _update_election_state(election_id, ElectionState.OPEN)
+    return update_election_state(election_id, ElectionState.OPEN)
 
 
 @router.post("/close", response_model=BaseResponse, tags=[ELECTION])
@@ -170,7 +143,7 @@ def close_election(election_id: str) -> BaseResponse:
     """
     Close an election.
     """
-    return _update_election_state(election_id, ElectionState.CLOSED)
+    return update_election_state(election_id, ElectionState.CLOSED)
 
 
 @router.post("/publish", response_model=BaseResponse, tags=[ELECTION])
@@ -178,7 +151,7 @@ def publish_election(election_id: str) -> BaseResponse:
     """
     Publish an election
     """
-    return _update_election_state(election_id, ElectionState.PUBLISHED)
+    return update_election_state(election_id, ElectionState.PUBLISHED)
 
 
 @router.post("/context", response_model=MakeElectionContextResponse, tags=[ELECTION])
@@ -218,29 +191,3 @@ def build_election_context(
     )
 
     return MakeElectionContextResponse(context=context.to_json_object())
-
-
-def _update_election_state(election_id: str, new_state: ElectionState) -> BaseResponse:
-    try:
-        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
-            query_result = repository.get({"election_id": election_id})
-            if not query_result:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Could not find election {election_id}",
-                )
-            election = Election(
-                election_id=query_result["election_id"],
-                state=new_state,
-                context=query_result["context"],
-                manifest=query_result["manifest"],
-            )
-
-            repository.update({"election_id": election_id}, election.dict())
-            return BaseResponse()
-    except Exception as error:
-        print(sys.exc_info())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="update election failed",
-        ) from error

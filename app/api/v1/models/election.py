@@ -13,7 +13,6 @@ __all__ = [
     "MakeElectionContextRequest",
     "MakeElectionContextResponse",
     "SubmitElectionRequest",
-    "SubmitElectionResponse",
 ]
 
 CiphertextElectionContext = Any
@@ -59,12 +58,6 @@ class SubmitElectionRequest(BaseRequest):
     election_id: Optional[str] = None
     context: CiphertextElectionContext
     manifest: Optional[ElectionManifest] = None
-
-
-class SubmitElectionResponse(BaseResponse):
-    """A submitted election id"""
-
-    election_id: str
 
 
 class MakeElectionContextRequest(BaseRequest):
