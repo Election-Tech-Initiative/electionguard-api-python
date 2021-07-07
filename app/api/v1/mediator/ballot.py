@@ -1,7 +1,7 @@
 from typing import Any, List, Optional, Tuple
 import sys
 
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, HTTPException, Request, status
 
 from electionguard.ballot import (
     SubmittedBallot,
@@ -14,12 +14,21 @@ from electionguard.election import CiphertextElectionContext
 from electionguard.manifest import InternalManifest, Manifest
 from electionguard.serializable import write_json_object
 
+from ....core.ballot import (
+    get_ballot,
+    set_ballots,
+    get_ballot_inventory,
+    upsert_ballot_inventory,
+)
 from ....core.repository import get_repository, DataCollection
+from ....core.settings import Settings
 from ....core.queue import get_message_queue, IMessageQueue
 from ..models import (
     BaseResponse,
     BaseQueryRequest,
     BaseBallotRequest,
+    BallotInventory,
+    BallotInventoryResponse,
     BallotQueryResponse,
     CastBallotsRequest,
     SpoilBallotsRequest,
@@ -33,35 +42,53 @@ router = APIRouter()
 
 
 @router.get("", tags=[BALLOTS])
-def get_ballot(election_id: str, ballot_id: str) -> BallotQueryResponse:
+def fetch_ballot(
+    request: Request, election_id: str, ballot_id: str
+) -> BallotQueryResponse:
     """
-    Get A Ballot for a specific election
+    Fetch A Ballot for a specific election
     """
-    with get_repository(election_id, DataCollection.SUBMITTED_BALLOT) as repository:
-        ballot = repository.get({"object_id": ballot_id})
-        if not ballot:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Could not find ballot {ballot_id}",
-            )
+    ballot = get_ballot(election_id, ballot_id, request.app.state.settings)
 
-        return BallotQueryResponse(
-            election_id=election_id,
-            ballots=[write_json_object(ballot)],
-        )
+    return BallotQueryResponse(
+        election_id=election_id,
+        ballots=[ballot],
+    )
+
+
+@router.get("", tags=[BALLOTS])
+def fetch_ballot_inventory(
+    request: Request, election_id: str
+) -> BallotInventoryResponse:
+    """
+    Fetch A Ballot for a specific election
+    """
+    inventory = get_ballot_inventory(election_id, request.app.state.settings)
+
+    return BallotInventoryResponse(
+        inventory=inventory,
+    )
 
 
 @router.post("/find", tags=[BALLOTS])
 def find_ballots(
+    request: Request,
     election_id: str,
     skip: int = 0,
     limit: int = 100,
-    request: BaseQueryRequest = Body(...),
+    data: BaseQueryRequest = Body(...),
 ) -> BallotQueryResponse:
-    """Find Ballots."""
+    """
+    Find Ballots.
+
+    Search the repository for ballots that match the filter criteria specified in the request body.
+    If no filter criteria is specified the API will iterate all available data.
+    """
     try:
-        filter = write_json_object(request.filter) if request.filter else {}
-        with get_repository(election_id, DataCollection.SUBMITTED_BALLOT) as repository:
+        filter = write_json_object(data.filter) if data.filter else {}
+        with get_repository(
+            election_id, DataCollection.SUBMITTED_BALLOT, request.app.state.settings
+        ) as repository:
             cursor = repository.find(filter, skip, limit)
             ballots: List[Any] = []
             for item in cursor:
@@ -76,9 +103,9 @@ def find_ballots(
 
 
 @router.post("/cast", tags=[BALLOTS], status_code=status.HTTP_202_ACCEPTED)
-def cast_ballot(
+def cast_ballots(
     election_id: Optional[str] = None, request: CastBallotsRequest = Body(...)
-) -> SubmitBallotsResponse:
+) -> BaseResponse:
     """
     Cast ballot
     """
@@ -100,7 +127,7 @@ def cast_ballot(
 
 
 @router.post("/spoil", tags=[BALLOTS], status_code=status.HTTP_202_ACCEPTED)
-def spoil_ballot(
+def spoil_ballots(
     election_id: Optional[str] = None, request: SpoilBallotsRequest = Body(...)
 ) -> BaseResponse:
     """
@@ -125,9 +152,10 @@ def spoil_ballot(
 
 @router.put("/submit", tags=[BALLOTS], status_code=status.HTTP_202_ACCEPTED)
 def submit_ballots(
+    request: Request,
     election_id: Optional[str] = None,
-    request: SubmitBallotsRequest = Body(...),
-) -> SubmitBallotsResponse:
+    data: SubmitBallotsRequest = Body(...),
+) -> BaseResponse:
     """
     Submit ballots for an election.
 
@@ -135,9 +163,12 @@ def submit_ballots(
     If both are provied, the query string will override.
     """
 
-    manifest, context, election_id = _get_election_parameters(election_id, request)
+    manifest, context, election_id = _get_election_parameters(
+        election_id, data, request.app.state.settings
+    )
 
-    ballots = [SubmittedBallot.from_json_object(ballot) for ballot in request.ballots]
+    # Check each ballot's state and validate
+    ballots = [SubmittedBallot.from_json_object(ballot) for ballot in data.ballots]
     for ballot in ballots:
         if ballot.state == BallotBoxState.UNKNOWN:
             raise HTTPException(
@@ -149,7 +180,7 @@ def submit_ballots(
         )
         _validate_ballot(validation_request)
 
-    return _submit_ballots(election_id, ballots)
+    return _submit_ballots(election_id, ballots, request.app.state.settings)
 
 
 @router.post("/validate", tags=[BALLOTS])
@@ -164,11 +195,15 @@ def validate_ballot(
 
 
 def _get_election_parameters(
-    election_id: Optional[str], request: BaseBallotRequest
+    election_id: Optional[str],
+    request_data: BaseBallotRequest,
+    settings: Settings = Settings(),
 ) -> Tuple[Manifest, CiphertextElectionContext, str]:
+    """Get the election parameters either from the data cache or from the request body"""
+
     # Check an election is assigned
     if not election_id:
-        election_id = request.election_id
+        election_id = request_data.election_id
 
     if not election_id:
         raise HTTPException(
@@ -177,42 +212,40 @@ def _get_election_parameters(
         )
 
     # TODO: load validation from repository
-    if not request.manifest:
+    if not request_data.manifest:
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="Query for Manifest Not Yet Implemented",
         )
 
-    if not request.context:
+    if not request_data.context:
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="Query for Context Not Yet Implemented",
         )
 
-    manifest = request.manifest
-    context = request.context
+    manifest = request_data.manifest
+    context = request_data.context
     return manifest, context, election_id
 
 
 def _submit_ballots(
-    election_id: str,
-    ballots: List[SubmittedBallot],
-) -> SubmitBallotsResponse:
-    try:
-        with get_repository(election_id, DataCollection.SUBMITTED_BALLOT) as repository:
-            cacheable_ballots = [ballot.to_json_object() for ballot in ballots]
-            keys = repository.set(cacheable_ballots)
-            return SubmitBallotsResponse(
-                message="Ballot Successfully Submitted",
-                cache_keys=keys,
-                election_id=election_id,
-            )
-    except Exception as error:
-        print(sys.exc_info())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Submit ballots failed",
-        ) from error
+    election_id: str, ballots: List[SubmittedBallot], settings: Settings = Settings()
+) -> BaseResponse:
+    """"""
+    set_response = set_ballots(election_id, ballots, settings)
+    if set_response.is_success():
+        inventory = get_ballot_inventory(election_id, settings)
+        for ballot in ballots:
+            if ballot.state == BallotBoxState.CAST:
+                inventory.cast_ballot_count += 1
+                inventory.cast_ballots[ballot.code.to_hex()] = ballot.object_id
+            elif ballot.state == BallotBoxState.SPOILED:
+                inventory.spoiled_ballot_count += 1
+                inventory.spoiled_ballots[ballot.code.to_hex()] = ballot.object_id
+        upsert_ballot_inventory(election_id, inventory, settings)
+
+    return set_response
 
 
 def _validate_ballot(request: ValidateBallotRequest) -> None:
