@@ -61,7 +61,7 @@ def fetch_ballot_inventory(
     request: Request, election_id: str
 ) -> BallotInventoryResponse:
     """
-    Fetch A Ballot for a specific election
+    Fetch the Ballot Inventory for a specific election.
     """
     inventory = get_ballot_inventory(election_id, request.app.state.settings)
 
