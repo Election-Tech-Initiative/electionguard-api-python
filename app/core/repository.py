@@ -61,7 +61,9 @@ class DataCollection:
     MANIFEST = "manifest"
     BALLOT_INVENTORY = "ballotInventory"
     SUBMITTED_BALLOT = "submittedBallots"
-    TALLY = "tally"
+    CIPHERTEXT_TALLY = "ciphertextTally"
+    PLAINTEXT_TALLY = "plaintextTally"
+    DECRYPTION_SHARES = "decryptionShares"
 
 
 class LocalRepository(IRepository):

@@ -55,7 +55,7 @@ class BallotInventoryResponse(BaseResponse):
 
 class BallotQueryResponse(BaseResponse):
     election_id: str
-    ballots: List[CiphertextBallot]
+    ballots: List[CiphertextBallot] = []
 
 
 class BaseBallotRequest(BaseRequest):

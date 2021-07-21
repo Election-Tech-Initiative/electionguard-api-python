@@ -29,6 +29,7 @@ class Election(Base):
     """An election object"""
 
     election_id: str
+    key_name: str
     state: ElectionState
     context: CiphertextElectionContext
     manifest: ElectionManifest
@@ -49,13 +50,14 @@ class ElectionQueryRequest(BaseRequest):
 class ElectionQueryResponse(BaseResponse):
     """A collection of elections"""
 
-    elections: List[Election]
+    elections: List[Election] = []
 
 
 class SubmitElectionRequest(BaseRequest):
     """Submit an election"""
 
-    election_id: Optional[str] = None
+    election_id: str
+    key_name: str
     context: CiphertextElectionContext
     manifest: Optional[ElectionManifest] = None
 

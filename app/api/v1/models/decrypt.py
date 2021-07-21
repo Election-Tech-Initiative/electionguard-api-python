@@ -31,4 +31,4 @@ class DecryptBallotSharesRequest(BaseRequest):
 
 
 class DecryptBallotSharesResponse(BaseRequest):
-    shares: List[DecryptionShare]
+    shares: List[DecryptionShare] = []

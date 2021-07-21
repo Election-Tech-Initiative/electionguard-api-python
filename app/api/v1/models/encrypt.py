@@ -13,15 +13,11 @@ __all__ = [
 CiphertextBallot = Any
 PlaintextBallot = Any
 
-# TODO: follow model submit ballot request object model
-
 
 class EncryptBallotsRequest(BaseRequest):
-    ballots: List[PlaintextBallot]
+    election_id: str
     seed_hash: str
-    nonce: Optional[str] = None
-    manifest: Optional[ElectionManifest] = None
-    context: Optional[CiphertextElectionContext] = None
+    ballots: List[PlaintextBallot]
 
 
 class EncryptBallotsResponse(BaseResponse):

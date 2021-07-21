@@ -5,4 +5,6 @@ db.createCollection('election');
 db.createCollection('manifest');
 db.createCollection('ballotInventory');
 db.createCollection('submittedBallots');
-db.createCollection('tally');
+db.createCollection('ciphertextTally');
+db.createCollection('plaintextTally');
+db.createCollection('decryptionShares');

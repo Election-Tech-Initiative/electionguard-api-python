@@ -15,11 +15,13 @@ from electionguard.manifest import InternalManifest, Manifest
 from electionguard.serializable import write_json_object
 
 from ....core.ballot import (
+    filter_ballots,
     get_ballot,
     set_ballots,
     get_ballot_inventory,
     upsert_ballot_inventory,
 )
+from ....core.election import get_election
 from ....core.repository import get_repository, DataCollection
 from ....core.settings import Settings
 from ....core.queue import get_message_queue, IMessageQueue
@@ -49,14 +51,13 @@ def fetch_ballot(
     Fetch A Ballot for a specific election
     """
     ballot = get_ballot(election_id, ballot_id, request.app.state.settings)
-
     return BallotQueryResponse(
         election_id=election_id,
-        ballots=[ballot],
+        ballots=[ballot.to_json_object()],
     )
 
 
-@router.get("", tags=[BALLOTS])
+@router.get("/inventory", tags=[BALLOTS])
 def fetch_ballot_inventory(
     request: Request, election_id: str
 ) -> BallotInventoryResponse:
@@ -84,37 +85,30 @@ def find_ballots(
     Search the repository for ballots that match the filter criteria specified in the request body.
     If no filter criteria is specified the API will iterate all available data.
     """
-    try:
-        filter = write_json_object(data.filter) if data.filter else {}
-        with get_repository(
-            election_id, DataCollection.SUBMITTED_BALLOT, request.app.state.settings
-        ) as repository:
-            cursor = repository.find(filter, skip, limit)
-            ballots: List[Any] = []
-            for item in cursor:
-                ballots.append(write_json_object(item))
-            return BallotQueryResponse(ballots=ballots)
-    except Exception as error:
-        print(sys.exc_info())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="find guardians failed",
-        ) from error
+    filter = write_json_object(data.filter) if data.filter else {}
+    ballots = filter_ballots(
+        election_id, filter, skip, limit, request.app.state.settings
+    )
+    return BallotQueryResponse(
+        election_id=election_id, ballots=[ballot.to_json_object() for ballot in ballots]
+    )
 
 
 @router.post("/cast", tags=[BALLOTS], status_code=status.HTTP_202_ACCEPTED)
 def cast_ballots(
-    election_id: Optional[str] = None, request: CastBallotsRequest = Body(...)
+    request: Request,
+    election_id: Optional[str] = None,
+    data: CastBallotsRequest = Body(...),
 ) -> BaseResponse:
     """
     Cast ballot
     """
-    manifest, context, election_id = _get_election_parameters(election_id, request)
+    manifest, context, election_id = _get_election_parameters(election_id, data)
     ballots = [
         from_ciphertext_ballot(
             CiphertextBallot.from_json_object(ballot), BallotBoxState.CAST
         )
-        for ballot in request.ballots
+        for ballot in data.ballots
     ]
 
     for ballot in ballots:
@@ -123,22 +117,24 @@ def cast_ballots(
         )
         _validate_ballot(validation_request)
 
-    return _submit_ballots(election_id, ballots)
+    return _submit_ballots(election_id, ballots, request.app.state.settings)
 
 
 @router.post("/spoil", tags=[BALLOTS], status_code=status.HTTP_202_ACCEPTED)
 def spoil_ballots(
-    election_id: Optional[str] = None, request: SpoilBallotsRequest = Body(...)
+    request: Request,
+    election_id: Optional[str] = None,
+    data: SpoilBallotsRequest = Body(...),
 ) -> BaseResponse:
     """
     Spoil ballot
     """
-    manifest, context, election_id = _get_election_parameters(election_id, request)
+    manifest, context, election_id = _get_election_parameters(election_id, data)
     ballots = [
         from_ciphertext_ballot(
             CiphertextBallot.from_json_object(ballot), BallotBoxState.SPOILED
         )
-        for ballot in request.ballots
+        for ballot in data.ballots
     ]
 
     for ballot in ballots:
@@ -147,7 +143,7 @@ def spoil_ballots(
         )
         _validate_ballot(validation_request)
 
-    return _submit_ballots(election_id, ballots)
+    return _submit_ballots(election_id, ballots, request.app.state.settings)
 
 
 @router.put("/submit", tags=[BALLOTS], status_code=status.HTTP_202_ACCEPTED)
@@ -211,21 +207,18 @@ def _get_election_parameters(
             detail="specify election_id in the query parameter or request body",
         )
 
-    # TODO: load validation from repository
-    if not request_data.manifest:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Query for Manifest Not Yet Implemented",
-        )
+    election = get_election(election_id, settings)
 
-    if not request_data.context:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Query for Context Not Yet Implemented",
-        )
+    if request_data.manifest:
+        manifest = request_data.manifest
+    else:
+        manifest = Manifest.from_json_object(election.manifest)
 
-    manifest = request_data.manifest
-    context = request_data.context
+    if request_data.context:
+        context = request_data.context
+    else:
+        context = CiphertextElectionContext.from_json_object(election.context)
+
     return manifest, context, election_id
 
 

@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Tuple
+from typing import Any, List
 
 import sys
 from fastapi import HTTPException, status
@@ -14,6 +14,7 @@ from ..api.v1.models import BaseResponse, Election, ElectionState
 def from_query(query_result: Any) -> Election:
     return Election(
         election_id=query_result["election_id"],
+        key_name=query_result["key_name"],
         state=query_result["state"],
         context=query_result["context"],
         manifest=query_result["manifest"],
@@ -59,9 +60,33 @@ def set_election(election: Election, settings: Settings = Settings()) -> BaseRes
         ) from error
 
 
-def update_election_state(election_id: str, new_state: ElectionState) -> BaseResponse:
+def filter_elections(
+    filter: Any, skip: int = 0, limit: int = 1000, settings: Settings = Settings()
+) -> List[Election]:
     try:
-        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
+        with get_repository(
+            get_client_id(), DataCollection.ELECTION, settings
+        ) as repository:
+            cursor = repository.find(filter, skip, limit)
+            elections: List[Election] = []
+            for item in cursor:
+                elections.append(from_query(item))
+            return elections
+    except Exception as error:
+        print(sys.exc_info())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="find elections failed",
+        ) from error
+
+
+def update_election_state(
+    election_id: str, new_state: ElectionState, settings: Settings = Settings()
+) -> BaseResponse:
+    try:
+        with get_repository(
+            get_client_id(), DataCollection.ELECTION, settings
+        ) as repository:
             query_result = repository.get({"election_id": election_id})
             if not query_result:
                 raise HTTPException(

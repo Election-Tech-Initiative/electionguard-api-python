@@ -1,66 +1,63 @@
-from typing import Any, Dict, List
-import electionguard.election
-from electionguard.serializable import read_json_object
-import electionguard.tally
-from electionguard.manifest import InternalManifest
+from typing import Any, List, Optional
+from enum import Enum
+from datetime import datetime
 
-from .ballot import SubmittedBallot
-from .base import BaseRequest
-from .election import ElectionManifest, CiphertextElectionContext
-from .guardian import Guardian
+from .base import BaseResponse, BaseRequest, Base
 
 __all__ = [
-    "PublishedCiphertextTally",
-    "TallyDecryptionShare",
-    "StartTallyRequest",
-    "AppendTallyRequest",
+    "CiphertextTally",
+    "CiphertextTallyQueryResponse",
     "DecryptTallyRequest",
-    "DecryptTallyShareRequest",
-    "convert_tally",
+    "PlaintextTally",
+    "PlaintextTallyState",
+    "PlaintextTallyQueryResponse",
 ]
 
-PublishedCiphertextTally = Any
-TallyDecryptionShare = Any
+ElectionGuardCiphertextTally = Any
+ElectionGuardPlaintextTally = Any
 
 
-class StartTallyRequest(BaseRequest):
-    ballots: List[SubmittedBallot]
-    description: ElectionManifest
-    context: CiphertextElectionContext
+class CiphertextTally(Base):
+    """A Tally for a specific election"""
+
+    election_id: str
+    tally_name: str
+    created: datetime
+    tally: ElectionGuardCiphertextTally
+    """The full electionguard CiphertextTally that includes the cast and spoiled ballot id's"""
 
 
-class AppendTallyRequest(StartTallyRequest):
-    encrypted_tally: PublishedCiphertextTally
+class PlaintextTallyState(str, Enum):
+    CREATED = "CREATED"
+    PROCESSING = "PROCESSING"
+    ERROR = "ERROR"
+    COMPLETE = "COMPLETE"
+
+
+class PlaintextTally(Base):
+    """A plaintext tally for a specific election"""
+
+    election_id: str
+    tally_name: str
+    created: datetime
+    state: PlaintextTallyState
+    tally: Optional[ElectionGuardPlaintextTally] = None
+
+
+class CiphertextTallyQueryResponse(BaseResponse):
+    """A collection of Ciphertext Tallies"""
+
+    tallies: List[CiphertextTally] = []
+
+
+class PlaintextTallyQueryResponse(BaseResponse):
+    """A collection of Plaintext Tallies"""
+
+    tallies: List[PlaintextTally] = []
 
 
 class DecryptTallyRequest(BaseRequest):
-    encrypted_tally: PublishedCiphertextTally
-    shares: Dict[str, TallyDecryptionShare]
-    description: ElectionManifest
-    context: CiphertextElectionContext
+    """A request to decrypt a specific tally.  Can optionally include the tally to decrypt."""
 
-
-class DecryptTallyShareRequest(BaseRequest):
-    encrypted_tally: PublishedCiphertextTally
-    guardian: Guardian
-    description: ElectionManifest
-    context: CiphertextElectionContext
-
-
-def convert_tally(
-    encrypted_tally: PublishedCiphertextTally,
-    description: InternalManifest,
-    context: electionguard.election.CiphertextElectionContext,
-) -> electionguard.tally.CiphertextTally:
-    """
-    Convert to an SDK CiphertextTally model
-    """
-
-    published_tally = read_json_object(
-        encrypted_tally, electionguard.tally.PublishedCiphertextTally
-    )
-    tally = electionguard.tally.CiphertextTally(
-        published_tally.object_id, description, context
-    )
-
-    return tally
+    election_id: str
+    tally_name: str

@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Tuple
+from typing import Any, List
 import sys
 from fastapi import HTTPException, status
 
@@ -49,14 +49,37 @@ def set_ballots(
         print(sys.exc_info())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Submit ballots failed",
+            detail="set ballots failed",
+        ) from error
+
+
+def filter_ballots(
+    election_id: str,
+    filter: Any,
+    skip: int = 0,
+    limit: int = 1000,
+    settings: Settings = Settings(),
+) -> List[SubmittedBallot]:
+    try:
+        with get_repository(
+            election_id, DataCollection.SUBMITTED_BALLOT, settings
+        ) as repository:
+            cursor = repository.find(filter, skip, limit)
+            ballots: List[SubmittedBallot] = []
+            for item in cursor:
+                ballots.append(SubmittedBallot.from_json_object(item))
+            return ballots
+    except Exception as error:
+        print(sys.exc_info())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="filter ballots failed",
         ) from error
 
 
 def get_ballot_inventory(
     election_id: str, settings: Settings = Settings()
 ) -> BallotInventory:
-    """"""
     try:
         with get_repository(
             election_id, DataCollection.BALLOT_INVENTORY, settings

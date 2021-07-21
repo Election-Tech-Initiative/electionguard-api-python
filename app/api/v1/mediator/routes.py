@@ -8,6 +8,7 @@ from . import key_ceremony
 from . import key_guardian
 from . import manifest
 from . import tally
+from . import tally_decrypt
 
 router = APIRouter()
 
@@ -20,3 +21,4 @@ router.include_router(ballot.router, prefix="/ballot")
 router.include_router(decrypt.router, prefix="/ballot")
 router.include_router(encrypt.router, prefix="/ballot")
 router.include_router(tally.router, prefix="/tally")
+router.include_router(tally_decrypt.router, prefix="/tally/decrypt")
