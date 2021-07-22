@@ -208,7 +208,7 @@ def _get_election_parameters(
     request_data: BaseBallotRequest,
     settings: Settings = Settings(),
 ) -> Tuple[Manifest, CiphertextElectionContext, str]:
-    """Get the election parameters either from the data cache or from the request body"""
+    """Get the election parameters either from the data cache or from the request body."""
 
     # Check an election is assigned
     if not election_id:
@@ -217,7 +217,7 @@ def _get_election_parameters(
     if not election_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="specify election_id in the query parameter or request body",
+            detail="specify election_id in the query parameter or request body.",
         )
 
     election = get_election(election_id, settings)
@@ -262,7 +262,7 @@ def _validate_ballot(request: ValidateBallotRequest) -> None:
     if not ballot_is_valid_for_election(ballot, internal_manifest, context):
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,
-            detail=f"ballot {ballot.object_id} is not valid",
+            detail=f"ballot {ballot.object_id} is not valid.",
         )
 
 
@@ -278,7 +278,7 @@ def test_submit_ballot(
     if not request.election_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Must submit an election id",
+            detail="Must submit an election id.",
         )
 
     try:
@@ -293,9 +293,9 @@ def test_submit_ballot(
         print(sys.exc_info())
         raise HTTPException(
             status_code=500,
-            detail="Ballot failed to be submitted",
+            detail="Ballot failed to be submitted.",
         ) from error
-    return BaseResponse(message="Ballot Successfully Submitted")
+    return BaseResponse(message="Ballot Successfully Submitted.")
 
 
 def _process_ballots(queue: IMessageQueue, election_id: str) -> None:
@@ -309,5 +309,5 @@ def _process_ballots(queue: IMessageQueue, election_id: str) -> None:
         print(sys.exc_info())
         raise HTTPException(
             status_code=500,
-            detail="Ballot failed to be processed",
+            detail="Ballot failed to be processed.",
         ) from error
