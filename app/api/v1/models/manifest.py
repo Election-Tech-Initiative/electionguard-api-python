@@ -2,7 +2,6 @@ from typing import Any, List, Optional
 
 from .base import (
     Base,
-    BaseRequest,
     BaseResponse,
     BaseValidationRequest,
     BaseValidationResponse,
@@ -35,11 +34,11 @@ class ManifestQueryResponse(BaseResponse):
 
 class ValidateManifestRequest(BaseValidationRequest):
     """
-    A request to validate an Election Description
+    A request to validate an Election Description.
     """
 
     manifest: ElectionManifest
-    """The manifest to validate"""
+    """The manifest to validate."""
 
 
 class ValidateManifestResponse(BaseValidationResponse):

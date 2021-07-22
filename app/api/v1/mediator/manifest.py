@@ -27,7 +27,7 @@ router = APIRouter()
 
 @router.get("", response_model=ManifestQueryResponse, tags=[MANIFEST])
 def fetch_manifest(request: Request, manifest_hash: str) -> ManifestQueryResponse:
-    """Get an election manifest by hash"""
+    """Get an election manifest by hash."""
     crypto_hash = hex_to_q(manifest_hash)
     if not crypto_hash:
         raise HTTPException(
@@ -51,16 +51,16 @@ def submit_manifest(
     schema: Any = Depends(get_description_schema),
 ) -> ManifestSubmitResponse:
     """
-    Submit a manifest for storage
+    Submit a manifest for storage.
     """
-    sdk_manifest, validation = _validate_manifest(data, schema)
-    if not sdk_manifest or validation.status == ResponseStatus.FAIL:
+    manifest, validation = _validate_manifest(data, schema)
+    if not manifest or validation.status == ResponseStatus.FAIL:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=validation.details
         )
     api_manifest = Manifest(
-        manifest_hash=write_json_object(sdk_manifest.crypto_hash()),
-        manifest=sdk_manifest.to_json_object(),
+        manifest_hash=write_json_object(manifest.crypto_hash()),
+        manifest=manifest.to_json_object(),
     )
     return set_manifest(api_manifest, request.app.state.settings)
 

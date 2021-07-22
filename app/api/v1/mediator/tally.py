@@ -2,7 +2,6 @@
 from typing import Dict
 from datetime import datetime
 import sys
-import asyncio
 
 from fastapi import (
     APIRouter,
@@ -32,7 +31,6 @@ from app.core.ballot import get_ballot_inventory, filter_ballots
 from app.core.election import get_election
 from app.core.tally import (
     get_ciphertext_tally,
-    get_plaintext_tally,
     set_ciphertext_tally,
     filter_ciphertext_tallies,
     set_plaintext_tally,
@@ -62,7 +60,7 @@ def fetch_ciphertext_tally(
     tally_name: str,
 ) -> CiphertextTally:
     """
-    Fetch a specific ciphertext tally
+    Fetch a specific ciphertext tally.
     """
     tally = get_ciphertext_tally(election_id, tally_name, request.app.state.settings)
     return tally
@@ -76,7 +74,7 @@ def tally_ballots(
     scheduler: Scheduler = Depends(get_scheduler),
 ) -> CiphertextTally:
     """
-    Start a new tally of a collection of ballots.
+    Start a new ciphertext tally of a collection of ballots.
 
     An election can have more than one tally.  Each tally must have a unique name.
     Each tally correlates to a snapshot of all ballots submitted for a given election.
@@ -129,7 +127,7 @@ def tally_ballots(
 
 
 @router.post("/find", response_model=CiphertextTallyQueryResponse, tags=[TALLY])
-def find_tallies(
+def find_ciphertext_tallies(
     request: Request,
     election_id: str,
     skip: int = 0,

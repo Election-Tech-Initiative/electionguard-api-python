@@ -1,4 +1,3 @@
-from typing import Optional
 from fastapi import APIRouter, Body, HTTPException, Request, status
 
 from electionguard.ballot import PlaintextBallot

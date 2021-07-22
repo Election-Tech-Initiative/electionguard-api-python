@@ -1,6 +1,5 @@
-from typing import Any, List
+from typing import Any
 from uuid import uuid4
-import sys
 
 
 from fastapi import APIRouter, Body, HTTPException, Request, status
@@ -43,7 +42,7 @@ router = APIRouter()
 @router.get("/constants", tags=[ELECTION])
 def get_election_constants() -> Any:
     """
-    Return the constants defined for an election
+    Get the constants defined for an election.
     """
     constants = ElectionConstants()
     return constants.to_json_object()
@@ -51,7 +50,7 @@ def get_election_constants() -> Any:
 
 @router.get("", response_model=ElectionQueryResponse, tags=[ELECTION])
 def fetch_election(request: Request, election_id: str) -> ElectionQueryResponse:
-    """Get an election by election id"""
+    """Get an election by election id."""
     election = get_election(election_id, request.app.state.settings)
     return ElectionQueryResponse(
         elections=[election],
@@ -69,7 +68,7 @@ def create_election(
     Method expects a manifest to already be submitted or to optionally be provided
     as part of the request body.  If a manifest is provided as part of the body
     then it will override any cached value, however the hash must match the hash
-    contained in the CiphertextelectionContext
+    contained in the CiphertextelectionContext.
     """
     if data.election_id:
         election_id = data.election_id
@@ -156,7 +155,7 @@ def close_election(request: Request, election_id: str) -> BaseResponse:
 @router.post("/publish", response_model=BaseResponse, tags=[ELECTION])
 def publish_election(request: Request, election_id: str) -> BaseResponse:
     """
-    Publish an election
+    Publish an election.
     """
     return update_election_state(
         election_id, ElectionState.PUBLISHED, request.app.state.settings
@@ -173,7 +172,7 @@ def build_election_context(
 
     Caller must specify the manifest to build against
     by either providing the manifest hash in the request body;
-    or by providing the manifest directly in the request body
+    or by providing the manifest directly in the request body.
     """
 
     if data.manifest:

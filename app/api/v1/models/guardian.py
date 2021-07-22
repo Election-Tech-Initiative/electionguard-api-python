@@ -100,7 +100,7 @@ class CreateAuxiliaryKeyPairResponse(BaseResponse):
 
 
 class GuardianPublicKeysResponse(BaseResponse):
-    """Returns a set of public auxiliary and election keys"""
+    """Returns a set of public auxiliary and election keys."""
 
     public_keys: PublicKeySet
 

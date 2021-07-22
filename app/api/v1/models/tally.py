@@ -18,13 +18,13 @@ ElectionGuardPlaintextTally = Any
 
 
 class CiphertextTally(Base):
-    """A Tally for a specific election"""
+    """A Tally for a specific election."""
 
     election_id: str
     tally_name: str
     created: datetime
     tally: ElectionGuardCiphertextTally
-    """The full electionguard CiphertextTally that includes the cast and spoiled ballot id's"""
+    """The full electionguard CiphertextTally that includes the cast and spoiled ballot id's."""
 
 
 class PlaintextTallyState(str, Enum):
@@ -35,7 +35,7 @@ class PlaintextTallyState(str, Enum):
 
 
 class PlaintextTally(Base):
-    """A plaintext tally for a specific election"""
+    """A plaintext tally for a specific election."""
 
     election_id: str
     tally_name: str
@@ -45,13 +45,13 @@ class PlaintextTally(Base):
 
 
 class CiphertextTallyQueryResponse(BaseResponse):
-    """A collection of Ciphertext Tallies"""
+    """A collection of Ciphertext Tallies."""
 
     tallies: List[CiphertextTally] = []
 
 
 class PlaintextTallyQueryResponse(BaseResponse):
-    """A collection of Plaintext Tallies"""
+    """A collection of Plaintext Tallies."""
 
     tallies: List[PlaintextTally] = []
 

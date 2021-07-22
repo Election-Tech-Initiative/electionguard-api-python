@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Tuple
+from typing import List, Optional, Tuple
 import sys
 
 from fastapi import APIRouter, Body, HTTPException, Request, status
@@ -29,13 +29,11 @@ from ..models import (
     BaseResponse,
     BaseQueryRequest,
     BaseBallotRequest,
-    BallotInventory,
     BallotInventoryResponse,
     BallotQueryResponse,
     CastBallotsRequest,
     SpoilBallotsRequest,
     SubmitBallotsRequest,
-    SubmitBallotsResponse,
     ValidateBallotRequest,
 )
 from ..tags import BALLOTS
@@ -43,12 +41,12 @@ from ..tags import BALLOTS
 router = APIRouter()
 
 
-@router.get("", tags=[BALLOTS])
+@router.get("", response_model=BallotQueryResponse, tags=[BALLOTS])
 def fetch_ballot(
     request: Request, election_id: str, ballot_id: str
 ) -> BallotQueryResponse:
     """
-    Fetch A Ballot for a specific election
+    Fetch A Ballot for a specific election.
     """
     ballot = get_ballot(election_id, ballot_id, request.app.state.settings)
     return BallotQueryResponse(
@@ -57,7 +55,7 @@ def fetch_ballot(
     )
 
 
-@router.get("/inventory", tags=[BALLOTS])
+@router.get("/inventory", response_model=BallotInventoryResponse, tags=[BALLOTS])
 def fetch_ballot_inventory(
     request: Request, election_id: str
 ) -> BallotInventoryResponse:
@@ -71,7 +69,7 @@ def fetch_ballot_inventory(
     )
 
 
-@router.post("/find", tags=[BALLOTS])
+@router.post("/find", response_model=BallotQueryResponse, tags=[BALLOTS])
 def find_ballots(
     request: Request,
     election_id: str,
@@ -94,7 +92,12 @@ def find_ballots(
     )
 
 
-@router.post("/cast", tags=[BALLOTS], status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "/cast",
+    response_model=BaseResponse,
+    tags=[BALLOTS],
+    status_code=status.HTTP_202_ACCEPTED,
+)
 def cast_ballots(
     request: Request,
     election_id: Optional[str] = None,
@@ -120,7 +123,12 @@ def cast_ballots(
     return _submit_ballots(election_id, ballots, request.app.state.settings)
 
 
-@router.post("/spoil", tags=[BALLOTS], status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "/spoil",
+    response_model=BaseResponse,
+    tags=[BALLOTS],
+    status_code=status.HTTP_202_ACCEPTED,
+)
 def spoil_ballots(
     request: Request,
     election_id: Optional[str] = None,
@@ -146,7 +154,12 @@ def spoil_ballots(
     return _submit_ballots(election_id, ballots, request.app.state.settings)
 
 
-@router.put("/submit", tags=[BALLOTS], status_code=status.HTTP_202_ACCEPTED)
+@router.put(
+    "/submit",
+    response_model=BaseResponse,
+    tags=[BALLOTS],
+    status_code=status.HTTP_202_ACCEPTED,
+)
 def submit_ballots(
     request: Request,
     election_id: Optional[str] = None,
@@ -179,7 +192,7 @@ def submit_ballots(
     return _submit_ballots(election_id, ballots, request.app.state.settings)
 
 
-@router.post("/validate", tags=[BALLOTS])
+@router.post("/validate", response_model=BaseResponse, tags=[BALLOTS])
 def validate_ballot(
     request: ValidateBallotRequest = Body(...),
 ) -> BaseResponse:
@@ -225,7 +238,6 @@ def _get_election_parameters(
 def _submit_ballots(
     election_id: str, ballots: List[SubmittedBallot], settings: Settings = Settings()
 ) -> BaseResponse:
-    """"""
     set_response = set_ballots(election_id, ballots, settings)
     if set_response.is_success():
         inventory = get_ballot_inventory(election_id, settings)

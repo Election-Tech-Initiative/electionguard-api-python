@@ -1,7 +1,5 @@
 from fastapi import APIRouter, Body, HTTPException, Request, status
 
-import electionguard.tally
-
 from electionguard.key_ceremony import PublicKeySet
 from electionguard.election import CiphertextElectionContext
 from electionguard.decryption_share import DecryptionShare
@@ -92,7 +90,7 @@ def submit_share(
     return set_decryption_share(data.share, request.app.state.settings)
 
 
-@router.get("/find", response_model=DecryptionShareResponse, tags=[TALLY_DECRYPT])
+@router.post("/find", response_model=DecryptionShareResponse, tags=[TALLY_DECRYPT])
 def find_decryption_shares(
     request: Request,
     tally_name: str,

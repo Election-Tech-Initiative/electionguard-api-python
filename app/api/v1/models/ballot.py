@@ -13,7 +13,6 @@ __all__ = [
     "CastBallotsRequest",
     "SpoilBallotsRequest",
     "SubmitBallotsRequest",
-    "SubmitBallotsResponse",
     "ValidateBallotRequest",
 ]
 
@@ -65,28 +64,25 @@ class BaseBallotRequest(BaseRequest):
 
 
 class CastBallotsRequest(BaseBallotRequest):
+    """Cast the enclosed ballots."""
+
     ballots: List[CiphertextBallot]
 
 
 class SpoilBallotsRequest(BaseBallotRequest):
+    """Spoil the enclosed ballots."""
+
     ballots: List[CiphertextBallot]
 
 
 class SubmitBallotsRequest(BaseBallotRequest):
-    """Submit a ballot against a specific election"""
+    """Submit a ballot against a specific election."""
 
     ballots: List[SubmittedBallot]
 
 
-class SubmitBallotsResponse(BaseResponse):
-    """Submit a ballot against a specific election"""
-
-    cache_keys: List[str]
-    election_id: Optional[str] = None
-
-
 class ValidateBallotRequest(BaseValidationRequest):
-    """Submit a ballot against a specific election description and contest to determine if it is accepted"""
+    """Submit a ballot against a specific election description and contest to determine if it is accepted."""
 
     ballot: CiphertextBallot
     manifest: ElectionManifest

@@ -1,4 +1,3 @@
-from typing import Any
 from electionguard.ballot import SubmittedBallot
 from electionguard.decryption import compute_decryption_share_for_ballot
 from electionguard.election import CiphertextElectionContext
@@ -17,11 +16,13 @@ from ..tags import TALLY
 router = APIRouter()
 
 
-@router.post("/decrypt-shares", tags=[TALLY])
+@router.post(
+    "/decrypt-shares", response_model=DecryptBallotSharesResponse, tags=[TALLY]
+)
 def decrypt_ballot_shares(
     request: DecryptBallotSharesRequest = Body(...),
     scheduler: Scheduler = Depends(get_scheduler),
-) -> Any:
+) -> DecryptBallotSharesResponse:
     """
     Decrypt this guardian's share of one or more ballots
     """
