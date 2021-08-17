@@ -13,7 +13,13 @@ from electionguard.hash import hash_elems
 
 from .settings import Settings, StorageMode
 
-__all__ = ["IRepository", "MemoryRepository", "MongoRepository", "get_repository"]
+__all__ = [
+    "IRepository",
+    "LocalRepository",
+    "MemoryRepository",
+    "MongoRepository",
+    "get_repository",
+]
 
 
 DOCUMENT_VALUE_TYPE = Union[MutableMapping, List[MutableMapping]]
@@ -48,13 +54,16 @@ class IRepository(Protocol):
 
 
 class DataCollection:
-    GUARDIAN = "Guardian"
-    KEY_GUARDIAN = "KeyGuardian"
-    KEY_CEREMONY = "KeyCeremony"
-    ELECTION = "Election"
-    MANIFEST = "Manifest"
-    SUBMITTED_BALLOT = "SubmittedBallots"
-    TALLY = "Tally"
+    GUARDIAN = "guardian"
+    KEY_GUARDIAN = "keyGuardian"
+    KEY_CEREMONY = "keyCeremony"
+    ELECTION = "election"
+    MANIFEST = "manifest"
+    BALLOT_INVENTORY = "ballotInventory"
+    SUBMITTED_BALLOT = "submittedBallots"
+    CIPHERTEXT_TALLY = "ciphertextTally"
+    PLAINTEXT_TALLY = "plaintextTally"
+    DECRYPTION_SHARES = "decryptionShares"
 
 
 class LocalRepository(IRepository):
@@ -113,7 +122,7 @@ class LocalRepository(IRepository):
         """A naive set function that hashes the data and writes the file."""
         # just ignore lists for now
         if isinstance(value, List):
-            return None
+            raise Exception("Not Implemented")
         json_string = json.dumps(dict(value))
         filename = hash_elems(json_string).to_hex()
         with open(f"{os.path.join(self._storage, filename)}.json", "w") as file:

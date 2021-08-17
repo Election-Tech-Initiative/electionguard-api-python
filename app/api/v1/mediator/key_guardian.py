@@ -76,7 +76,7 @@ def update_key_ceremony_guardian(
     )
 
 
-@router.get("/find", response_model=GuardianQueryResponse, tags=[KEY_GUARDIAN])
+@router.post("/find", response_model=GuardianQueryResponse, tags=[KEY_GUARDIAN])
 def find_key_ceremony_guardians(
     request: Request,
     skip: int = 0,

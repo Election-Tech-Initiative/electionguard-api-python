@@ -121,7 +121,7 @@ def fetch_ceremony_state(
     )
 
 
-@router.get(
+@router.post(
     "/ceremony/find", response_model=KeyCeremonyQueryResponse, tags=[KEY_CEREMONY_ADMIN]
 )
 def find_ceremonies(

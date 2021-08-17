@@ -1,8 +1,6 @@
-from typing import Any, List, Optional
+from typing import Any, List
 
 from .base import BaseRequest, BaseResponse
-from .election import CiphertextElectionContext
-from .manifest import ElectionManifest
 
 
 __all__ = [
@@ -13,19 +11,17 @@ __all__ = [
 CiphertextBallot = Any
 PlaintextBallot = Any
 
-# TODO: follow model submit ballot request object model
-
 
 class EncryptBallotsRequest(BaseRequest):
-    ballots: List[PlaintextBallot]
+    """A request to encrypt the enclosed ballots."""
+
+    election_id: str
     seed_hash: str
-    nonce: Optional[str] = None
-    manifest: Optional[ElectionManifest] = None
-    context: Optional[CiphertextElectionContext] = None
+    ballots: List[PlaintextBallot]
 
 
 class EncryptBallotsResponse(BaseResponse):
     encrypted_ballots: List[CiphertextBallot]
-    """The encrypted representations of the plaintext ballots"""
+    """The encrypted representations of the plaintext ballots."""
     next_seed_hash: str
-    """A seed hash which can optionally be used for the next call to encrypt"""
+    """A seed hash which can optionally be used for the next call to encrypt."""

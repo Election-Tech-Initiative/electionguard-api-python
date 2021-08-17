@@ -37,6 +37,9 @@ class BaseResponse(BaseModel):
     message: Optional[str] = None
     """An optional message describing the response"""
 
+    def is_success(self) -> bool:
+        return self.status == ResponseStatus.SUCCESS
+
 
 class BaseQueryRequest(BaseRequest):
     """Find something"""

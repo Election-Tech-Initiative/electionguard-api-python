@@ -1,9 +1,8 @@
-from typing import Any, List, Optional
+from typing import Any
 from uuid import uuid4
-import sys
 
 
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, HTTPException, Request, status
 
 from electionguard.election import (
     ElectionConstants,
@@ -13,12 +12,20 @@ from electionguard.group import ElementModP, ElementModQ
 from electionguard.election import CiphertextElectionContext
 from electionguard.manifest import Manifest
 from electionguard.serializable import read_json_object, write_json_object
+from electionguard.utils import get_optional
 
 from .manifest import get_manifest
-from ....core.client import get_client_id
-from ....core.repository import get_repository, DataCollection
+from ....core.ballot import upsert_ballot_inventory
+from ....core.key_ceremony import get_key_ceremony
+from ....core.election import (
+    get_election,
+    set_election,
+    update_election_state,
+    filter_elections,
+)
 from ..models import (
     BaseResponse,
+    BallotInventory,
     Election,
     ElectionState,
     ElectionQueryRequest,
@@ -26,7 +33,6 @@ from ..models import (
     MakeElectionContextRequest,
     MakeElectionContextResponse,
     SubmitElectionRequest,
-    SubmitElectionResponse,
 )
 from ..tags import ELECTION
 
@@ -36,96 +42,80 @@ router = APIRouter()
 @router.get("/constants", tags=[ELECTION])
 def get_election_constants() -> Any:
     """
-    Return the constants defined for an election
+    Get the constants defined for an election.
     """
     constants = ElectionConstants()
     return constants.to_json_object()
 
 
 @router.get("", response_model=ElectionQueryResponse, tags=[ELECTION])
-def get_election(election_id: str) -> ElectionQueryResponse:
-    """Get an election by election id"""
-    try:
-        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
-            query_result = repository.get({"election_id": election_id})
-            if not query_result:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Could not find election {election_id}",
-                )
-            election = Election(
-                election_id=query_result["election_id"],
-                state=query_result["state"],
-                context=query_result["context"],
-                manifest=query_result["manifest"],
-            )
-
-            return ElectionQueryResponse(
-                elections=[election],
-            )
-    except Exception as error:
-        print(sys.exc_info())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="get election failed",
-        ) from error
+def fetch_election(request: Request, election_id: str) -> ElectionQueryResponse:
+    """Get an election by election id."""
+    election = get_election(election_id, request.app.state.settings)
+    return ElectionQueryResponse(
+        elections=[election],
+    )
 
 
-@router.put("", response_model=SubmitElectionResponse, tags=[ELECTION])
+@router.put("", response_model=BaseResponse, tags=[ELECTION])
 def create_election(
-    election_id: Optional[str], request: SubmitElectionRequest = Body(...)
-) -> SubmitElectionResponse:
+    request: Request,
+    data: SubmitElectionRequest = Body(...),
+) -> BaseResponse:
     """
     Submit an election.
 
     Method expects a manifest to already be submitted or to optionally be provided
     as part of the request body.  If a manifest is provided as part of the body
     then it will override any cached value, however the hash must match the hash
-    contained in the CiphertextelectionContext
+    contained in the CiphertextelectionContext.
     """
-    if not election_id:
-        election_id = request.election_id
-
-    if not election_id:
+    if data.election_id:
+        election_id = data.election_id
+    else:
         election_id = str(uuid4())
 
-    context = CiphertextElectionContext.from_json_object(request.context)
+    key_ceremony = get_key_ceremony(data.key_name, request.app.state.settings)
+    context = CiphertextElectionContext.from_json_object(data.context)
 
-    if request.manifest:
-        manifest = Manifest.from_json_object(request.manifest)
+    # if a manifest is provided use it, but don't cache it
+    if data.manifest:
+        sdk_manifest = Manifest.from_json_object(data.manifest)
     else:
-        manifest_query = get_manifest(context.manifest_hash)
-        manifest = Manifest.from_json_object(manifest_query.manifests[0])
+        api_manifest = get_manifest(context.manifest_hash, request.app.state.settings)
+        sdk_manifest = Manifest.from_json_object(api_manifest.manifest)
 
     # validate that the context was built against the correct manifest
-    if context.manifest_hash != manifest.crypto_hash():
+    if context.manifest_hash != sdk_manifest.crypto_hash().to_hex():
         raise HTTPException(
             status_code=status.HTTP_412_PRECONDITION_FAILED,
             detail="manifest hash does not match provided context hash",
         )
 
+    # validate that the context provided matches a known key ceremony
+    if context.elgamal_public_key != key_ceremony.elgamal_public_key:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            detail="key ceremony public key does not match provided context public key",
+        )
+
     election = Election(
         election_id=election_id,
+        key_name=data.key_name,
         state=ElectionState.CREATED,
         context=context.to_json_object(),
-        manifest=manifest.to_json_object(),
+        manifest=sdk_manifest.to_json_object(),
     )
 
-    try:
-        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
-            _ = repository.set(write_json_object(election.dict()))
-            return SubmitElectionResponse(election_id=election_id)
-    except Exception as error:
-        print(sys.exc_info())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Submit election failed",
-        ) from error
+    return set_election(election, request.app.state.settings)
 
 
-@router.get("/find", response_model=ElectionQueryResponse, tags=[ELECTION])
+@router.post("/find", response_model=ElectionQueryResponse, tags=[ELECTION])
 def find_elections(
-    skip: int = 0, limit: int = 100, request: ElectionQueryRequest = Body(...)
+    request: Request,
+    skip: int = 0,
+    limit: int = 100,
+    data: ElectionQueryRequest = Body(...),
 ) -> ElectionQueryResponse:
     """
     Find elections.
@@ -133,114 +123,81 @@ def find_elections(
     Search the repository for elections that match the filter criteria specified in the request body.
     If no filter criteria is specified the API will iterate all available data.
     """
-    try:
-
-        filter = write_json_object(request.filter) if request.filter else {}
-        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
-            cursor = repository.find(filter, skip, limit)
-            elections: List[Election] = []
-            for item in cursor:
-                elections.append(
-                    Election(
-                        election_id=item["election_id"],
-                        state=item["state"],
-                        context=item["context"],
-                        manifest=item["manifest"],
-                    )
-                )
-            return ElectionQueryResponse(elections=elections)
-    except Exception as error:
-        print(sys.exc_info())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="find elections failed",
-        ) from error
+    filter = write_json_object(data.filter) if data.filter else {}
+    elections = filter_elections(filter, skip, limit, request.app.state.settings)
+    return ElectionQueryResponse(elections=elections)
 
 
 @router.post("/open", response_model=BaseResponse, tags=[ELECTION])
-def open_election(election_id: str) -> BaseResponse:
+def open_election(request: Request, election_id: str) -> BaseResponse:
     """
     Open an election.
     """
-    return _update_election_state(election_id, ElectionState.OPEN)
+    # create the ballot inventory on election open
+    ballot_inventory = BallotInventory(election_id=election_id)
+    upsert_ballot_inventory(election_id, ballot_inventory, request.app.state.settings)
+
+    return update_election_state(
+        election_id, ElectionState.OPEN, request.app.state.settings
+    )
 
 
 @router.post("/close", response_model=BaseResponse, tags=[ELECTION])
-def close_election(election_id: str) -> BaseResponse:
+def close_election(request: Request, election_id: str) -> BaseResponse:
     """
     Close an election.
     """
-    return _update_election_state(election_id, ElectionState.CLOSED)
+    return update_election_state(
+        election_id, ElectionState.CLOSED, request.app.state.settings
+    )
 
 
 @router.post("/publish", response_model=BaseResponse, tags=[ELECTION])
-def publish_election(election_id: str) -> BaseResponse:
+def publish_election(request: Request, election_id: str) -> BaseResponse:
     """
-    Publish an election
+    Publish an election.
     """
-    return _update_election_state(election_id, ElectionState.PUBLISHED)
+    return update_election_state(
+        election_id, ElectionState.PUBLISHED, request.app.state.settings
+    )
 
 
 @router.post("/context", response_model=MakeElectionContextResponse, tags=[ELECTION])
 def build_election_context(
-    manifest_hash: Optional[str] = None, request: MakeElectionContextRequest = Body(...)
+    request: Request,
+    data: MakeElectionContextRequest = Body(...),
 ) -> MakeElectionContextResponse:
     """
     Build a CiphertextElectionContext for a given election and returns it.
 
     Caller must specify the manifest to build against
-    by either providing the manifest hash in the query parameter or request body;
-    or by providing the manifest directly in the request body
+    by either providing the manifest hash in the request body;
+    or by providing the manifest directly in the request body.
     """
-    if not manifest_hash:
-        manifest_hash = request.manifest_hash
 
-    if manifest_hash:
-        print(manifest_hash)
-        manifest_query = get_manifest(manifest_hash)
-        manifest = Manifest.from_json_object(manifest_query.manifests[0])
+    if data.manifest:
+        sdk_manifest = Manifest.from_json_object(data.manifest)
     else:
-        manifest = Manifest.from_json_object(request.manifest)
+        manifest_hash = read_json_object(get_optional(data.manifest_hash), ElementModQ)
+        api_manifest = get_manifest(
+            manifest_hash,
+            request.app.state.settings,
+        )
+        sdk_manifest = Manifest.from_json_object(api_manifest.manifest)
 
     elgamal_public_key: ElementModP = read_json_object(
-        request.elgamal_public_key, ElementModP
+        data.elgamal_public_key, ElementModP
     )
-    commitment_hash = read_json_object(request.commitment_hash, ElementModQ)
-    number_of_guardians = request.number_of_guardians
-    quorum = request.quorum
+    commitment_hash = read_json_object(data.commitment_hash, ElementModQ)
+    number_of_guardians = data.number_of_guardians
+    quorum = data.quorum
 
     context = make_ciphertext_election_context(
         number_of_guardians,
         quorum,
         elgamal_public_key,
         commitment_hash,
-        manifest.crypto_hash(),
+        sdk_manifest.crypto_hash(),
     )
 
     return MakeElectionContextResponse(context=context.to_json_object())
-
-
-def _update_election_state(election_id: str, new_state: ElectionState) -> BaseResponse:
-    try:
-        with get_repository(get_client_id(), DataCollection.ELECTION) as repository:
-            query_result = repository.get({"election_id": election_id})
-            if not query_result:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Could not find election {election_id}",
-                )
-            election = Election(
-                election_id=query_result["election_id"],
-                state=new_state,
-                context=query_result["context"],
-                manifest=query_result["manifest"],
-            )
-
-            repository.update({"election_id": election_id}, election.dict())
-            return BaseResponse()
-    except Exception as error:
-        print(sys.exc_info())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="update election failed",
-        ) from error

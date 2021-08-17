@@ -13,7 +13,9 @@
             ],
             "env": {
                 "PYTHONPATH": "${workspaceRoot}",
-                "API_MODE": "guardian"
+                "API_MODE": "guardian",
+                "QUEUE_MODE": "remote",
+                "STORAGE_MODE": "mongo"
             }
         },
         {
@@ -28,7 +30,9 @@
             ],
             "env": {
                 "PYTHONPATH": "${workspaceRoot}",
-                "API_MODE": "mediator"
+                "API_MODE": "mediator",
+                "QUEUE_MODE": "remote",
+                "STORAGE_MODE": "mongo"
             }
         }
     ]

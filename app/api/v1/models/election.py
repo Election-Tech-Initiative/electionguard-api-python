@@ -13,7 +13,6 @@ __all__ = [
     "MakeElectionContextRequest",
     "MakeElectionContextResponse",
     "SubmitElectionRequest",
-    "SubmitElectionResponse",
 ]
 
 CiphertextElectionContext = Any
@@ -27,20 +26,21 @@ class ElectionState(str, Enum):
 
 
 class Election(Base):
-    """An election object"""
+    """An election object."""
 
     election_id: str
+    key_name: str
     state: ElectionState
     context: CiphertextElectionContext
     manifest: ElectionManifest
 
 
 class ElectionQueryRequest(BaseRequest):
-    """A request for elections using the specified filter"""
+    """A request for elections using the specified filter."""
 
     filter: Optional[Any] = None
     """
-    a json object filter that will be applied to the search
+    a json object filter that will be applied to the search.
     """
 
     class Config:
@@ -48,28 +48,23 @@ class ElectionQueryRequest(BaseRequest):
 
 
 class ElectionQueryResponse(BaseResponse):
-    """A collection of elections"""
+    """A collection of elections."""
 
-    elections: List[Election]
+    elections: List[Election] = []
 
 
 class SubmitElectionRequest(BaseRequest):
-    """Submit an election"""
+    """Submit an election."""
 
-    election_id: Optional[str] = None
+    election_id: str
+    key_name: str
     context: CiphertextElectionContext
     manifest: Optional[ElectionManifest] = None
 
 
-class SubmitElectionResponse(BaseResponse):
-    """A submitted election id"""
-
-    election_id: str
-
-
 class MakeElectionContextRequest(BaseRequest):
     """
-    A request to build an Election Context for a given election
+    A request to build an Election Context for a given election.
     """
 
     elgamal_public_key: str
@@ -81,6 +76,6 @@ class MakeElectionContextRequest(BaseRequest):
 
 
 class MakeElectionContextResponse(BaseResponse):
-    """A Ciphertext Election Context"""
+    """A Ciphertext Election Context."""
 
     context: CiphertextElectionContext

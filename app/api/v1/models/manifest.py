@@ -1,15 +1,15 @@
 from typing import Any, List, Optional
 
 from .base import (
-    BaseRequest,
+    Base,
     BaseResponse,
     BaseValidationRequest,
     BaseValidationResponse,
 )
 
 __all__ = [
+    "Manifest",
     "ManifestSubmitResponse",
-    "ManifestQueryRequest",
     "ManifestQueryResponse",
     "ValidateManifestRequest",
     "ValidateManifestResponse",
@@ -19,27 +19,26 @@ ElectionManifest = Any
 ElementModQ = Any
 
 
+class Manifest(Base):
+    manifest_hash: ElementModQ
+    manifest: ElectionManifest
+
+
 class ManifestSubmitResponse(BaseResponse):
     manifest_hash: ElementModQ
 
 
-class ManifestQueryRequest(BaseRequest):
-    """A request for manifests using the specified filter"""
-
-    filter: Optional[Any] = None
-
-
 class ManifestQueryResponse(BaseResponse):
-    manifests: List[ElectionManifest]
+    manifests: List[Manifest]
 
 
 class ValidateManifestRequest(BaseValidationRequest):
     """
-    A request to validate an Election Description
+    A request to validate an Election Description.
     """
 
     manifest: ElectionManifest
-    """The manifest to validate"""
+    """The manifest to validate."""
 
 
 class ValidateManifestResponse(BaseValidationResponse):

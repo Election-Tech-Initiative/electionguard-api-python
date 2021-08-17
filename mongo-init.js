@@ -1,7 +1,10 @@
-db.createCollection('Guardian');
-db.createCollection('KeyGuardian');
-db.createCollection('KeyCeremony')
-db.createCollection('Election');
-db.createCollection('Manifest');
-db.createCollection('SubmittedBallots');
-db.createCollection('Tally');
+db.createCollection('guardian');
+db.createCollection('keyGuardian');
+db.createCollection('keyCeremony')
+db.createCollection('election');
+db.createCollection('manifest');
+db.createCollection('ballotInventory');
+db.createCollection('submittedBallots');
+db.createCollection('ciphertextTally');
+db.createCollection('plaintextTally');
+db.createCollection('decryptionShares');

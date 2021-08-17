@@ -8,3 +8,4 @@ from .key_ceremony import *
 from .key_guardian import *
 from .manifest import *
 from .tally import *
+from .tally_decrypt import *
