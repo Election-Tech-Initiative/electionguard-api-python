@@ -6,8 +6,8 @@ version: "3.8"
 services:
   messagequeue:
     image: rabbitmq:3.8.16-management-alpine
-    container_name: 'electionguard-message-queue'
-    expose: 
+    container_name: "electionguard-message-queue"
+    expose:
       - 5672
       - 15672
     ports:
@@ -16,7 +16,7 @@ services:
 
   mongo:
     image: mongo
-    container_name: 'electionguard-db'
+    container_name: "electionguard-db"
     restart: always
     ports:
       - 27017:27017
@@ -24,7 +24,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
       MONGO_INITDB_DATABASE: BallotData
-    volumes: 
+    volumes:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
 
   mongo-express:
@@ -33,8 +33,8 @@ services:
     ports:
       - 8081:8081
     environment:
+      ME_CONFIG_MONGODB_SERVER: electionguard-db
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example   
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
     links:
-      - 'mongo'
-
+      - mongo

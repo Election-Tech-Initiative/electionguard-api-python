@@ -27,6 +27,7 @@ __all__ = [
     "BackupChallengeResponse",
     "ChallengeVerificationRequest",
     "to_sdk_guardian",
+    "ApiGuardianQueryResponse",
 ]
 
 ElectionPolynomial = Any
@@ -48,6 +49,7 @@ class Guardian(Base):
     """The API guardian tracks the state of a guardain's interactions with other guardians."""
 
     guardian_id: str
+    name: str
     sequence_order: int
     number_of_guardians: int
     quorum: int
@@ -64,6 +66,7 @@ class CreateGuardianRequest(BaseRequest):
     """Request to create a Guardain."""
 
     guardian_id: str
+    name: Optional[str] = None
     sequence_order: int
     number_of_guardians: int
     quorum: int
@@ -153,6 +156,12 @@ class ChallengeVerificationRequest(BaseRequest):
 
     verifier_id: str
     challenge: ElectionPartialKeyChallenge
+
+
+class ApiGuardianQueryResponse(BaseResponse):
+    """Returns a collection of KeyCeremonyGuardians."""
+
+    guardians: List[Guardian]
 
 
 # pylint:disable=protected-access
