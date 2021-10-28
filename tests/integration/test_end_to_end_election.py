@@ -9,6 +9,7 @@ from .data import test_data
 
 NUMBER_OF_GUARDIANS = 3
 QUORUM = 2
+GUARDIAN_NAME = "Guardian Name"
 
 key_name = "key_ceremony_1"
 
@@ -116,7 +117,7 @@ def create_guardians() -> List[Dict]:
     """
     return [
         guardian_api.create_guardian(
-            guardian_id, sequence_order, NUMBER_OF_GUARDIANS, QUORUM
+            guardian_id, sequence_order, NUMBER_OF_GUARDIANS, QUORUM, GUARDIAN_NAME
         )
         for sequence_order, guardian_id in enumerate(guardian_ids)
     ]
