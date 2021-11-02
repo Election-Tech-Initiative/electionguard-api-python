@@ -1,6 +1,5 @@
-from typing import Dict
 import sys
-
+from typing import Dict, List
 from fastapi import APIRouter, Body, status, HTTPException, Request
 
 from electionguard.auxiliary import AuxiliaryKeyPair
@@ -20,6 +19,9 @@ from electionguard.key_ceremony import (
 from electionguard.rsa import rsa_decrypt, rsa_encrypt
 from electionguard.serializable import read_json_object, write_json_object
 from electionguard.types import GUARDIAN_ID
+
+from app.api.v1.models.base import BaseQueryRequest
+from app.api.v1.models.guardian import ApiGuardianQueryResponse
 
 from ....core.client import get_client_id
 from ....core.guardian import get_guardian, update_guardian
@@ -97,6 +99,7 @@ def create_guardian(
         )
     guardian = Guardian(
         guardian_id=data.guardian_id,
+        name=data.name,
         sequence_order=data.sequence_order,
         number_of_guardians=data.number_of_guardians,
         quorum=data.quorum,
@@ -121,7 +124,7 @@ def create_guardian(
         print(sys.exc_info())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Submit ballots failed",
+            detail="Submit guardian failed",
         ) from error
 
     return GuardianPublicKeysResponse(
@@ -250,3 +253,37 @@ def verify_challenge(
             detail="Challenge verification process failed",
         )
     return BackupVerificationResponse(verification=write_json_object(verification))
+
+
+@router.post("/find", response_model=ApiGuardianQueryResponse, tags=[GUARDIAN])
+def find_guardians(
+    request: Request,
+    skip: int = 0,
+    limit: int = 100,
+    data: BaseQueryRequest = Body(...),
+) -> ApiGuardianQueryResponse:
+    """
+    Find Guardians.
+
+    Search the repository for guardians that match the filter criteria specified in the request body.
+    If no filter criteria is specified the API will iterate all available data.
+    """
+    try:
+        print("start")
+        filter = write_json_object(data.filter) if data.filter else {}
+        with get_repository(
+            get_client_id(), DataCollection.GUARDIAN, request.app.state.settings
+        ) as repository:
+            cursor = repository.find(filter, skip, limit)
+            guardians: List[Guardian] = []
+            print("before append")
+            for item in cursor:
+                guardians.append(item)
+            print("before return")
+            return ApiGuardianQueryResponse(guardians=guardians)
+    except Exception as error:
+        print(sys.exc_info())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="find guardians failed",
+        ) from error

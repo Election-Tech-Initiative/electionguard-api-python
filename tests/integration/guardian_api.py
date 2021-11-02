@@ -19,13 +19,18 @@ def fetch_public_keys(guardian_id: str) -> Dict:
 
 
 def create_guardian(
-    guardian_id: str, sequence_order: int, number_of_guardians: int, quorum: int
+    guardian_id: str,
+    sequence_order: int,
+    number_of_guardians: int,
+    quorum: int,
+    name: str,
 ) -> Dict:
     request = {
         "guardian_id": guardian_id,
         "sequence_order": sequence_order,
         "number_of_guardians": number_of_guardians,
         "quorum": quorum,
+        "name": name,
     }
     return api_utils.send_post_request(_api_client, "guardian", request)
 
