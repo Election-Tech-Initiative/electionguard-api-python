@@ -73,7 +73,7 @@ def filter_ballots(
         print(sys.exc_info())
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"provided filter not found",
+            detail="provided filter not found",
         ) from error
 
 

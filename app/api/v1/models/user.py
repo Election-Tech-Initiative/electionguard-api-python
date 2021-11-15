@@ -18,7 +18,7 @@ class UserScope(str, Enum):
     """The guardian role can excute guardian functions."""
     voter = "voter"
     """
-    The voter role can execute voting functions such as encrypt ballot. 
+    The voter role can execute voting functions such as encrypt ballot.
     The voting endpoints are useful for testing only and are not recommended for production.
     """
 

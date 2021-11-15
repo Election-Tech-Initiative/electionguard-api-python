@@ -49,7 +49,7 @@ def get_auth_credential(
             if not query_result:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Could not find user {username}",
+                    detail=f"Could not find credential for {username}",
                 )
             return AuthenticationCredential(**query_result)
     except Exception as error:
@@ -80,7 +80,7 @@ def set_auth_credential(
         print(sys.exc_info())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="set user info failed",
+            detail="set auth credential failed",
         ) from error
 
 
