@@ -2,12 +2,37 @@ from logging import getLogger
 from typing import Optional
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+from app.api.v1.models.auth import AuthenticationCredential
+
 
 from app.api.v1.routes import get_routes
 from app.core.settings import Settings
 from app.core.scheduler import get_scheduler
 
+from app.api.v1.models import UserInfo, UserScope
+from app.core import AuthenticationContext, set_auth_credential, set_user_info
+
 logger = getLogger(__name__)
+
+
+def seed_default_user(settings: Settings = Settings()) -> None:
+    # TODO: a more secure way to set the default auth credential
+    hashed_password = AuthenticationContext(settings).get_password_hash(
+        settings.DEFAULT_ADMIN_PASSWORD
+    )
+    credential = AuthenticationCredential(
+        username=settings.DEFAULT_ADMIN_USERNAME, hashed_password=hashed_password
+    )
+    user_info = UserInfo(username=credential.username, scopes=[UserScope.admin])
+    try:
+        set_auth_credential(credential, settings)
+    except:
+        pass
+
+    try:
+        set_user_info(user_info, settings)
+    except:
+        pass
 
 
 def get_app(settings: Optional[Settings] = None) -> FastAPI:
@@ -34,6 +59,8 @@ def get_app(settings: Optional[Settings] = None) -> FastAPI:
             allow_headers=["*"],
         )
 
+    seed_default_user(settings)
+
     routes = get_routes(settings)
     web_app.include_router(routes, prefix=settings.API_V1_STR)
 
@@ -45,7 +72,7 @@ app = get_app()
 
 @app.on_event("startup")
 def on_startup() -> None:
-    ...
+    pass
 
 
 @app.on_event("shutdown")

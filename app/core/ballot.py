@@ -28,8 +28,8 @@ def get_ballot(
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="get ballot failed",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"{ballot_id} not found",
         ) from error
 
 
@@ -72,8 +72,8 @@ def filter_ballots(
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="filter ballots failed",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"provided filter not found",
         ) from error
 
 

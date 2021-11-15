@@ -1,3 +1,4 @@
+db.createCollection('authenticationContext');
 db.createCollection('guardian');
 db.createCollection('keyGuardian');
 db.createCollection('keyCeremony')
@@ -8,3 +9,4 @@ db.createCollection('submittedBallots');
 db.createCollection('ciphertextTally');
 db.createCollection('plaintextTally');
 db.createCollection('decryptionShares');
+db.createCollection('userInfo');

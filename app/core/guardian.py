@@ -45,8 +45,8 @@ def get_guardian(guardian_id: str, settings: Settings = Settings()) -> Guardian:
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="get guardian failed",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"{guardian_id} not found",
         ) from error
 
 

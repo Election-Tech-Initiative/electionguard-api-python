@@ -38,8 +38,8 @@ def get_election(election_id: str, settings: Settings = Settings()) -> Election:
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="get election failed",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"{election_id} not found",
         ) from error
 
 

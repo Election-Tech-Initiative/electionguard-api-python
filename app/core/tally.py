@@ -45,8 +45,8 @@ def get_ciphertext_tally(
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="get ciphertext tally failed",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"{election_id} {tally_name} not found",
         ) from error
 
 

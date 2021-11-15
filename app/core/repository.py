@@ -54,6 +54,7 @@ class IRepository(Protocol):
 
 
 class DataCollection:
+    AUTHENTICATION = "authenticationContext"
     GUARDIAN = "guardian"
     KEY_GUARDIAN = "keyGuardian"
     KEY_CEREMONY = "keyCeremony"
@@ -64,6 +65,7 @@ class DataCollection:
     CIPHERTEXT_TALLY = "ciphertextTally"
     PLAINTEXT_TALLY = "plaintextTally"
     DECRYPTION_SHARES = "decryptionShares"
+    USER_INFO = "userInfo"
 
 
 class LocalRepository(IRepository):

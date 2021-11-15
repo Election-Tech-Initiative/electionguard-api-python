@@ -42,8 +42,8 @@ def get_key_ceremony(key_name: str, settings: Settings = Settings()) -> KeyCerem
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="get key ceremony failed",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"{key_name} not found",
         ) from error
 
 

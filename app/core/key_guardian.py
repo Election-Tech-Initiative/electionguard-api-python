@@ -41,8 +41,8 @@ def get_key_guardian(
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="get key ceremony guardian failed",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"{key_name} {guardian_id} not found",
         ) from error
 
 
