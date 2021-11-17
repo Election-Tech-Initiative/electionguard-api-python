@@ -1,6 +1,6 @@
 from logging import getLogger
 from typing import Optional
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from app.api.v1.models.auth import AuthenticationCredential
 
@@ -26,12 +26,12 @@ def seed_default_user(settings: Settings = Settings()) -> None:
     user_info = UserInfo(username=credential.username, scopes=[UserScope.admin])
     try:
         set_auth_credential(credential, settings)
-    except:
+    except HTTPException:
         pass
 
     try:
         set_user_info(user_info, settings)
-    except:
+    except HTTPException:
         pass
 
 

@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from .client import get_client_id
 from .repository import get_repository, DataCollection
 from .settings import Settings
-from ..api.v1.models import BaseResponse, UserInfo, UserScope
+from ..api.v1.models import BaseResponse, UserInfo
 
 __all__ = ["get_user_info", "filter_user_info", "set_user_info", "update_user_info"]
 

@@ -115,12 +115,12 @@ def validate_access_token(
             )
         token_scopes = payload.get("scopes")
         token_data = TokenData(username=username, scopes=token_scopes)
-    except (JWTError, ValidationError):
+    except (JWTError, ValidationError) as internal_error:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credential scopes",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from internal_error
     return token_data
 
 
