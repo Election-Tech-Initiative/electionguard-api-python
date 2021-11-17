@@ -13,7 +13,7 @@ from ..api.v1.models import (
 )
 
 
-def from_query(query_result: Any) -> KeyCeremony:
+def key_ceremony_from_query(query_result: Any) -> KeyCeremony:
     return KeyCeremony(
         key_name=query_result["key_name"],
         state=query_result["state"],
@@ -37,7 +37,7 @@ def get_key_ceremony(key_name: str, settings: Settings = Settings()) -> KeyCerem
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Could not find key ceremony {key_name}",
                 )
-            key_ceremony = from_query(query_result)
+            key_ceremony = key_ceremony_from_query(query_result)
             return key_ceremony
     except Exception as error:
         print(sys.exc_info())
@@ -83,7 +83,7 @@ def update_key_ceremony_state(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Could not find key ceremony {key_name}",
                 )
-            key_ceremony = from_query(query_result)
+            key_ceremony = key_ceremony_from_query(query_result)
             key_ceremony.state = new_state
 
             repository.update({"key_name": key_name}, key_ceremony.dict())

@@ -17,7 +17,7 @@ from electionguard.group import ElementModP
 from ....core.client import get_client_id
 from ....core.key_guardian import get_key_guardian
 from ....core.key_ceremony import (
-    from_query,
+    key_ceremony_from_query,
     get_key_ceremony,
     update_key_ceremony,
     update_key_ceremony_state,
@@ -141,7 +141,7 @@ def find_ceremonies(
             cursor = repository.find(filter, skip, limit)
             key_ceremonies: List[KeyCeremony] = []
             for item in cursor:
-                key_ceremonies.append(from_query(item))
+                key_ceremonies.append(key_ceremony_from_query(item))
             return KeyCeremonyQueryResponse(key_ceremonies=key_ceremonies)
     except Exception as error:
         print(sys.exc_info())

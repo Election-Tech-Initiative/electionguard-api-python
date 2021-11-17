@@ -11,7 +11,7 @@ from .settings import Settings
 from ..api.v1.models import BaseResponse, Election, ElectionState
 
 
-def from_query(query_result: Any) -> Election:
+def election_from_query(query_result: Any) -> Election:
     return Election(
         election_id=query_result["election_id"],
         key_name=query_result["key_name"],
@@ -32,7 +32,7 @@ def get_election(election_id: str, settings: Settings = Settings()) -> Election:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Could not find election {election_id}",
                 )
-            election = from_query(query_result)
+            election = election_from_query(query_result)
 
             return election
     except Exception as error:
@@ -70,7 +70,7 @@ def filter_elections(
             cursor = repository.find(filter, skip, limit)
             elections: List[Election] = []
             for item in cursor:
-                elections.append(from_query(item))
+                elections.append(election_from_query(item))
             return elections
     except Exception as error:
         print(sys.exc_info())
@@ -93,7 +93,7 @@ def update_election_state(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Could not find election {election_id}",
                 )
-            election = from_query(query_result)
+            election = election_from_query(query_result)
             election.state = new_state
             repository.update({"election_id": election_id}, election.dict())
             return BaseResponse()

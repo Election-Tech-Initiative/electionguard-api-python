@@ -14,7 +14,7 @@ from .settings import Settings
 from ..api.v1.models import Manifest, ManifestSubmitResponse, ManifestQueryResponse
 
 # TODO: rework the caching mechanism to reduce the amount of object conversions
-def from_query(query_result: Any) -> Manifest:
+def from_manifest_query(query_result: Any) -> Manifest:
     sdk_manifest = electionguard.manifest.Manifest.from_json_object(
         query_result["manifest"]
     )
@@ -38,7 +38,7 @@ def get_manifest(
                     detail=f"Could not find manifest {manifest_hash.to_hex()}",
                 )
 
-            return from_query(query_result)
+            return from_manifest_query(query_result)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
@@ -79,7 +79,7 @@ def filter_manifests(
             cursor = repository.find(filter, skip, limit)
             manifests: List[Manifest] = []
             for item in cursor:
-                manifests.append(from_query(item))
+                manifests.append(from_manifest_query(item))
             return ManifestQueryResponse(manifests=manifests)
     except Exception as error:
         print(sys.exc_info())

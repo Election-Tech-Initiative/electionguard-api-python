@@ -13,7 +13,7 @@ from ..api.v1.models import (
 )
 
 
-def from_query(query_result: Any) -> Guardian:
+def guardian_from_query(query_result: Any) -> Guardian:
     return Guardian(
         guardian_id=query_result["guardian_id"],
         sequence_order=query_result["sequence_order"],
@@ -40,7 +40,7 @@ def get_guardian(guardian_id: str, settings: Settings = Settings()) -> Guardian:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Could not find guardian {guardian_id}",
                 )
-            guardian = from_query(query_result)
+            guardian = guardian_from_query(query_result)
             return guardian
     except Exception as error:
         print(sys.exc_info())

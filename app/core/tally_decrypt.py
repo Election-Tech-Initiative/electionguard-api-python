@@ -7,7 +7,9 @@ from .settings import Settings
 from ..api.v1.models import BaseResponse, CiphertextTallyDecryptionShare
 
 
-def from_query(query_result: Any) -> CiphertextTallyDecryptionShare:
+def from_tally_decryption_share_query(
+    query_result: Any,
+) -> CiphertextTallyDecryptionShare:
     return CiphertextTallyDecryptionShare(
         election_id=query_result["election_id"],
         tally_name=query_result["tally_name"],
@@ -36,7 +38,7 @@ def get_decryption_share(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Could not find decryption share {election_id} {tally_name} {guardian_id}",
                 )
-            return from_query(query_result)
+            return from_tally_decryption_share_query(query_result)
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
@@ -76,7 +78,7 @@ def filter_decryption_shares(
             cursor = repository.find(filter, skip, limit)
             decryption_shares: List[CiphertextTallyDecryptionShare] = []
             for item in cursor:
-                decryption_shares.append(from_query(item))
+                decryption_shares.append(from_tally_decryption_share_query(item))
             return decryption_shares
     except Exception as error:
         print(sys.exc_info())

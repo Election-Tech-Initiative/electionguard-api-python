@@ -1,4 +1,5 @@
 import sys
+from typing import Any, Union
 from fastapi import HTTPException, status
 
 from passlib.context import CryptContext
@@ -26,14 +27,14 @@ class AuthenticationContext:
         self.context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         self.settings = settings
 
-    def authenticate_credential(self, username: str, password: str):
+    def authenticate_credential(self, username: str, password: str) -> Any:
         credential = get_auth_credential(username, self.settings)
         return self.verify_password(password, credential.hashed_password)
 
-    def verify_password(self, plain_password, hashed_password):
+    def verify_password(self, plain_password: str, hashed_password: str) -> Any:
         return self.context.verify(plain_password, hashed_password)
 
-    def get_password_hash(self, password):
+    def get_password_hash(self, password: Union[bytes, str]) -> Any:
         return self.context.hash(password)
 
 

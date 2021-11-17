@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from datetime import datetime, timedelta
 
@@ -80,7 +80,7 @@ def create_access_token(
     data: dict,
     expires_delta: Optional[timedelta] = None,
     settings: Settings = Settings(),
-):
+) -> Any:
     """Create an access token."""
     to_encode = data.copy()
     if expires_delta:
@@ -127,7 +127,7 @@ def validate_access_token(
 @router.post("/login", response_model=Token, tags=[AUTHORIZE])
 async def login_for_access_token(
     request: Request, form_data: OAuth2PasswordRequestForm = Depends()
-):
+) -> Token:
     """Log in using the provided username and password."""
     authenticated = AuthenticationContext(
         request.app.state.settings
