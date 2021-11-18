@@ -11,7 +11,6 @@ from ..models import (
     AuthenticationCredential,
     UserInfo,
     UserScope,
-    TokenData,
 )
 
 from ....core import (
@@ -36,13 +35,15 @@ router = APIRouter()
 )
 async def me(
     request: Request,
-    token_data: TokenData = ScopedTo(
+    scopedTo: ScopedTo = ScopedTo(
         [UserScope.admin, UserScope.auditor, UserScope.guardian, UserScope.voter]
     ),
 ) -> UserInfo:
     """
-    Get user infor for the current logged in user.
+    Get user info for the current logged in user.
     """
+    token_data = scopedTo(request)
+
     if token_data.username is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="User not specified"
