@@ -54,7 +54,7 @@ docker run -d -p 80:8000 --env API_MODE=mediator electionguard/electionguard-web
 
 ### Developing locally with Docker
 
-If you run Docker and want to run the code locally without Python dependencies, we provide a Dockerfile and docker-compose.yml.
+If you run Docker and want to run the code locally without Python dependencies, we provide a [Dockerfile](Dockerfile) and [docker-compose.yml](docker-compose.yml).
 
 Run both APIs at the same time:
 
@@ -102,13 +102,13 @@ If the code fails to run, [make sure your Python interpreter is set](https://cod
 
 ## 🧪 Testing
 
-End-to-end integration tests can be found in the `/tests/integration` folder.  To see them in action, run:
+End-to-end integration tests can be found in the [`/tests/integration`](/tests/integration) folder.  To see them in action, run:
 
 ```bash
 make test-integration
 ```
 
-A Postman collection is also available to test the API located in the `/tests/postman` folder. You can do a few things with this:
+A Postman collection is also available to test the API located in the [`/tests/postman`](/tests/postman) folder. You can do a few things with this:
 
 - [Import into Postman](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-data-into-postman) for easy manual testing.
 - Run locally with the [Newman CLI](https://github.com/postmanlabs/newman).
@@ -136,7 +136,7 @@ As of 06/15/2020, the previous C wrapped implementation was transitioned to the 
 
 ## 🤝 Contributing
 
-This project encourages community contributions for development, testing, documentation, code review, and performance analysis, etc. For more information on how to contribute, see [the contribution guidelines][contributing]
+This project encourages community contributions for development, testing, documentation, code review, and performance analysis, etc. For more information on how to contribute, see [the contribution guidelines](CONTRIBUTING.md)
 
 ### Code of Conduct
 
@@ -144,7 +144,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 
 ### Reporting Issues
 
-Please report any bugs, feature requests, or enhancements using the [GitHub Issue Tracker](https://github.com/microsoft/electionguard-web-api/issues). Please do not report any security vulnerabilities using the Issue Tracker. Instead, please report them to the Microsoft Security Response Center (MSRC) at [https://msrc.microsoft.com/create-report](https://msrc.microsoft.com/create-report). See the [Security Documentation][security] for more information.
+Please report any bugs, feature requests, or enhancements using the [GitHub Issue Tracker](https://github.com/microsoft/electionguard-web-api/issues). Please do not report any security vulnerabilities using the Issue Tracker. Instead, please report them to the Microsoft Security Response Center (MSRC) at [https://msrc.microsoft.com/create-report](https://msrc.microsoft.com/create-report). See the [Security Documentation](SECURITY.md) for more information.
 
 ### Have Questions?
 
@@ -152,4 +152,4 @@ Electionguard would love for you to ask questions out in the open using GitHub I
 
 ## License
 
-This repository is licensed under the [MIT License]
+This repository is licensed under the [MIT License](LICENSE)
