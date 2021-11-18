@@ -13,6 +13,13 @@ from .repository import get_repository, DataCollection
 from .settings import Settings
 from ..api.v1.models import Manifest, ManifestSubmitResponse, ManifestQueryResponse
 
+__all__ = [
+    "from_manifest_query",
+    "get_manifest",
+    "set_manifest",
+    "filter_manifests",
+]
+
 # TODO: rework the caching mechanism to reduce the amount of object conversions
 def from_manifest_query(query_result: Any) -> Manifest:
     sdk_manifest = electionguard.manifest.Manifest.from_json_object(

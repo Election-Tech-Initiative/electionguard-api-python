@@ -9,6 +9,11 @@ from ..api.v1.models import (
     KeyCeremonyGuardian,
 )
 
+__all__ = [
+    "get_key_guardian",
+    "update_key_guardian",
+]
+
 
 def get_key_guardian(
     key_name: str, guardian_id: str, settings: Settings = Settings()

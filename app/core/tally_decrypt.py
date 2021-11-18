@@ -6,6 +6,13 @@ from .repository import get_repository, DataCollection
 from .settings import Settings
 from ..api.v1.models import BaseResponse, CiphertextTallyDecryptionShare
 
+__all__ = [
+    "from_tally_decryption_share_query",
+    "get_decryption_share",
+    "set_decryption_share",
+    "filter_decryption_shares",
+]
+
 
 def from_tally_decryption_share_query(
     query_result: Any,

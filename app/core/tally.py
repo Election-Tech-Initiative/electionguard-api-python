@@ -6,6 +6,18 @@ from .repository import get_repository, DataCollection
 from .settings import Settings
 from ..api.v1.models import BaseResponse, CiphertextTally, PlaintextTally
 
+__all__ = [
+    "ciphertext_tally_from_query",
+    "plaintext_tally_from_query",
+    "get_ciphertext_tally",
+    "set_ciphertext_tally",
+    "filter_ciphertext_tallies",
+    "get_plaintext_tally",
+    "set_plaintext_tally",
+    "update_plaintext_tally",
+    "filter_plaintext_tallies",
+]
+
 
 def ciphertext_tally_from_query(query_result: Any) -> CiphertextTally:
     return CiphertextTally(

@@ -10,6 +10,14 @@ from .repository import get_repository, DataCollection
 from .settings import Settings
 from ..api.v1.models import BaseResponse, Election, ElectionState
 
+__all__ = [
+    "election_from_query",
+    "get_election",
+    "set_election",
+    "filter_elections",
+    "update_election_state",
+]
+
 
 def election_from_query(query_result: Any) -> Election:
     return Election(

@@ -11,6 +11,15 @@ from .settings import Settings
 from ..api.v1.models import BaseResponse, BallotInventory
 
 
+__all__ = [
+    "get_ballot",
+    "set_ballots",
+    "filter_ballots",
+    "get_ballot_inventory",
+    "upsert_ballot_inventory",
+]
+
+
 def get_ballot(
     election_id: str, ballot_id: str, settings: Settings = Settings()
 ) -> SubmittedBallot:
