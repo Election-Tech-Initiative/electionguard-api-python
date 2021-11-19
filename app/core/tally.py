@@ -6,6 +6,18 @@ from .repository import get_repository, DataCollection
 from .settings import Settings
 from ..api.v1.models import BaseResponse, CiphertextTally, PlaintextTally
 
+__all__ = [
+    "ciphertext_tally_from_query",
+    "plaintext_tally_from_query",
+    "get_ciphertext_tally",
+    "set_ciphertext_tally",
+    "filter_ciphertext_tallies",
+    "get_plaintext_tally",
+    "set_plaintext_tally",
+    "update_plaintext_tally",
+    "filter_plaintext_tallies",
+]
+
 
 def ciphertext_tally_from_query(query_result: Any) -> CiphertextTally:
     return CiphertextTally(
@@ -45,8 +57,8 @@ def get_ciphertext_tally(
     except Exception as error:
         print(sys.exc_info())
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="get ciphertext tally failed",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"{election_id} {tally_name} not found",
         ) from error
 
 

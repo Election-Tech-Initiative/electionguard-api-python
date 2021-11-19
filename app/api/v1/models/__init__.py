@@ -1,3 +1,4 @@
+from .auth import *
 from .ballot import *
 from .base import *
 from .decrypt import *
@@ -9,3 +10,4 @@ from .key_guardian import *
 from .manifest import *
 from .tally import *
 from .tally_decrypt import *
+from .user import *
