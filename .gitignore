@@ -145,3 +145,4 @@ cython_debug/
 
 # Project
 storage/
+.vs/slnx.sqlite
