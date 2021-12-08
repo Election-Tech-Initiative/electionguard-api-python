@@ -26,7 +26,17 @@ In practice, you will likely need to run at least one instance of each mode. We 
 - 🐳🐍 [GNU Make](https://www.gnu.org/software/make/manual/make.html) is used to simplify the commands and GitHub Actions. This approach is recommended to simplify the command line experience. This is built in for MacOS and Linux. For Windows, setup is simpler with [Chocolatey](https://chocolatey.org/install) and installing the provided [make package](https://chocolatey.org/packages/make). The other Windows option is [manually installing make](http://gnuwin32.sourceforge.net/packages/make.htm).
 - 🐍 [Python 3.8](https://www.python.org/downloads/) is <ins>**required**</ins> to develop this API. If developer uses multiple versions of python, [pyenv](https://github.com/pyenv/pyenv) is suggested to assist version management.
 
+## Running
+
+This codebase can be run one of three different ways:
+
+- Running With Docker
+- Developing with Docker
+- Developing with Python
+
 ## 🐳 Running with Docker
+
+Running with docker runs an official image, it is not for development.
 
 ### The official Docker image
 
@@ -52,9 +62,9 @@ docker pull electionguard/electionguard-web-api:latest
 docker run -d -p 80:8000 --env API_MODE=mediator electionguard/electionguard-web-api:latest
 ```
 
-### Developing locally with Docker
+## 🐳 Developing locally with Docker
 
-If you run Docker and want to run the code locally without Python dependencies, we provide a [Dockerfile](Dockerfile) and [docker-compose.yml](docker-compose.yml).
+Developing with Docker is the fastest way to get started, as no dependencies such as Python need to be installed locally. Using this approach uses a [Dockerfile](Dockerfile) and [docker-compose.yml](docker-compose.yml).
 
 Run both APIs at the same time:
 
@@ -70,7 +80,9 @@ make docker-dev
 
 After either command, you will find the `mediator` API running at http://127.0.0.1:8000 and the `guardian` API at http://127.0.0.1:8001
 
-## 🐍 Running with Python
+## 🐍 Developing with Python
+
+Developing with Python provides the fastest developer inner loop (speed from code changes to seeing effects of changes), but is more work to set up initially.
 
 ### Quick Start
 
@@ -102,7 +114,7 @@ If the code fails to run, [make sure your Python interpreter is set](https://cod
 
 ## 🧪 Testing
 
-End-to-end integration tests can be found in the [`/tests/integration`](/tests/integration) folder.  To see them in action, run:
+End-to-end integration tests can be found in the [`/tests/integration`](/tests/integration) folder. To see them in action, run:
 
 ```bash
 make test-integration

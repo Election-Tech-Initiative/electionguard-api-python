@@ -114,10 +114,10 @@ docker-build:
 	DOCKER_BUILDKIT=1 docker build -t $(IMAGE_NAME) .
 
 docker-run:
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose up --build
+	docker-compose up --build
 
 docker-dev:
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.support.yml -f docker-compose.dev.yml up --build
+	docker-compose -f docker-compose.support.yml -f docker-compose.dev.yml up --build
 
 docker-postman-test:
 	@echo 🧪 RUNNING POSTMAN TESTS IN DOCKER

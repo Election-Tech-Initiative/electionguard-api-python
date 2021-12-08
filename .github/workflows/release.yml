@@ -7,7 +7,7 @@ on:
     types: [milestone_closed]
 
 env:
-  PYTHON_VERSION: 3.8
+  PYTHON_VERSION: 3.9
 
 jobs:
   code_analysis:
@@ -51,8 +51,6 @@ jobs:
         run: make environment
       - name: Run Integration Tests
         run: make test-integration
-#      - name: Run Postman Tests
-#        run: make docker-postman-test
 
   release:
     name: Release
