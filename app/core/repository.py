@@ -109,7 +109,7 @@ class LocalRepository(IRepository):
 
         for filename in search_files:
             try:
-                with open(os.path.join(self._storage, filename)) as file, mmap.mmap(
+                with open(os.path.join(self._storage, filename), encoding="utf-8") as file, mmap.mmap(
                     file.fileno(), 0, access=mmap.ACCESS_READ
                 ) as search:
                     if search.find(bytes(query_string, "utf-8")) != -1:
@@ -127,7 +127,7 @@ class LocalRepository(IRepository):
             raise Exception("Not Implemented")
         json_string = json.dumps(dict(value))
         filename = hash_elems(json_string).to_hex()
-        with open(f"{os.path.join(self._storage, filename)}.json", "w") as file:
+        with open(f"{os.path.join(self._storage, filename)}.json", "w", encoding="utf-8") as file:
             file.write(json_string)
         return filename
 
