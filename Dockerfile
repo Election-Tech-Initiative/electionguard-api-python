@@ -1,4 +1,4 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8 AS base
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9 AS base
 ENV PORT 8000
 RUN apt update && apt-get install -y \
     libgmp-dev \
