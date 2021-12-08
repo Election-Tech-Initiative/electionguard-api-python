@@ -161,7 +161,7 @@ gmpy2 = ["gmpy2"]
 
 [[package]]
 name = "electionguard"
-version = "1.2.3"
+version = "1.2.2"
 description = "ElectionGuard: Support for e2e verified elections."
 category = "main"
 optional = false
@@ -855,7 +855,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "~=3.9.5"
-content-hash = "90f880da91f9b3efd8386a592ee5e4aa0814c063e3f2ac5e4c13217c01748f06"
+content-hash = "9f36c6319563d00b806846da4567546a46050f61c3478b21eb116e1a8bc31a78"
 
 [metadata.files]
 appdirs = [
@@ -983,8 +983,8 @@ ecdsa = [
     {file = "ecdsa-0.17.0.tar.gz", hash = "sha256:b9f500bb439e4153d0330610f5d26baaf18d17b8ced1bc54410d189385ea68aa"},
 ]
 electionguard = [
-    {file = "electionguard-1.2.3-py3-none-any.whl", hash = "sha256:ded9aa16b9e884728875158ea694c685c32af558f5f1844eb80fa7178605c1c5"},
-    {file = "electionguard-1.2.3.tar.gz", hash = "sha256:59c438f67532f9e2ad54594785fad7c71eaa23d4aa86283b98adb714191b67a9"},
+    {file = "electionguard-1.2.2-py3-none-any.whl", hash = "sha256:ae4ff2696813f09db670f0363a25352c05c1283e781c2e293db6681716e4401d"},
+    {file = "electionguard-1.2.2.tar.gz", hash = "sha256:c020e2e4efee3afbca3c2b672e092d783dbd6085e02559d04eb6d32b4e7e7e4e"},
 ]
 fastapi = [
     {file = "fastapi-0.65.3-py3-none-any.whl", hash = "sha256:d3e3c0ac35110efb22ee3ed28201cf32f9d11a9a0e52d7dd676cad25f5219523"},
