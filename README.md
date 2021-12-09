@@ -4,55 +4,48 @@
 
 [![docker version](https://img.shields.io/docker/v/electionguard/electionguard-web-api)](https://hub.docker.com/r/electionguard/electionguard-web-api) [![docker pulls](https://img.shields.io/docker/pulls/electionguard/electionguard-web-api)](https://hub.docker.com/r/electionguard/electionguard-web-api) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/context:python) [![Total alerts](https://img.shields.io/lgtm/alerts/g/microsoft/electionguard-web-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/microsoft/electionguard-web-api/alerts/) [![Documentation Status](https://readthedocs.org/projects/electionguard-web-api/badge/?version=latest)](https://electionguard-web-api.readthedocs.io) [![license](https://img.shields.io/github/license/microsoft/electionguard-web-api)](LICENSE)
 
-This is a python API that provides a **thin**, **stateless** wrapper around the [`electionguard-python`](https://github.com/microsoft/electionguard-python) library to perform ballot encryption, casting, spoiling, and tallying. This API is implemented using [FastAPI](https://fastapi.tiangolo.com/#interactive-api-docs).
+The ElectionGuard Web API is a python-based application that provides a **thin**, **stateless** wrapper around the [`electionguard-python`](https://github.com/microsoft/electionguard-python) library to perform ballot encryption, casting, spoiling, and tallying. This API is implemented using [FastAPI](https://fastapi.tiangolo.com/#interactive-api-docs).
 
-If you aren't familiar with ElectionGuard and its concepts, [take a stroll through the official documentation](https://microsoft.github.io/electionguard-python/) first!
+If you aren't familiar with ElectionGuard and its concepts, first take a stroll through [the official documentation](https://microsoft.github.io/electionguard-python/).
 
 ## 👯‍♀️ Two APIs in One
 
-The application can run in one of two modes:
+Before you begin you should be aware that the application can run in one of two modes:
 
 - `guardian` mode runs features used by Guardians (key ceremony actions, partial tally decryption, etc.)
 - `mediator` mode runs features used by Mediators (ballot encryption, casting, spoiling, etc.)
 
-In practice, you will likely need to run at least one instance of each mode. We provide a single codebase and Docker image, but the mode can be set at runtime.
+In practice, you will likely need to run at least one instance of each mode. We provide a single codebase and Docker image, but the mode can be set at runtime as described below.
 
-## 💻 Requirements
+## ⭐ Getting Started
 
-> NOTE:<br>
-> 🐳 = required for running with Docker.<br>
-> 🐍 = required for running with Python.
+This codebase can be run using one of three different approaches:
 
-- 🐳🐍 [GNU Make](https://www.gnu.org/software/make/manual/make.html) is used to simplify the commands and GitHub Actions. This approach is recommended to simplify the command line experience. This is built in for MacOS and Linux. For Windows, setup is simpler with [Chocolatey](https://chocolatey.org/install) and installing the provided [make package](https://chocolatey.org/packages/make). The other Windows option is [manually installing make](http://gnuwin32.sourceforge.net/packages/make.htm).
-- 🐍 [Python 3.8](https://www.python.org/downloads/) is <ins>**required**</ins> to develop this API. If developer uses multiple versions of python, [pyenv](https://github.com/pyenv/pyenv) is suggested to assist version management.
+1. 🐳 Running with Docker
+2. 🐳 Developing with Docker
+3. 🐍 Developing with Python
 
-## Running
+## 🐳 1. Running with Docker
 
-This codebase can be run one of three different ways:
+This approach runs an official published image. This approach is not intended for development. It works on Windows, Mac, and Linux.
 
-- Running With Docker
-- Developing with Docker
-- Developing with Python
+For convenience the Docker image is hosted on both [Github Packages](https://github.com/microsoft/electionguard-web-api/packages/397920) and [DockerHub](https://hub.docker.com/r/electionguard/electionguard-web-api). You can choose whichever container image library works best for you.
 
-## 🐳 Running with Docker
-
-Running with docker runs an official image, it is not for development.
-
-### The official Docker image
-
-We host a Docker image on both [Github Packages](https://github.com/microsoft/electionguard-web-api/packages/397920) and [DockerHub](https://hub.docker.com/r/electionguard/electionguard-web-api).
+### 1.1 Pulling from Github Packages
 
 **Note:** _GitHub Packages requires authentication to retrieve the package. This requires a GitHub Access Token and using `docker login`. [Follow GitHub instructions](https://docs.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-docker-for-use-with-github-packages#authenticating-with-a-personal-access-token)._
 
 ```bash
-# Pull the image from DockerHub
+# Pull the image from Github
 docker pull docker.pkg.github.com/microsoft/electionguard-web-api/electionguard-web-api:main
 
 # Start a container for the API in mediator mode, exposed on port 80 of the host machine
 docker run -d -p 80:8000 --env API_MODE=mediator docker.pkg.github.com/microsoft/electionguard-web-api/electionguard-web-api:main
 ```
 
-OR
+### 1.2 Pulling from DockerHub
+
+Pulling from DockerHub is simpler as it requires no additional authentication.
 
 ```bash
 # Pull the image from DockerHub
@@ -62,11 +55,18 @@ docker pull electionguard/electionguard-web-api:latest
 docker run -d -p 80:8000 --env API_MODE=mediator electionguard/electionguard-web-api:latest
 ```
 
-## 🐳 Developing locally with Docker
+## 🐳 2. Developing with Docker
 
-Developing with Docker is the fastest way to get started, as no dependencies such as Python need to be installed locally. Using this approach uses a [Dockerfile](Dockerfile) and [docker-compose.yml](docker-compose.yml).
+Developing with Docker is the fastest approach for getting started because it has virtually no local dependencies (e.g. Python). This approach works on Windows, Mac, and Linux. It uses a [Dockerfile](Dockerfile) and [docker-compose.yml](docker-compose.yml).
 
-Run both APIs at the same time:
+### ✅ 2.1 Prerequisities
+
+- [GNU Make](https://www.gnu.org/software/make/manual/make.html) is required to simplify commands and GitHub Actions. For MacOS and Linux, no action is necessary as it pre-installed. For Windows, install via [Chocolatey](https://chocolatey.org/install) and the [make package](https://chocolatey.org/packages/make), or alternately [manually install](http://gnuwin32.sourceforge.net/packages/make.htm).
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) is required for Docker support
+
+### 🏃‍♀️ 2.2 Running 🏃‍♂️
+
+To get started run both APIs at the same time:
 
 ```bash
 make docker-run
@@ -80,27 +80,70 @@ make docker-dev
 
 After either command, you will find the `mediator` API running at http://127.0.0.1:8000 and the `guardian` API at http://127.0.0.1:8001
 
-## 🐍 Developing with Python
+## 🐍 3. Developing with Python
 
-Developing with Python provides the fastest developer inner loop (speed from code changes to seeing effects of changes), but is more work to set up initially.
+Developing with Python provides the fastest developer inner loop (speed from code changes to seeing effects of changes), but is more work to set up initially. It works on Mac and Linux. It also works via [WSL 2](https://docs.microsoft.com/en-us/windows/wsl/about) on Windows.
 
-### Quick Start
+### ✅ 3.1. Windows Prerequisites
 
-Using [**make**](https://www.gnu.org/software/make/manual/make.html), installation and startup can be run with one command:
+On Windows you can use an IDE of your choice in Windows, and run the make and Python commands in WSL which will expose API's in Windows. However, developing with Python on Windows involves additional setup that is not required for Linux or Mac.
 
-To set up the environment:
+1. Install [WSL 2](https://docs.microsoft.com/en-us/windows/wsl/install)
+2. Install [Ubuntu](https://www.microsoft.com/en-us/p/ubuntu/9nblggh4msv6?ocid=9nblggh4msv6_ORSEARCH_Bing&rtc=1&activetab=pivot:overviewtab) (other Linux distributions should also work with minor modifications to the instructions below)
+3. Install [pyenv prerequisites](https://github.com/pyenv/pyenv/wiki#suggested-build-environment). Technically you could just install Python and it would be simpler, but this approach will provide more flexibility. To install the prerequisites:
+
+```bash
+sudo apt-get update
+sudo apt-get install make build-essential libssl-dev zlib1g-dev \
+  libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+  libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+```
+
+4. Install pyenv via [pyenv-installer](https://github.com/pyenv/pyenv-installer) and add it the startup scripts:
+
+```bash
+curl https://pyenv.run | bash
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n eval "$(pyenv init -)"\nfi' >> ~/.bashrc
+sed -Ei -e '/^([^#]|$)/ {a \
+  export PYENV_ROOT="$HOME/.pyenv"
+  a \
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  a \
+  ' -e ':a' -e '$!{n;ba};}' ~/.profile
+echo 'eval "$(pyenv init --path)"' >>~/.profile
+
+echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+```
+
+5. Restart shell
+6. Install Python 3.9 via pyenv
+
+```bash
+pyenv install 3.9.9
+pyenv global 3.9.9
+```
+
+### ✅ 3.2 Mac/Linux Prerequisites
+
+Install [Python 3.9](https://www.python.org/downloads/). We additionally recommend [pyenv](https://github.com/pyenv/pyenv) to assist with Python version management (see detailed instructions in the Windows section above starting with Step 3).
+
+### 🏃‍♀️ 3.2 Running 🏃‍♂️
+
+Using [**make**](https://www.gnu.org/software/make/manual/make.html), install and setup the environment:
 
 ```bash
 make environment
 ```
 
-To start the api:
+Start the api as mediator
 
 ```bash
 make start API_MODE=mediator
 ```
 
-OR
+OR as guardian
 
 ```bash
 make start API_MODE=guardian
