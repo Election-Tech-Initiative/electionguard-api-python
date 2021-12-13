@@ -1,5 +1,6 @@
 from typing import Dict, Protocol, Any, List, Union
 from collections.abc import MutableMapping
+from abc import ABC
 
 import mmap
 import os
@@ -25,7 +26,7 @@ __all__ = [
 DOCUMENT_VALUE_TYPE = Union[MutableMapping, List[MutableMapping]]
 
 
-class IRepository(Protocol):
+class IRepository(ABC):
     def __enter__(self) -> Any:
         return self
 
