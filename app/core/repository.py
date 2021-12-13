@@ -1,4 +1,4 @@
-from typing import Dict, Protocol, Any, List, Union
+from typing import Dict, Any, List, Union
 from collections.abc import MutableMapping
 from abc import ABC
 
