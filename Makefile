@@ -104,7 +104,7 @@ stop:
 
 # Docker
 docker-build:
-	DOCKER_BUILDKIT=1 docker build -t $(IMAGE_NAME) .
+	docker build -t $(IMAGE_NAME) .
 
 docker-run:
 	docker-compose up --build
@@ -112,9 +112,9 @@ docker-run:
 docker-dev:
 	docker-compose -f docker-compose.support.yml -f docker-compose.dev.yml up --build
 
-docker-postman-test: no-windows
+docker-postman-test:
 	@echo 🧪 RUNNING POSTMAN TESTS IN DOCKER
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose \
+	docker-compose \
 	-f tests/postman/docker-compose.yml up \
 	--build \
 	--abort-on-container-exit \
