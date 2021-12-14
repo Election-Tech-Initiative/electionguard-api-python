@@ -1,6 +1,6 @@
 from typing import Dict, Any, List, Union
 from collections.abc import MutableMapping
-from abc import ABC
+from abc import ABC, abstractmethod
 
 import mmap
 import os
@@ -33,21 +33,25 @@ class IRepository(ABC):
     def __exit__(self, exc_type: Any, exc_value: Any, exc_traceback: Any) -> None:
         pass
 
+    @abstractmethod
     def find(self, filter: MutableMapping, skip: int = 0, limit: int = 0) -> Any:
         """
         Find items matching the filter
         """
 
+    @abstractmethod
     def get(self, filter: MutableMapping) -> Any:
         """
         Get an item from the container
         """
 
+    @abstractmethod
     def set(self, value: DOCUMENT_VALUE_TYPE) -> Any:
         """
         Set and item in the container
         """
 
+    @abstractmethod
     def update(self, filter: MutableMapping, value: DOCUMENT_VALUE_TYPE) -> Any:
         """
         Update an item
