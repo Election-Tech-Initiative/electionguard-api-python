@@ -121,6 +121,8 @@ def create_guardian(
                     status_code=status.HTTP_409_CONFLICT,
                     detail=f"Already exists {data.guardian_id}",
                 )
+    except HTTPException:
+        raise
     except Exception as error:
         traceback.print_exc()
         raise HTTPException(
