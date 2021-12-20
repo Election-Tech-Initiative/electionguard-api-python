@@ -38,7 +38,7 @@ def create_key_ceremony_guardian(
     """
     Create a Key Ceremony Guardian.
 
-    In order for a guardian to participate they must be assiciated with the key ceremony first.
+    In order for a guardian to participate they must be associated with the key ceremony first.
     """
     try:
         with get_repository(
