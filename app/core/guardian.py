@@ -23,6 +23,7 @@ __all__ = [
 def guardian_from_query(query_result: Any) -> Guardian:
     return Guardian(
         guardian_id=query_result["guardian_id"],
+        name=query_result["name"],
         sequence_order=query_result["sequence_order"],
         number_of_guardians=query_result["number_of_guardians"],
         quorum=query_result["quorum"],
