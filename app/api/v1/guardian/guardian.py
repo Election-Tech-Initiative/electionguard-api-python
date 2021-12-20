@@ -1,3 +1,4 @@
+import traceback
 import sys
 from typing import Dict, List
 from fastapi import APIRouter, Body, status, HTTPException, Request
@@ -121,7 +122,7 @@ def create_guardian(
                     detail=f"Already exists {data.guardian_id}",
                 )
     except Exception as error:
-        print(sys.exc_info())
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Submit guardian failed",

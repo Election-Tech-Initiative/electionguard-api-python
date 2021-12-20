@@ -1,3 +1,4 @@
+import traceback
 from typing import List
 import sys
 from fastapi import APIRouter, Body, HTTPException, Request, status
@@ -54,6 +55,7 @@ def create_key_ceremony_guardian(
                 detail=f"Already exists {data.guardian_id}",
             )
     except Exception as error:
+        traceback.print_exc()
         print(sys.exc_info())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
