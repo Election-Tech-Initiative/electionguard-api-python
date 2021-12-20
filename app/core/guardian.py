@@ -1,3 +1,4 @@
+import traceback
 from typing import Any
 import sys
 from fastapi import HTTPException, status
@@ -49,6 +50,7 @@ def get_guardian(guardian_id: str, settings: Settings = Settings()) -> Guardian:
             guardian = guardian_from_query(query_result)
             return guardian
     except Exception as error:
+        traceback.print_exc()
         print(sys.exc_info())
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
