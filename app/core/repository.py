@@ -17,7 +17,6 @@ from .settings import Settings, StorageMode
 __all__ = [
     "IRepository",
     "LocalRepository",
-    "MemoryRepository",
     "MongoRepository",
     "get_repository",
 ]
@@ -145,42 +144,6 @@ class LocalRepository(IRepository):
         pass
 
 
-class MemoryRepository(IRepository):
-    def __init__(
-        self,
-        container: str,
-        collection: str,
-    ):
-        super().__init__()
-        self._id = 0
-        self._container = container
-        self._collection = collection
-        self.storage: Dict[int, Any] = {}
-
-    def __enter__(self) -> Any:
-        return self
-
-    def __exit__(self, exc_type: Any, exc_value: Any, exc_traceback: Any) -> None:
-        pass
-
-    def find(self, filter: MutableMapping, skip: int = 0, limit: int = 0) -> Any:
-        pass
-
-    def get(self, filter: MutableMapping) -> Any:
-        for item in self.storage.items():
-            if item[filter[0]] == filter[1]:
-                return item
-        return None
-
-    def set(self, value: DOCUMENT_VALUE_TYPE) -> Any:
-        self._id += 1
-        self.storage[self._id] = value
-        return str(self._id)
-
-    def update(self, filter: MutableMapping, value: DOCUMENT_VALUE_TYPE) -> Any:
-        pass
-
-
 class MongoRepository(IRepository):
     def __init__(
         self,
@@ -234,4 +197,4 @@ def get_repository(
     if settings.STORAGE_MODE == StorageMode.LOCAL_STORAGE:
         return LocalRepository(container, collection)
 
-    return MemoryRepository(container, collection)
+    raise ValueError("Unsupported storage mode: " + settings.STORAGE_MODE)
