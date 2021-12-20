@@ -86,7 +86,7 @@ Developing with Python provides the fastest developer inner loop (speed from cod
 
 ### ✅ 3.1. Windows Prerequisites
 
-On Windows you can use an IDE of your choice in Windows, and run the make and Python commands in WSL which will expose API's in Windows. However, developing with Python on Windows involves additional setup that is not required for Linux or Mac.
+On Windows you can use an IDE of your choice in Windows, and run the make and Python commands in WSL which will expose API's in Windows. Developing with Python on Windows involves the following additional setup that is not required for Linux or Mac.
 
 1. Install [WSL 2](https://docs.microsoft.com/en-us/windows/wsl/install)
 2. Install [Ubuntu](https://www.microsoft.com/en-us/p/ubuntu/9nblggh4msv6?ocid=9nblggh4msv6_ORSEARCH_Bing&rtc=1&activetab=pivot:overviewtab) (other Linux distributions should also work with minor modifications to the instructions below)
@@ -149,11 +149,20 @@ OR as guardian
 make start API_MODE=guardian
 ```
 
-### Debugging
+### Debugging Mac/Linux
 
 For local debugging with Visual Studio Code, choose the `Guardian Web API` or `Mediator Web API` options from the dropdown in the Run menu. Once the server is up, you can easily hit your breakpoints.
 
 If the code fails to run, [make sure your Python interpreter is set](https://code.visualstudio.com/docs/python/environments) to use your poetry environment.
+
+### Debugging Windows
+
+With Visual Studio Code:
+
+1. Install the [Remote WSL](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) extension
+2. In the bottom left click the Green Icon and "New WSL Window using Distro", select Ubuntu
+3. F5
+4. Choose either `Guardian Web API` or `Mediator Web API`
 
 ## 🧪 Testing
 
