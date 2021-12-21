@@ -23,7 +23,6 @@ class QueueMode(str, Enum):
 
 class StorageMode(str, Enum):
     LOCAL_STORAGE = "local_storage"
-    MEMORY = "memory"
     MONGO = "mongo"
 
 
@@ -31,7 +30,7 @@ class StorageMode(str, Enum):
 class Settings(BaseSettings):
     API_MODE: ApiMode = ApiMode.MEDIATOR
     QUEUE_MODE: QueueMode = QueueMode.LOCAL
-    STORAGE_MODE: StorageMode = StorageMode.MEMORY
+    STORAGE_MODE: StorageMode = StorageMode.LOCAL_STORAGE
 
     API_V1_STR: str = "/api/v1"
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = Field(

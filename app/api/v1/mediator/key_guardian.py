@@ -1,3 +1,4 @@
+import traceback
 from typing import List
 import sys
 from fastapi import APIRouter, Body, HTTPException, Request, status
@@ -37,7 +38,7 @@ def create_key_ceremony_guardian(
     """
     Create a Key Ceremony Guardian.
 
-    In order for a guardian to participate they must be assiciated with the key ceremony first.
+    In order for a guardian to participate they must be associated with the key ceremony first.
     """
     try:
         with get_repository(
@@ -54,6 +55,7 @@ def create_key_ceremony_guardian(
                 detail=f"Already exists {data.guardian_id}",
             )
     except Exception as error:
+        traceback.print_exc()
         print(sys.exc_info())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
