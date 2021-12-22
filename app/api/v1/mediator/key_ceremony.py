@@ -92,7 +92,7 @@ def verify_backups(
     data: GuardianSubmitVerificationRequest = Body(...),
 ) -> BaseResponse:
     """
-    Share the reulsts of verifying the other guardians' backups.
+    Share the results of verifying the other guardians' backups.
     """
     ceremony = get_key_ceremony(data.key_name, request.app.state.settings)
     guardian = get_key_guardian(
