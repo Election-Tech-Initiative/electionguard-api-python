@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     STORAGE_MODE: StorageMode = StorageMode.LOCAL_STORAGE
 
     API_V1_STR: str = "/api/v1"
+    API_V2_STR: str = "/api/v2"
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = Field(
         default=[
             "http://localhost",
