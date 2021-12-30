@@ -1,5 +1,6 @@
-from typing import Dict, Protocol, Any, List, Union
+from typing import Any, List, Union
 from collections.abc import MutableMapping
+from abc import ABC, abstractmethod
 
 import mmap
 import os
@@ -16,7 +17,6 @@ from .settings import Settings, StorageMode
 __all__ = [
     "IRepository",
     "LocalRepository",
-    "MemoryRepository",
     "MongoRepository",
     "get_repository",
 ]
@@ -25,28 +25,32 @@ __all__ = [
 DOCUMENT_VALUE_TYPE = Union[MutableMapping, List[MutableMapping]]
 
 
-class IRepository(Protocol):
+class IRepository(ABC):
     def __enter__(self) -> Any:
         return self
 
     def __exit__(self, exc_type: Any, exc_value: Any, exc_traceback: Any) -> None:
         pass
 
+    @abstractmethod
     def find(self, filter: MutableMapping, skip: int = 0, limit: int = 0) -> Any:
         """
         Find items matching the filter
         """
 
+    @abstractmethod
     def get(self, filter: MutableMapping) -> Any:
         """
         Get an item from the container
         """
 
+    @abstractmethod
     def set(self, value: DOCUMENT_VALUE_TYPE) -> Any:
         """
         Set and item in the container
         """
 
+    @abstractmethod
     def update(self, filter: MutableMapping, value: DOCUMENT_VALUE_TYPE) -> Any:
         """
         Update an item
@@ -109,7 +113,9 @@ class LocalRepository(IRepository):
 
         for filename in search_files:
             try:
-                with open(os.path.join(self._storage, filename)) as file, mmap.mmap(
+                with open(
+                    os.path.join(self._storage, filename), encoding="utf-8"
+                ) as file, mmap.mmap(
                     file.fileno(), 0, access=mmap.ACCESS_READ
                 ) as search:
                     if search.find(bytes(query_string, "utf-8")) != -1:
@@ -127,48 +133,14 @@ class LocalRepository(IRepository):
             raise Exception("Not Implemented")
         json_string = json.dumps(dict(value))
         filename = hash_elems(json_string).to_hex()
-        with open(f"{os.path.join(self._storage, filename)}.json", "w") as file:
+        with open(
+            f"{os.path.join(self._storage, filename)}.json", "w", encoding="utf-8"
+        ) as file:
             file.write(json_string)
         return filename
 
     def update(self, filter: MutableMapping, value: DOCUMENT_VALUE_TYPE) -> Any:
         # TODO: implement an update function
-        pass
-
-
-class MemoryRepository(IRepository):
-    def __init__(
-        self,
-        container: str,
-        collection: str,
-    ):
-        super().__init__()
-        self._id = 0
-        self._container = container
-        self._collection = collection
-        self.storage: Dict[int, Any] = {}
-
-    def __enter__(self) -> Any:
-        return self
-
-    def __exit__(self, exc_type: Any, exc_value: Any, exc_traceback: Any) -> None:
-        pass
-
-    def find(self, filter: MutableMapping, skip: int = 0, limit: int = 0) -> Any:
-        pass
-
-    def get(self, filter: MutableMapping) -> Any:
-        for item in self.storage.items():
-            if item[filter[0]] == filter[1]:
-                return item
-        return None
-
-    def set(self, value: DOCUMENT_VALUE_TYPE) -> Any:
-        self._id += 1
-        self.storage[self._id] = value
-        return str(self._id)
-
-    def update(self, filter: MutableMapping, value: DOCUMENT_VALUE_TYPE) -> Any:
         pass
 
 
@@ -225,4 +197,4 @@ def get_repository(
     if settings.STORAGE_MODE == StorageMode.LOCAL_STORAGE:
         return LocalRepository(container, collection)
 
-    return MemoryRepository(container, collection)
+    raise ValueError("Unsupported storage mode: " + settings.STORAGE_MODE)

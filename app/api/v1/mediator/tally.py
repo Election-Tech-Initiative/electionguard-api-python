@@ -279,7 +279,7 @@ async def _decrypt_tally(
         api_plaintext_tally.state = PlaintextTallyState.COMPLETE
         update_plaintext_tally(api_plaintext_tally, settings)
 
-    except HTTPException as error:
+    except HTTPException:
         api_plaintext_tally.state = PlaintextTallyState.ERROR
         update_plaintext_tally(api_plaintext_tally, settings)
         print(sys.exc_info())

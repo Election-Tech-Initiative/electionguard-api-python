@@ -1,7 +1,6 @@
 .PHONY: all environment lint start
 
 OS ?= $(shell python -c 'import platform; print(platform.system())')
-WINDOWS_ERROR = ⚠️ UNSUPPORTED WINDOWS INSTALL ⚠️ 
 IMAGE_NAME = electionguard_web_api
 AZURE_LOCATION = eastus
 RESOURCE_GROUP = EG-Deploy-Demo
@@ -21,18 +20,18 @@ endif
 
 all: environment lint start
 
-environment:
+environment: no-windows
 	@echo 🔧 SETUP
 	make install-gmp
 	pip3 install 'poetry==1.1.6'
 	poetry config virtualenvs.in-project true 
 	poetry install
 
-install:
+install: no-windows
 	@echo 🔧 INSTALL
 	poetry install
-	
-install-gmp:
+
+install-gmp: no-windows
 	@echo 📦 Install Module
 	@echo Operating System identified as $(OS)
 ifeq ($(OS), Linux)
@@ -41,21 +40,15 @@ endif
 ifeq ($(OS), Darwin)
 	make install-gmp-mac
 endif
-ifeq ($(OS), Windows)
-	echo $(WINDOWS_ERROR)
-endif
-ifeq ($(OS), Windows_NT)
-	echo $(WINDOWS_ERROR)
-endif
 
-install-gmp-mac:
+install-gmp-mac: no-windows
 	@echo 🍎 MACOS INSTALL
 # gmpy2 requirements
 	brew install gmp || true
 	brew install mpfr || true
 	brew install libmpc || true
 
-install-gmp-linux:
+install-gmp-linux: no-windows
 	@echo 🐧 LINUX INSTALL
 # gmpy2 requirements
 	sudo apt-get install libgmp-dev
@@ -97,7 +90,7 @@ endif
 	az logout
 
 # Dev Server
-start:
+start: no-windows
 	poetry run uvicorn app.main:app --reload --port $(PORT)
 
 start-server:
@@ -111,17 +104,17 @@ stop:
 
 # Docker
 docker-build:
-	DOCKER_BUILDKIT=1 docker build -t $(IMAGE_NAME) .
+	docker build -t $(IMAGE_NAME) .
 
 docker-run:
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose up --build
+	docker-compose up --build
 
 docker-dev:
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.support.yml -f docker-compose.dev.yml up --build
+	docker-compose -f docker-compose.support.yml -f docker-compose.dev.yml up --build
 
 docker-postman-test:
 	@echo 🧪 RUNNING POSTMAN TESTS IN DOCKER
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose \
+	docker-compose \
 	-f tests/postman/docker-compose.yml up \
 	--build \
 	--abort-on-container-exit \
@@ -143,7 +136,7 @@ auto-lint:
 	poetry run black app tests
 	make lint
 
-test-integration:
+test-integration: no-windows
 	@echo ✅ INTEGRATION TESTS
 	poetry run pytest -s . -x
 
@@ -162,3 +155,11 @@ docs-deploy-ci:
 	@echo 🚀 DEPLOY to Github Pages
 	pip install mkdocs
 	mkdocs gh-deploy --force
+
+# PRIVATE RECIPIES
+
+no-windows:
+ifeq ($(OS), Windows_NT)
+	@echo Windows is not supported. Instead run this command in WSL2. For more details see README.md.
+	exit 1
+endif
