@@ -1,7 +1,6 @@
-from typing import Any, List, Optional
-from enum import Enum
+from typing import Any
 
-from .base import Base, BaseRequest, BaseResponse
+from .base import BaseRequest
 
 
 __all__ = [
