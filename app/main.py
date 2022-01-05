@@ -6,7 +6,7 @@ from app.api.v1.models.auth import AuthenticationCredential
 
 
 from app.api.v1.routes import get_v1_routes
-from app.api.v2.routes import get_v2_routes
+from app.api.v1_1.routes import get_v1_1_routes
 from app.core.settings import Settings
 from app.core.scheduler import get_scheduler
 
@@ -64,7 +64,7 @@ def get_app(settings: Optional[Settings] = None) -> FastAPI:
 
     v1_routes = get_v1_routes(settings)
     web_app.include_router(v1_routes, prefix=settings.API_V1_STR)
-    v2_routes = get_v2_routes(settings)
+    v2_routes = get_v1_1_routes(settings)
     web_app.include_router(v2_routes, prefix=settings.API_V2_STR)
 
     return web_app

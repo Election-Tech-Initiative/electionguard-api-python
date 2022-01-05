@@ -6,7 +6,7 @@ from . import mediator
 from . import guardian
 
 
-def get_v2_routes(settings: Settings) -> APIRouter:
+def get_v1_1_routes(settings: Settings) -> APIRouter:
     api_router = APIRouter()
 
     api_router.include_router(auth.router)
