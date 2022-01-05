@@ -64,8 +64,8 @@ def get_app(settings: Optional[Settings] = None) -> FastAPI:
 
     v1_routes = get_v1_routes(settings)
     web_app.include_router(v1_routes, prefix=settings.API_V1_STR)
-    v2_routes = get_v1_1_routes(settings)
-    web_app.include_router(v2_routes, prefix=settings.API_V2_STR)
+    v1_1_routes = get_v1_1_routes(settings)
+    web_app.include_router(v1_1_routes, prefix=settings.API_V1_1_STR)
 
     return web_app
 
