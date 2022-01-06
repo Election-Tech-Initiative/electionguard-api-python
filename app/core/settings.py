@@ -50,7 +50,9 @@ class Settings(BaseSettings):
     AUTH_SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
     AUTH_ACCESS_TOKEN_EXPIRE_MINUTES = 30
     DEFAULT_ADMIN_USERNAME = "default"
-    DEFAULT_ADMIN_PASSWORD = "Elect1onGu4rd!"
+    DEFAULT_ADMIN_PASSWORD = "<this is a default value and should be changed>"
+    # this is a default value that will be moving to the environment settings
+    # the default value should not be used for production use
 
     class Config:
         case_sensitive = True
