@@ -30,3 +30,9 @@ class TokenData(BaseModel):
 
     username: Optional[str] = None
     scopes: List[UserScope] = []
+
+
+class ErrorMessage(BaseModel):
+    """Returns error messages to the client."""
+
+    detail: str
