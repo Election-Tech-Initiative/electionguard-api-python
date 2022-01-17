@@ -1,12 +1,12 @@
 from fastapi import APIRouter
+from app.api.v1 import auth
 from app.core.settings import ApiMode, Settings
 from . import common
-from . import guardian
 from . import mediator
-from . import auth
+from . import guardian
 
 
-def get_v1_routes(settings: Settings) -> APIRouter:
+def get_v1_1_routes(settings: Settings) -> APIRouter:
     api_router = APIRouter()
 
     api_router.include_router(auth.router)

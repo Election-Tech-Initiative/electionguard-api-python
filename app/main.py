@@ -5,7 +5,8 @@ from starlette.middleware.cors import CORSMiddleware
 from app.api.v1.models.auth import AuthenticationCredential
 
 
-from app.api.v1.routes import get_routes
+from app.api.v1.routes import get_v1_routes
+from app.api.v1_1.routes import get_v1_1_routes
 from app.core.settings import Settings
 from app.core.scheduler import get_scheduler
 
@@ -61,8 +62,10 @@ def get_app(settings: Optional[Settings] = None) -> FastAPI:
 
     seed_default_user(settings)
 
-    routes = get_routes(settings)
-    web_app.include_router(routes, prefix=settings.API_V1_STR)
+    v1_routes = get_v1_routes(settings)
+    web_app.include_router(v1_routes, prefix=settings.API_V1_STR)
+    v1_1_routes = get_v1_1_routes(settings)
+    web_app.include_router(v1_1_routes, prefix=settings.API_V1_1_STR)
 
     return web_app
 
