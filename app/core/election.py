@@ -1,7 +1,6 @@
 import traceback
 from typing import Any, List
 
-import sys
 from fastapi import HTTPException, status
 
 from electionguard.serializable import write_json_object
