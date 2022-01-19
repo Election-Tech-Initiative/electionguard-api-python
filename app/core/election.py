@@ -1,6 +1,6 @@
+import traceback
 from typing import Any, List
 
-import sys
 from fastapi import HTTPException, status
 
 from electionguard.serializable import write_json_object
@@ -44,7 +44,7 @@ def get_election(election_id: str, settings: Settings = Settings()) -> Election:
 
             return election
     except Exception as error:
-        print(sys.exc_info())
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"{election_id} not found",
@@ -61,7 +61,7 @@ def set_election(election: Election, settings: Settings = Settings()) -> BaseRes
                 message="Election Successfully Set",
             )
     except Exception as error:
-        print(sys.exc_info())
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Submit election failed",
@@ -81,7 +81,7 @@ def filter_elections(
                 elections.append(election_from_query(item))
             return elections
     except Exception as error:
-        print(sys.exc_info())
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="find elections failed",
@@ -106,7 +106,7 @@ def update_election_state(
             repository.update({"election_id": election_id}, election.dict())
             return BaseResponse()
     except Exception as error:
-        print(sys.exc_info())
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="update election failed",

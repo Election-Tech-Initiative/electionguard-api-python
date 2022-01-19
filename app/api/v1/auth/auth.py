@@ -14,6 +14,7 @@ from fastapi import (
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from pydantic import ValidationError
+from app.api.v1.models.auth import ErrorMessage
 
 from app.api.v1.models.user import UserScope
 from app.core import Settings
@@ -124,7 +125,12 @@ def validate_access_token(
     return token_data
 
 
-@router.post("/login", response_model=Token, tags=[AUTHORIZE])
+@router.post(
+    "/login",
+    response_model=Token,
+    tags=[AUTHORIZE],
+    responses={401: {"model": ErrorMessage}, 404: {"model": ErrorMessage}},
+)
 async def login_for_access_token(
     request: Request, form_data: OAuth2PasswordRequestForm = Depends()
 ) -> Token:
