@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, cast
 import sys
 
 from fastapi import APIRouter, Body, HTTPException, Request, status
@@ -228,7 +228,7 @@ def _get_election_parameters(
         manifest = Manifest.from_json_object(election.manifest)
 
     if request_data.context:
-        context = request_data.context
+        context = cast(CiphertextElectionContext, request_data.context)
     else:
         context = CiphertextElectionContext.from_json_object(election.context)
 
