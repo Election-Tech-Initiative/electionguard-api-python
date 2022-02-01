@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional
 
 from .base import Base, BaseRequest, BaseResponse, BaseValidationRequest
-from .election import CiphertextElectionContext
+from .election import CiphertextElectionContextDto
 from .manifest import ElectionManifest
 
 
@@ -60,7 +60,7 @@ class BallotQueryResponse(BaseResponse):
 class BaseBallotRequest(BaseRequest):
     election_id: Optional[str] = None
     manifest: Optional[ElectionManifest] = None
-    context: Optional[CiphertextElectionContext] = None
+    context: Optional[CiphertextElectionContextDto] = None
 
 
 class CastBallotsRequest(BaseBallotRequest):
@@ -86,4 +86,4 @@ class ValidateBallotRequest(BaseValidationRequest):
 
     ballot: CiphertextBallot
     manifest: ElectionManifest
-    context: CiphertextElectionContext
+    context: CiphertextElectionContextDto

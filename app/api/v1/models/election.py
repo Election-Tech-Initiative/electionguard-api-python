@@ -16,7 +16,7 @@ __all__ = [
 ]
 
 
-class CiphertextElectionContext(Base):
+class CiphertextElectionContextDto(Base):
     """The meta-data required for an election including keys, manifest, number of guardians, and quorum"""
 
     number_of_guardians: int
@@ -60,7 +60,7 @@ class Election(Base):
     election_id: str
     key_name: str
     state: ElectionState
-    context: CiphertextElectionContext
+    context: CiphertextElectionContextDto
     manifest: ElectionManifest
 
 
@@ -87,7 +87,7 @@ class SubmitElectionRequest(BaseRequest):
 
     election_id: str
     key_name: str
-    context: CiphertextElectionContext
+    context: CiphertextElectionContextDto
     manifest: Optional[ElectionManifest] = None
 
 
@@ -107,4 +107,4 @@ class MakeElectionContextRequest(BaseRequest):
 class MakeElectionContextResponse(BaseResponse):
     """A Ciphertext Election Context."""
 
-    context: CiphertextElectionContext
+    context: CiphertextElectionContextDto
