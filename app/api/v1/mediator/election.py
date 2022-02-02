@@ -9,7 +9,6 @@ from electionguard.election import (
     make_ciphertext_election_context,
 )
 from electionguard.group import ElementModP, ElementModQ
-from electionguard.election import CiphertextElectionContext
 from electionguard.manifest import Manifest
 from electionguard.serializable import read_json_object, write_json_object
 from electionguard.utils import get_optional
@@ -76,7 +75,7 @@ def create_election(
         election_id = str(uuid4())
 
     key_ceremony = get_key_ceremony(data.key_name, request.app.state.settings)
-    context = CiphertextElectionContext.from_json_object(data.context)
+    context = data.context.toSdkContext()
 
     # if a manifest is provided use it, but don't cache it
     if data.manifest:

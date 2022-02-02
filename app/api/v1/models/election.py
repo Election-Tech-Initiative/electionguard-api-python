@@ -1,6 +1,11 @@
 from typing import Any, List, Optional
 from enum import Enum
-
+from electionguard.election import CiphertextElectionContext
+from electionguard.group import ElementModP, ElementModQ, hex_to_p, hex_to_q
+from fastapi import (
+    HTTPException,
+    status,
+)
 from .base import Base, BaseRequest, BaseResponse
 from .manifest import ElectionManifest
 
@@ -45,6 +50,36 @@ class CiphertextElectionContextDto(Base):
 
     crypto_extended_base_hash: str
     """The `extended base hash code (𝑄')` in [ElectionGuard Spec](https://github.com/microsoft/electionguard/wiki)"""
+
+    @staticmethod
+    def hexToP(s: str) -> ElementModP:
+        v = hex_to_p(s)
+        if v is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="invalid key"
+            )
+        return v
+
+    @staticmethod
+    def hexToQ(s: str) -> ElementModQ:
+        v = hex_to_q(s)
+        if v is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="invalid key"
+            )
+        return v
+
+    def toSdkContext(self) -> CiphertextElectionContext:
+        sdkContext = CiphertextElectionContext(
+            self.number_of_guardians,
+            self.quorum,
+            CiphertextElectionContextDto.hexToP(self.elgamal_public_key),
+            CiphertextElectionContextDto.hexToQ(self.commitment_hash),
+            CiphertextElectionContextDto.hexToQ(self.manifest_hash),
+            CiphertextElectionContextDto.hexToQ(self.crypto_base_hash),
+            CiphertextElectionContextDto.hexToQ(self.crypto_extended_base_hash),
+        )
+        return sdkContext
 
 
 class ElectionState(str, Enum):
