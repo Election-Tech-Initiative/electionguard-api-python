@@ -52,8 +52,8 @@ class CiphertextElectionContextDto(Base):
     """The `extended base hash code (𝑄')` in [ElectionGuard Spec](https://github.com/microsoft/electionguard/wiki)"""
 
     @staticmethod
-    def stringToElementModP(s: str) -> ElementModP:
-        elementModP = hex_to_p(s)
+    def stringToElementModP(value: str) -> ElementModP:
+        elementModP = hex_to_p(value)
         if elementModP is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="invalid key"
@@ -61,11 +61,11 @@ class CiphertextElectionContextDto(Base):
         return elementModP
 
     @staticmethod
-    def stringToElementModQ(s: str) -> ElementModQ:
-        elementModQ = hex_to_q(s)
+    def stringToElementModQ(value: str) -> ElementModQ:
+        elementModQ = hex_to_q(value)
         if elementModQ is None:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="invalid key"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="invalid key: " + value
             )
         return elementModQ
 
