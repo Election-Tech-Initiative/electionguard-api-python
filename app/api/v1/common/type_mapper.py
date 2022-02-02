@@ -27,12 +27,12 @@ class TypeMapper:
     def int_to_element_mod_p(value: int) -> ElementModP:
         elementmodp = int_to_p(value)
         if elementmodp is None:
-            raise ValueError("invalid key: " + value)
+            raise ValueError("invalid key: " + str(value))
         return elementmodp
 
     @staticmethod
     def int_to_element_mod_q(value: int) -> ElementModQ:
         elementmodq = int_to_q(value)
         if elementmodq is None:
-            raise ValueError("invalid key: " + value)
+            raise ValueError("invalid key: " + str(value))
         return elementmodq
