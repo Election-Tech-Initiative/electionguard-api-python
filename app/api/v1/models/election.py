@@ -15,7 +15,36 @@ __all__ = [
     "SubmitElectionRequest",
 ]
 
-CiphertextElectionContext = Any
+
+class CiphertextElectionContext(Base):
+    """The meta-data required for an election including keys, manifest, number of guardians, and quorum"""
+
+    number_of_guardians: int
+    """
+    The number of guardians necessary to generate the public key
+    """
+    quorum: int
+    """
+    The quorum of guardians necessary to decrypt an election.  Must be less than `number_of_guardians`
+    """
+
+    elgamal_public_key: str
+    """the `joint public key (K)` in the [ElectionGuard Spec](https://github.com/microsoft/electionguard/wiki)"""
+
+    commitment_hash: str
+    """
+    the `commitment hash H(K 1,0 , K 2,0 ... , K n,0 )` of the public commitments
+    guardians make to each other in the [ElectionGuard Spec](https://github.com/microsoft/electionguard/wiki)
+    """
+
+    manifest_hash: str
+    """The hash of the election metadata"""
+
+    crypto_base_hash: str
+    """The `base hash code (𝑄)` in the [ElectionGuard Spec](https://github.com/microsoft/electionguard/wiki)"""
+
+    crypto_extended_base_hash: str
+    """The `extended base hash code (𝑄')` in [ElectionGuard Spec](https://github.com/microsoft/electionguard/wiki)"""
 
 
 class ElectionState(str, Enum):
