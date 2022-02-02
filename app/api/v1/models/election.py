@@ -52,32 +52,34 @@ class CiphertextElectionContextDto(Base):
     """The `extended base hash code (𝑄')` in [ElectionGuard Spec](https://github.com/microsoft/electionguard/wiki)"""
 
     @staticmethod
-    def hexToP(s: str) -> ElementModP:
-        v = hex_to_p(s)
-        if v is None:
+    def stringToElementModP(s: str) -> ElementModP:
+        elementModP = hex_to_p(s)
+        if elementModP is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="invalid key"
             )
-        return v
+        return elementModP
 
     @staticmethod
-    def hexToQ(s: str) -> ElementModQ:
-        v = hex_to_q(s)
-        if v is None:
+    def stringToElementModQ(s: str) -> ElementModQ:
+        elementModQ = hex_to_q(s)
+        if elementModQ is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="invalid key"
             )
-        return v
+        return elementModQ
 
     def toSdkContext(self) -> CiphertextElectionContext:
         sdkContext = CiphertextElectionContext(
             self.number_of_guardians,
             self.quorum,
-            CiphertextElectionContextDto.hexToP(self.elgamal_public_key),
-            CiphertextElectionContextDto.hexToQ(self.commitment_hash),
-            CiphertextElectionContextDto.hexToQ(self.manifest_hash),
-            CiphertextElectionContextDto.hexToQ(self.crypto_base_hash),
-            CiphertextElectionContextDto.hexToQ(self.crypto_extended_base_hash),
+            CiphertextElectionContextDto.stringToElementModP(self.elgamal_public_key),
+            CiphertextElectionContextDto.stringToElementModQ(self.commitment_hash),
+            CiphertextElectionContextDto.stringToElementModQ(self.manifest_hash),
+            CiphertextElectionContextDto.stringToElementModQ(self.crypto_base_hash),
+            CiphertextElectionContextDto.stringToElementModQ(
+                self.crypto_extended_base_hash
+            ),
         )
         return sdkContext
 
