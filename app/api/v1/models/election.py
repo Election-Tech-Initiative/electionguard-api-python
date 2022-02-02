@@ -1,7 +1,9 @@
 from typing import Any, List, Optional
 from enum import Enum
 from electionguard.election import CiphertextElectionContext
-from electionguard.group import ElementModP, ElementModQ, hex_to_p, hex_to_q
+
+from app.api.v1.common.type_mapper import TypeMapper
+
 from .base import Base, BaseRequest, BaseResponse
 from .manifest import ElectionManifest
 
@@ -47,31 +49,15 @@ class CiphertextElectionContextDto(Base):
     crypto_extended_base_hash: str
     """The `extended base hash code (𝑄')` in [ElectionGuard Spec](https://github.com/microsoft/electionguard/wiki)"""
 
-    @staticmethod
-    def string_to_elementModP(value: str) -> ElementModP:
-        elementModP = hex_to_p(value)
-        if elementModP is None:
-            raise ValueError("invalid key: " + value)
-        return elementModP
-
-    @staticmethod
-    def string_to_elementModQ(value: str) -> ElementModQ:
-        elementModQ = hex_to_q(value)
-        if elementModQ is None:
-            raise ValueError("invalid key: " + value)
-        return elementModQ
-
     def to_sdk_format(self) -> CiphertextElectionContext:
         sdkContext = CiphertextElectionContext(
             self.number_of_guardians,
             self.quorum,
-            CiphertextElectionContextDto.string_to_elementModP(self.elgamal_public_key),
-            CiphertextElectionContextDto.string_to_elementModQ(self.commitment_hash),
-            CiphertextElectionContextDto.string_to_elementModQ(self.manifest_hash),
-            CiphertextElectionContextDto.string_to_elementModQ(self.crypto_base_hash),
-            CiphertextElectionContextDto.string_to_elementModQ(
-                self.crypto_extended_base_hash
-            ),
+            TypeMapper.string_to_elementModP(self.elgamal_public_key),
+            TypeMapper.string_to_elementModQ(self.commitment_hash),
+            TypeMapper.string_to_elementModQ(self.manifest_hash),
+            TypeMapper.string_to_elementModQ(self.crypto_base_hash),
+            TypeMapper.string_to_elementModQ(self.crypto_extended_base_hash),
         )
         return sdkContext
 
