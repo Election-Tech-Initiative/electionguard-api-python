@@ -75,7 +75,10 @@ def create_election(
         election_id = str(uuid4())
 
     key_ceremony = get_key_ceremony(data.key_name, request.app.state.settings)
-    context = data.context.to_sdk_format()
+    try:
+        context = data.context.to_sdk_format()
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     # if a manifest is provided use it, but don't cache it
     if data.manifest:

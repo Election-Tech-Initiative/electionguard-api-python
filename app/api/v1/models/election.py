@@ -2,10 +2,6 @@ from typing import Any, List, Optional
 from enum import Enum
 from electionguard.election import CiphertextElectionContext
 from electionguard.group import ElementModP, ElementModQ, hex_to_p, hex_to_q
-from fastapi import (
-    HTTPException,
-    status,
-)
 from .base import Base, BaseRequest, BaseResponse
 from .manifest import ElectionManifest
 
@@ -55,18 +51,14 @@ class CiphertextElectionContextDto(Base):
     def string_to_elementModP(value: str) -> ElementModP:
         elementModP = hex_to_p(value)
         if elementModP is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="invalid key: " + value
-            )
+            raise ValueError("invalid key: " + value)
         return elementModP
 
     @staticmethod
     def string_to_elementModQ(value: str) -> ElementModQ:
         elementModQ = hex_to_q(value)
         if elementModQ is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="invalid key: " + value
-            )
+            raise ValueError("invalid key: " + value)
         return elementModQ
 
     def to_sdk_format(self) -> CiphertextElectionContext:
