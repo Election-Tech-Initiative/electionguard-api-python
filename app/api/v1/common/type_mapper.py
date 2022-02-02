@@ -1,4 +1,3 @@
-from typing import Union
 from electionguard.group import (
     ElementModP,
     ElementModQ,
@@ -11,21 +10,29 @@ from electionguard.group import (
 
 class TypeMapper:
     @staticmethod
-    def string_to_elementModP(value: Union[int, str]) -> ElementModP:
-        if isinstance(value, str):
-            elementmodp = hex_to_p(value)
-        else:
-            elementmodp = int_to_p(value)
+    def string_to_element_mod_p(value: str) -> ElementModP:
+        elementmodp = hex_to_p(value)
         if elementmodp is None:
             raise ValueError("invalid key: " + value)
         return elementmodp
 
     @staticmethod
-    def string_to_elementModQ(value: Union[int, str]) -> ElementModQ:
-        if isinstance(value, str):
-            elementmodq = hex_to_q(value)
-        else:
-            elementmodq = int_to_q(value)
+    def string_to_element_mod_q(value: str) -> ElementModQ:
+        elementmodq = hex_to_q(value)
+        if elementmodq is None:
+            raise ValueError("invalid key: " + value)
+        return elementmodq
+
+    @staticmethod
+    def int_to_element_mod_p(value: int) -> ElementModP:
+        elementmodp = int_to_p(value)
+        if elementmodp is None:
+            raise ValueError("invalid key: " + value)
+        return elementmodp
+
+    @staticmethod
+    def int_to_element_mod_q(value: int) -> ElementModQ:
+        elementmodq = int_to_q(value)
         if elementmodq is None:
             raise ValueError("invalid key: " + value)
         return elementmodq

@@ -53,11 +53,11 @@ class CiphertextElectionContextDto(Base):
         sdkContext = CiphertextElectionContext(
             self.number_of_guardians,
             self.quorum,
-            TypeMapper.string_to_elementModP(self.elgamal_public_key),
-            TypeMapper.string_to_elementModQ(self.commitment_hash),
-            TypeMapper.string_to_elementModQ(self.manifest_hash),
-            TypeMapper.string_to_elementModQ(self.crypto_base_hash),
-            TypeMapper.string_to_elementModQ(self.crypto_extended_base_hash),
+            TypeMapper.string_to_element_mod_p(self.elgamal_public_key),
+            TypeMapper.string_to_element_mod_q(self.commitment_hash),
+            TypeMapper.string_to_element_mod_q(self.manifest_hash),
+            TypeMapper.string_to_element_mod_q(self.crypto_base_hash),
+            TypeMapper.string_to_element_mod_q(self.crypto_extended_base_hash),
         )
         return sdkContext
 
