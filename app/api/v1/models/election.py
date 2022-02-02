@@ -52,16 +52,16 @@ class CiphertextElectionContextDto(Base):
     """The `extended base hash code (𝑄')` in [ElectionGuard Spec](https://github.com/microsoft/electionguard/wiki)"""
 
     @staticmethod
-    def stringToElementModP(value: str) -> ElementModP:
+    def string_to_elementModP(value: str) -> ElementModP:
         elementModP = hex_to_p(value)
         if elementModP is None:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="invalid key"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="invalid key: " + value
             )
         return elementModP
 
     @staticmethod
-    def stringToElementModQ(value: str) -> ElementModQ:
+    def string_to_elementModQ(value: str) -> ElementModQ:
         elementModQ = hex_to_q(value)
         if elementModQ is None:
             raise HTTPException(
@@ -69,15 +69,15 @@ class CiphertextElectionContextDto(Base):
             )
         return elementModQ
 
-    def toSdkContext(self) -> CiphertextElectionContext:
+    def to_sdk_format(self) -> CiphertextElectionContext:
         sdkContext = CiphertextElectionContext(
             self.number_of_guardians,
             self.quorum,
-            CiphertextElectionContextDto.stringToElementModP(self.elgamal_public_key),
-            CiphertextElectionContextDto.stringToElementModQ(self.commitment_hash),
-            CiphertextElectionContextDto.stringToElementModQ(self.manifest_hash),
-            CiphertextElectionContextDto.stringToElementModQ(self.crypto_base_hash),
-            CiphertextElectionContextDto.stringToElementModQ(
+            CiphertextElectionContextDto.string_to_elementModP(self.elgamal_public_key),
+            CiphertextElectionContextDto.string_to_elementModQ(self.commitment_hash),
+            CiphertextElectionContextDto.string_to_elementModQ(self.manifest_hash),
+            CiphertextElectionContextDto.string_to_elementModQ(self.crypto_base_hash),
+            CiphertextElectionContextDto.string_to_elementModQ(
                 self.crypto_extended_base_hash
             ),
         )

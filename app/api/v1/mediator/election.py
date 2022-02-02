@@ -75,7 +75,7 @@ def create_election(
         election_id = str(uuid4())
 
     key_ceremony = get_key_ceremony(data.key_name, request.app.state.settings)
-    context = data.context.toSdkContext()
+    context = data.context.to_sdk_format()
 
     # if a manifest is provided use it, but don't cache it
     if data.manifest:
