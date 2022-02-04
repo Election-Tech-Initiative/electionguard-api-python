@@ -2,7 +2,10 @@ from typing import Any, List, Optional
 from enum import Enum
 from electionguard.election import CiphertextElectionContext
 
-from app.api.v1.common.type_mapper import TypeMapper
+from app.api.v1.common.type_mapper import (
+    string_to_element_mod_p,
+    string_to_element_mod_q,
+)
 
 from .base import Base, BaseRequest, BaseResponse
 from .manifest import ElectionManifest
@@ -53,11 +56,11 @@ class CiphertextElectionContextDto(Base):
         sdkContext = CiphertextElectionContext(
             self.number_of_guardians,
             self.quorum,
-            TypeMapper.string_to_element_mod_p(self.elgamal_public_key),
-            TypeMapper.string_to_element_mod_q(self.commitment_hash),
-            TypeMapper.string_to_element_mod_q(self.manifest_hash),
-            TypeMapper.string_to_element_mod_q(self.crypto_base_hash),
-            TypeMapper.string_to_element_mod_q(self.crypto_extended_base_hash),
+            string_to_element_mod_p(self.elgamal_public_key),
+            string_to_element_mod_q(self.commitment_hash),
+            string_to_element_mod_q(self.manifest_hash),
+            string_to_element_mod_q(self.crypto_base_hash),
+            string_to_element_mod_q(self.crypto_extended_base_hash),
         )
         return sdkContext
 
