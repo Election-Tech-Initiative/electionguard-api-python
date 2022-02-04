@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 
 from .base import BaseRequest
-from .election import CiphertextElectionContext
+from .election import CiphertextElectionContextDto
 from .guardian import Guardian, GuardianId
 
 __all__ = [
@@ -21,13 +21,13 @@ class DecryptBallotsWithSharesRequest(BaseRequest):
 
     encrypted_ballots: List[SubmittedBallot]
     shares: Dict[GuardianId, List[DecryptionShare]]
-    context: CiphertextElectionContext
+    context: CiphertextElectionContextDto
 
 
 class DecryptBallotSharesRequest(BaseRequest):
     encrypted_ballots: List[SubmittedBallot]
     guardian: Guardian
-    context: CiphertextElectionContext
+    context: CiphertextElectionContextDto
 
 
 class DecryptBallotSharesResponse(BaseRequest):

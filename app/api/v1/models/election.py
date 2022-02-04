@@ -1,5 +1,11 @@
 from typing import Any, List, Optional
 from enum import Enum
+from electionguard.election import CiphertextElectionContext
+
+from app.api.v1.common.type_mapper import (
+    string_to_element_mod_p,
+    string_to_element_mod_q,
+)
 
 from .base import Base, BaseRequest, BaseResponse
 from .manifest import ElectionManifest
@@ -16,7 +22,7 @@ __all__ = [
 ]
 
 
-class CiphertextElectionContext(Base):
+class CiphertextElectionContextDto(Base):
     """The meta-data required for an election including keys, manifest, number of guardians, and quorum"""
 
     number_of_guardians: int
@@ -46,6 +52,18 @@ class CiphertextElectionContext(Base):
     crypto_extended_base_hash: str
     """The `extended base hash code (𝑄')` in [ElectionGuard Spec](https://github.com/microsoft/electionguard/wiki)"""
 
+    def to_sdk_format(self) -> CiphertextElectionContext:
+        sdkContext = CiphertextElectionContext(
+            self.number_of_guardians,
+            self.quorum,
+            string_to_element_mod_p(self.elgamal_public_key),
+            string_to_element_mod_q(self.commitment_hash),
+            string_to_element_mod_q(self.manifest_hash),
+            string_to_element_mod_q(self.crypto_base_hash),
+            string_to_element_mod_q(self.crypto_extended_base_hash),
+        )
+        return sdkContext
+
 
 class ElectionState(str, Enum):
     CREATED = "CREATED"
@@ -60,7 +78,7 @@ class Election(Base):
     election_id: str
     key_name: str
     state: ElectionState
-    context: CiphertextElectionContext
+    context: CiphertextElectionContextDto
     manifest: ElectionManifest
 
 
@@ -87,7 +105,7 @@ class SubmitElectionRequest(BaseRequest):
 
     election_id: str
     key_name: str
-    context: CiphertextElectionContext
+    context: CiphertextElectionContextDto
     manifest: Optional[ElectionManifest] = None
 
 
@@ -107,4 +125,4 @@ class MakeElectionContextRequest(BaseRequest):
 class MakeElectionContextResponse(BaseResponse):
     """A Ciphertext Election Context."""
 
-    context: CiphertextElectionContext
+    context: CiphertextElectionContextDto

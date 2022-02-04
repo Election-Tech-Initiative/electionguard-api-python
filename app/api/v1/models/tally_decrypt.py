@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 from electionguard.types import BALLOT_ID
 
 from .base import BaseResponse, BaseRequest, Base
-from .election import CiphertextElectionContext
+from .election import CiphertextElectionContextDto
 from .tally import CiphertextTally
 
 __all__ = [
@@ -38,7 +38,7 @@ class DecryptTallyShareRequest(BaseRequest):
 
     guardian_id: str
     encrypted_tally: CiphertextTally
-    context: CiphertextElectionContext
+    context: CiphertextElectionContextDto
 
 
 class DecryptionShareRequest(BaseRequest):
