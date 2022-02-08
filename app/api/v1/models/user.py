@@ -3,7 +3,7 @@ from enum import Enum
 
 from pydantic import BaseModel
 
-from .base import BaseRequest
+from .base import BaseRequest, BaseResponse
 
 __all__ = [
     "UserScope",
@@ -32,6 +32,11 @@ class UserInfo(BaseModel):
     scopes: List[UserScope] = []
     email: Optional[str] = None
     disabled: Optional[bool] = None
+
+
+class CreateUserResponse(BaseResponse):
+    user_info: UserInfo
+    password: str
 
 
 class UserQueryRequest(BaseRequest):

@@ -6,7 +6,11 @@ from electionguard.serializable import write_json_object
 
 from electionguard.group import rand_q
 
-from app.api.v1.models.user import UserQueryRequest, UserQueryResponse
+from app.api.v1.models.user import (
+    CreateUserResponse,
+    UserQueryRequest,
+    UserQueryResponse,
+)
 
 from .auth import ScopedTo
 
@@ -82,12 +86,16 @@ async def me(
     return current_user
 
 
-@router.post(
-    "/create",
+@router.put(
+    "",
+    response_model=CreateUserResponse,
     dependencies=[ScopedTo([UserScope.admin])],
     tags=[USER],
 )
-async def create_user(request: Request, user_info: UserInfo = Body(...)) -> Any:
+def create_user(
+    request: Request,
+    user_info: UserInfo = Body(...),
+) -> CreateUserResponse:
     """Create a new user."""
 
     if any(
@@ -114,7 +122,7 @@ async def create_user(request: Request, user_info: UserInfo = Body(...)) -> Any:
     set_auth_credential(credential, request.app.state.settings)
     set_user_info(user_info, request.app.state.settings)
 
-    return {"user_info": user_info, "password": new_password}
+    return CreateUserResponse(user_info=user_info, password=new_password)
 
 
 @router.post(
