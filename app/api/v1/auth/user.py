@@ -37,6 +37,7 @@ router = APIRouter()
 @router.post(
     "/find",
     response_model=UserQueryResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
     tags=[USER],
 )
 async def find_users(
