@@ -1,7 +1,9 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 from enum import Enum
 
 from pydantic import BaseModel
+
+from .base import BaseRequest
 
 __all__ = [
     "UserScope",
@@ -30,3 +32,21 @@ class UserInfo(BaseModel):
     scopes: List[UserScope] = []
     email: Optional[str] = None
     disabled: Optional[bool] = None
+
+
+class UserQueryRequest(BaseRequest):
+    """A request for users using the specified filter."""
+
+    filter: Optional[Any] = None
+    """
+    a json object filter that will be applied to the search.  Leave empty to retrieve all users.
+    """
+
+    class Config:
+        schema_extra = {"example": {"filter": {"name": "Jane Doe"}}}
+
+
+class UserQueryResponse(BaseModel):
+    """Returns a collection of Users."""
+
+    users: List[UserInfo]

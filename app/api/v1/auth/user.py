@@ -1,9 +1,12 @@
 from typing import Any
 from base64 import b64encode, b16decode
 from fastapi import APIRouter, Body, HTTPException, Request, status
+from electionguard.serializable import write_json_object
 
 
 from electionguard.group import rand_q
+
+from app.api.v1.models.user import UserQueryRequest, UserQueryResponse
 
 from .auth import ScopedTo
 
@@ -26,6 +29,28 @@ from ....core import (
 from ..tags import USER
 
 router = APIRouter()
+
+
+@router.post(
+    "/find",
+    response_model=UserQueryResponse,
+    tags=[USER],
+)
+async def find_users(
+    request: Request,
+    skip: int = 0,
+    limit: int = 100,
+    data: UserQueryRequest = Body(...),
+) -> UserQueryResponse:
+    """
+    Find users.
+
+    Search the repository for users that match the filter criteria specified in the request body.
+    If no filter criteria is specified the API will return all users.
+    """
+    filter = write_json_object(data.filter) if data.filter else {}
+    users = filter_user_info(filter, skip, limit, request.app.state.settings)
+    return UserQueryResponse(users=users)
 
 
 @router.get(

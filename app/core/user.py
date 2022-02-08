@@ -35,7 +35,7 @@ def filter_user_info(
 ) -> List[UserInfo]:
     try:
         with get_repository(
-            get_client_id(), DataCollection.ELECTION, settings
+            get_client_id(), DataCollection.USER_INFO, settings
         ) as repository:
             cursor = repository.find(filter, skip, limit)
             results: List[UserInfo] = []
