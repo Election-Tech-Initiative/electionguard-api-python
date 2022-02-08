@@ -49,11 +49,10 @@ class ScopedTo(params.Depends):
     def __call__(
         self,
         request: Request,
-        settings: Settings = Settings(),
         token: str = Security(oauth2_scheme),
     ) -> TokenData:
         """Check scopes and return the current user."""
-        data = validate_access_token(settings, token)
+        data = validate_access_token(Settings(), token)
         validate_access_token_authorization(data, self._scopes)
         return data
 
