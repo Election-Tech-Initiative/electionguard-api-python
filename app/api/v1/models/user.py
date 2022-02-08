@@ -29,6 +29,8 @@ class UserInfo(BaseModel):
     """A specific user in the system"""
 
     username: str
+    first_name: str
+    last_name: str
     scopes: List[UserScope] = []
     email: Optional[str] = None
     disabled: Optional[bool] = None
