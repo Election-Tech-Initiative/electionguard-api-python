@@ -1,8 +1,7 @@
 from typing import Any
 from base64 import b64encode, b16decode
-from fastapi import APIRouter, Body, HTTPException, Request, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
 from electionguard.serializable import write_json_object
-
 
 from electionguard.group import rand_q
 
@@ -57,21 +56,27 @@ async def find_users(
     return UserQueryResponse(users=users)
 
 
+scoped_to_any = ScopedTo(
+    [UserScope.admin, UserScope.auditor, UserScope.guardian, UserScope.voter]
+)
+
+
 @router.get(
     "/me",
     response_model=UserInfo,
+    dependencies=[
+        ScopedTo(
+            [UserScope.admin, UserScope.auditor, UserScope.guardian, UserScope.voter]
+        )
+    ],
     tags=[USER],
 )
 async def me(
-    request: Request,
-    scopedTo: ScopedTo = ScopedTo(
-        [UserScope.admin, UserScope.auditor, UserScope.guardian, UserScope.voter]
-    ),
+    request: Request, token_data: ScopedTo = Depends(scoped_to_any)
 ) -> UserInfo:
     """
     Get user info for the current logged in user.
     """
-    token_data = scopedTo(request)
 
     if token_data.username is None:
         raise HTTPException(
@@ -79,6 +84,7 @@ async def me(
         )
 
     current_user = get_user_info(token_data.username, request.app.state.settings)
+
     if current_user.disabled:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
