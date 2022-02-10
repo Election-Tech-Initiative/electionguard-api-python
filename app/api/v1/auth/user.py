@@ -1,9 +1,15 @@
 from typing import Any
 from base64 import b64encode, b16decode
-from fastapi import APIRouter, Body, HTTPException, Request, status
-
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
+from electionguard.serializable import write_json_object
 
 from electionguard.group import rand_q
+
+from app.api.v1.models.user import (
+    CreateUserResponse,
+    UserQueryRequest,
+    UserQueryResponse,
+)
 
 from .auth import ScopedTo
 
@@ -28,21 +34,50 @@ from ..tags import USER
 router = APIRouter()
 
 
+@router.post(
+    "/find",
+    response_model=UserQueryResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[USER],
+)
+async def find_users(
+    request: Request,
+    skip: int = 0,
+    limit: int = 100,
+    data: UserQueryRequest = Body(...),
+) -> UserQueryResponse:
+    """
+    Find users.
+
+    Search the repository for users that match the filter criteria specified in the request body.
+    If no filter criteria is specified the API will return all users.
+    """
+    filter = write_json_object(data.filter) if data.filter else {}
+    users = filter_user_info(filter, skip, limit, request.app.state.settings)
+    return UserQueryResponse(users=users)
+
+
+scoped_to_any = ScopedTo(
+    [UserScope.admin, UserScope.auditor, UserScope.guardian, UserScope.voter]
+)
+
+
 @router.get(
     "/me",
     response_model=UserInfo,
+    dependencies=[
+        ScopedTo(
+            [UserScope.admin, UserScope.auditor, UserScope.guardian, UserScope.voter]
+        )
+    ],
     tags=[USER],
 )
 async def me(
-    request: Request,
-    scopedTo: ScopedTo = ScopedTo(
-        [UserScope.admin, UserScope.auditor, UserScope.guardian, UserScope.voter]
-    ),
+    request: Request, token_data: ScopedTo = Depends(scoped_to_any)
 ) -> UserInfo:
     """
     Get user info for the current logged in user.
     """
-    token_data = scopedTo(request)
 
     if token_data.username is None:
         raise HTTPException(
@@ -50,6 +85,7 @@ async def me(
         )
 
     current_user = get_user_info(token_data.username, request.app.state.settings)
+
     if current_user.disabled:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
@@ -57,12 +93,16 @@ async def me(
     return current_user
 
 
-@router.post(
-    "/create",
+@router.put(
+    "",
+    response_model=CreateUserResponse,
     dependencies=[ScopedTo([UserScope.admin])],
     tags=[USER],
 )
-async def create_user(request: Request, user_info: UserInfo = Body(...)) -> Any:
+def create_user(
+    request: Request,
+    user_info: UserInfo = Body(...),
+) -> CreateUserResponse:
     """Create a new user."""
 
     if any(
@@ -89,7 +129,7 @@ async def create_user(request: Request, user_info: UserInfo = Body(...)) -> Any:
     set_auth_credential(credential, request.app.state.settings)
     set_user_info(user_info, request.app.state.settings)
 
-    return {"user_info": user_info, "password": new_password}
+    return CreateUserResponse(user_info=user_info, password=new_password)
 
 
 @router.post(

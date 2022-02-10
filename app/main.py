@@ -24,7 +24,12 @@ def seed_default_user(settings: Settings = Settings()) -> None:
     credential = AuthenticationCredential(
         username=settings.DEFAULT_ADMIN_USERNAME, hashed_password=hashed_password
     )
-    user_info = UserInfo(username=credential.username, scopes=[UserScope.admin])
+    user_info = UserInfo(
+        username=credential.username,
+        first_name=credential.username,
+        last_name=credential.username,
+        scopes=[UserScope.admin],
+    )
     try:
         set_auth_credential(credential, settings)
     except HTTPException:
