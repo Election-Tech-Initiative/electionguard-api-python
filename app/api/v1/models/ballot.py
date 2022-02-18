@@ -1,9 +1,16 @@
 from typing import Any, Dict, List, Optional
+from enum import Enum
+from electionguard.ballot import SubmittedBallot
+from electionguard.ballot_box import BallotBoxState
+
+from app.api.v1.common.type_mapper import (
+    string_to_element_mod_q,
+)
+from app.api.v1.models.key_ceremony import ElementModQ
 
 from .base import Base, BaseRequest, BaseResponse, BaseValidationRequest
 from .election import CiphertextElectionContextDto
 from .manifest import ElectionManifest
-
 
 __all__ = [
     "BallotQueryResponse",
@@ -17,7 +24,7 @@ __all__ = [
 ]
 
 DecryptionShare = Any
-SubmittedBallot = Any
+AnySubmittedBallot = Any
 CiphertextBallot = Any
 PlaintextBallot = Any
 
@@ -78,7 +85,51 @@ class SpoilBallotsRequest(BaseBallotRequest):
 class SubmitBallotsRequest(BaseBallotRequest):
     """Submit a ballot against a specific election."""
 
-    ballots: List[SubmittedBallot]
+    ballots: List[AnySubmittedBallot]
+
+
+class BallotBoxStateDto(Enum):
+    CAST = "CAST"
+    SPOILED = "SPOILED"
+    UNKNOWN = "UNKNOWN"
+
+
+def ballot_box_state_dto_to_sdk(
+    ballot_box_state_dto: BallotBoxStateDto,
+) -> BallotBoxState:
+    if ballot_box_state_dto == BallotBoxStateDto.CAST:
+        return BallotBoxState.CAST
+    if ballot_box_state_dto == BallotBoxStateDto.SPOILED:
+        return BallotBoxState.SPOILED
+    return BallotBoxState.UNKNOWN
+
+
+class SubmittedBallotDto(Base):
+    state: BallotBoxStateDto
+    code: str
+
+    def to_sdk_format(self) -> SubmittedBallot:
+        state = ballot_box_state_dto_to_sdk(self.state)
+        code = string_to_element_mod_q(self.code)
+        ballot = SubmittedBallot(
+            "",
+            "",
+            ElementModQ(),
+            ElementModQ(),
+            [],
+            code,
+            0,
+            ElementModQ(),
+            None,
+            state,
+        )
+        return ballot
+
+
+class SubmitBallotsRequestDto(BaseValidationRequest):
+    """Submit a ballot against a specific election."""
+
+    ballots: List[SubmittedBallotDto]
 
 
 class ValidateBallotRequest(BaseValidationRequest):

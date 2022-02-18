@@ -14,6 +14,8 @@ from electionguard.election import CiphertextElectionContext
 from electionguard.manifest import InternalManifest, Manifest
 from electionguard.serializable import write_json_object
 
+from app.api.v1.models.ballot import SubmitBallotsRequestDto
+
 from ....core.ballot import (
     filter_ballots,
     get_ballot,
@@ -152,6 +154,29 @@ def spoil_ballots(
         _validate_ballot(validation_request)
 
     return _submit_ballots(election_id, ballots, request.app.state.settings)
+
+
+@router.put(
+    "/submit2",
+    response_model=BaseResponse,
+    tags=[BALLOTS],
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def submit_ballots2(
+    election_id: Optional[str] = None,
+    data: SubmitBallotsRequestDto = Body(...),
+) -> BaseResponse:
+
+    print("election_id = " + str(election_id))
+
+    res: str = ""
+    for ballot in data.ballots:
+        print("found a ballot: " + str(ballot.state))
+        res += str(ballot.state)
+
+    r = BaseResponse()
+    r.message = res
+    return r
 
 
 @router.put(
