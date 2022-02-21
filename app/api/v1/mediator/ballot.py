@@ -15,6 +15,7 @@ from electionguard.manifest import InternalManifest, Manifest
 from electionguard.serializable import write_json_object
 
 from app.api.v1.models.ballot import SubmitBallotsRequestDto
+from app.api.v1.models.election import CiphertextElectionContextDto
 
 from ....core.ballot import (
     filter_ballots,
@@ -163,16 +164,35 @@ def spoil_ballots(
     status_code=status.HTTP_202_ACCEPTED,
 )
 def submit_ballots2(
-    election_id: Optional[str] = None,
+    request: Request,
+    election_id: str,
     data: SubmitBallotsRequestDto = Body(...),
 ) -> BaseResponse:
 
     print("election_id = " + str(election_id))
 
+    settings = request.app.state.settings
+    election_sdk = get_election(election_id, settings)
+    manifest_sdk = election_sdk.manifest
+    context_dto = election_sdk.context
+    context_sdk = context_dto.to_sdk_format()
+
     res: str = ""
-    for ballot in data.ballots:
-        print("found a ballot: " + str(ballot.state))
-        res += str(ballot.state)
+    for ballot_dto in data.ballots:
+        if ballot_dto.state == BallotBoxState.UNKNOWN:
+            raise HTTPException(
+                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                detail=f"Submitted ballot {ballot_dto.object_id} must have a cast or spoil state",
+            )
+        ballot_sdk = ballot_dto.to_sdk_format()
+        ballot_json = ballot_sdk.to_json_object()
+        validation_request = ValidateBallotRequest(
+            ballot=ballot_json,
+            manifest=manifest_sdk,
+            context=context_sdk,
+        )
+        _validate_ballot(validation_request)
+        res += str(ballot_dto.state)
 
     r = BaseResponse()
     r.message = res

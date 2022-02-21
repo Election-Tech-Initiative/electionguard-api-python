@@ -6,10 +6,9 @@ from electionguard.ballot_box import BallotBoxState
 from app.api.v1.common.type_mapper import (
     string_to_element_mod_q,
 )
-from app.api.v1.models.key_ceremony import ElementModQ
+from app.api.v1_1.models.election import CiphertextElectionContext
 
 from .base import Base, BaseRequest, BaseResponse, BaseValidationRequest
-from .election import CiphertextElectionContextDto
 from .manifest import ElectionManifest
 
 __all__ = [
@@ -67,7 +66,7 @@ class BallotQueryResponse(BaseResponse):
 class BaseBallotRequest(BaseRequest):
     election_id: Optional[str] = None
     manifest: Optional[ElectionManifest] = None
-    context: Optional[CiphertextElectionContextDto] = None
+    context: Optional[CiphertextElectionContext] = None
 
 
 class CastBallotsRequest(BaseBallotRequest):
@@ -107,19 +106,28 @@ def ballot_box_state_dto_to_sdk(
 class SubmittedBallotDto(Base):
     state: BallotBoxStateDto
     code: str
+    object_id: str
+    style_id: str
+    manifest_hash: str
+    code_seed: str
+    crypto_hash: str
 
     def to_sdk_format(self) -> SubmittedBallot:
         state = ballot_box_state_dto_to_sdk(self.state)
         code = string_to_element_mod_q(self.code)
+        manifest_hash = string_to_element_mod_q(self.manifest_hash)
+        code_seed = string_to_element_mod_q(self.code_seed)
+        crypto_hash = string_to_element_mod_q(self.crypto_hash)
+
         ballot = SubmittedBallot(
-            "",
-            "",
-            ElementModQ(),
-            ElementModQ(),
+            self.object_id,
+            self.style_id,
+            manifest_hash,
+            code_seed,
             [],
             code,
             0,
-            ElementModQ(),
+            crypto_hash,
             None,
             state,
         )
@@ -137,4 +145,4 @@ class ValidateBallotRequest(BaseValidationRequest):
 
     ballot: CiphertextBallot
     manifest: ElectionManifest
-    context: CiphertextElectionContextDto
+    context: CiphertextElectionContext
