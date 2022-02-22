@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional
 from enum import Enum
 from electionguard.ballot import SubmittedBallot
 from electionguard.ballot_box import BallotBoxState
+from electionguard.group import hex_to_q
 
 from app.api.v1.common.type_mapper import (
     string_to_element_mod_q,
@@ -111,6 +112,8 @@ class SubmittedBallotDto(Base):
     manifest_hash: str
     code_seed: str
     crypto_hash: str
+    nonce: Optional[str] = None
+    timestamp: int
 
     def to_sdk_format(self) -> SubmittedBallot:
         state = ballot_box_state_dto_to_sdk(self.state)
@@ -120,10 +123,7 @@ class SubmittedBallotDto(Base):
         crypto_hash = string_to_element_mod_q(self.crypto_hash)
         # todo: implement contests
         contests = []
-        # todo: implement timestamp
-        timestamp = 0
-        # todo: implement nonce
-        nonce = None
+        nonce = None if self.nonce is None else hex_to_q(self.nonce)
 
         ballot = SubmittedBallot(
             self.object_id,
@@ -132,7 +132,7 @@ class SubmittedBallotDto(Base):
             code_seed,
             contests,
             code,
-            timestamp,
+            self.timestamp,
             crypto_hash,
             nonce,
             state,
