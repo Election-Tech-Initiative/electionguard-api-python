@@ -1,4 +1,6 @@
+from cmath import log
 from typing import List, Optional, Tuple, cast
+from logging import getLogger
 import sys
 
 from fastapi import APIRouter, Body, HTTPException, Request, status
@@ -15,7 +17,6 @@ from electionguard.manifest import InternalManifest, Manifest
 from electionguard.serializable import write_json_object
 
 from app.api.v1.models.ballot import SubmitBallotsRequestDto
-from app.api.v1.models.election import CiphertextElectionContextDto
 
 from ....core.ballot import (
     filter_ballots,
@@ -41,6 +42,7 @@ from ..models import (
 )
 from ..tags import BALLOTS
 
+logger = getLogger(__name__)
 router = APIRouter()
 
 
@@ -169,7 +171,7 @@ def submit_ballots2(
     data: SubmitBallotsRequestDto = Body(...),
 ) -> BaseResponse:
 
-    print("election_id = " + str(election_id))
+    logger.info(f"Submitting ballots for {election_id}")
 
     settings = request.app.state.settings
     election_sdk = get_election(election_id, settings)
@@ -178,25 +180,26 @@ def submit_ballots2(
     context_sdk = context_dto.to_sdk_format()
 
     res: str = ""
-    for ballot_dto in data.ballots:
-        if ballot_dto.state == BallotBoxState.UNKNOWN:
+    logger.info(f"Converting {len(data.ballots)} ballots to sdk format")
+    ballots_sdk = list(map(lambda b: b.to_sdk_format(), data.ballots))
+    for ballot in ballots_sdk:
+        if ballot.state == BallotBoxState.UNKNOWN:
             raise HTTPException(
                 status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                detail=f"Submitted ballot {ballot_dto.object_id} must have a cast or spoil state",
+                detail=f"Submitted ballot {ballot.object_id} must have a cast or spoil state",
             )
-        ballot_sdk = ballot_dto.to_sdk_format()
-        ballot_json = ballot_sdk.to_json_object()
+        ballot_json = ballot.to_json_object()
         validation_request = ValidateBallotRequest(
             ballot=ballot_json,
             manifest=manifest_sdk,
             context=context_sdk,
         )
+        logger.info("about to validate ballots")
         _validate_ballot(validation_request)
-        res += str(ballot_dto.state)
+        logger.info("validated ballots successfully")
+        res += str(ballot.state)
 
-    r = BaseResponse()
-    r.message = res
-    return r
+    return _submit_ballots(election_id, ballots_sdk, request.app.state.settings)
 
 
 @router.put(
@@ -283,7 +286,9 @@ def _get_election_parameters(
 def _submit_ballots(
     election_id: str, ballots: List[SubmittedBallot], settings: Settings = Settings()
 ) -> BaseResponse:
+    logger.info("submitting ballots")
     set_response = set_ballots(election_id, ballots, settings)
+    logger.info("successfully set ballots: " + str(set_response))
     if set_response.is_success():
         inventory = get_ballot_inventory(election_id, settings)
         for ballot in ballots:

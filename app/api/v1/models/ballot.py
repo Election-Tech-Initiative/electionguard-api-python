@@ -118,17 +118,23 @@ class SubmittedBallotDto(Base):
         manifest_hash = string_to_element_mod_q(self.manifest_hash)
         code_seed = string_to_element_mod_q(self.code_seed)
         crypto_hash = string_to_element_mod_q(self.crypto_hash)
+        # todo: implement contests
+        contests = []
+        # todo: implement timestamp
+        timestamp = 0
+        # todo: implement nonce
+        nonce = None
 
         ballot = SubmittedBallot(
             self.object_id,
             self.style_id,
             manifest_hash,
             code_seed,
-            [],
+            contests,
             code,
-            0,
+            timestamp,
             crypto_hash,
-            None,
+            nonce,
             state,
         )
         return ballot
