@@ -1,10 +1,16 @@
 from typing import Any, Dict, List, Optional
 from enum import Enum
-from electionguard.ballot import SubmittedBallot
+from electionguard.ballot import (
+    SubmittedBallot,
+    CiphertextBallot,
+    CiphertextBallotContest,
+)
+from electionguard.elgamal import ElGamalCiphertext
 from electionguard.ballot_box import BallotBoxState
 from electionguard.group import hex_to_q
 
 from app.api.v1.common.type_mapper import (
+    string_to_element_mod_p,
     string_to_element_mod_q,
 )
 from app.api.v1_1.models.election import CiphertextElectionContext
@@ -104,6 +110,45 @@ def ballot_box_state_dto_to_sdk(
     return BallotBoxState.UNKNOWN
 
 
+class CiphertextAccumulationDto(Base):
+    pad: str
+    data: str
+
+    def to_sdk_format(self) -> ElGamalCiphertext:
+        pad = string_to_element_mod_p(self.pad)
+        data = string_to_element_mod_p(self.data)
+        result = ElGamalCiphertext(pad, data)
+        return result
+
+
+class ContestDto(Base):
+    object_id: str
+    description_hash: str
+    ciphertext_accumulation: CiphertextAccumulationDto
+    crypto_hash: str
+    nonce: Optional[str] = None
+
+    def to_sdk_format(self) -> CiphertextBallotContest:
+        description_hash = string_to_element_mod_q(self.description_hash)
+        crypto_hash = string_to_element_mod_q(self.crypto_hash)
+        # todo: implement selections
+        ballot_selections = []
+        ciphertext_accumulation = self.ciphertext_accumulation.to_sdk_format()
+        nonce = None if self.nonce is None else hex_to_q(self.nonce)
+        # todo: implement proof
+        proof = None
+        result = CiphertextBallotContest(
+            self.object_id,
+            description_hash,
+            ballot_selections,
+            ciphertext_accumulation,
+            crypto_hash,
+            nonce,
+            proof,
+        )
+        return result
+
+
 class SubmittedBallotDto(Base):
     state: BallotBoxStateDto
     code: str
@@ -114,6 +159,7 @@ class SubmittedBallotDto(Base):
     crypto_hash: str
     nonce: Optional[str] = None
     timestamp: int
+    contests: List[ContestDto]
 
     def to_sdk_format(self) -> SubmittedBallot:
         state = ballot_box_state_dto_to_sdk(self.state)
@@ -122,7 +168,7 @@ class SubmittedBallotDto(Base):
         code_seed = string_to_element_mod_q(self.code_seed)
         crypto_hash = string_to_element_mod_q(self.crypto_hash)
         # todo: implement contests
-        contests = []
+        contests = list(map(lambda c: c.to_sdk_format(), self.contests))
         nonce = None if self.nonce is None else hex_to_q(self.nonce)
 
         ballot = SubmittedBallot(
