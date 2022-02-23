@@ -10,7 +10,7 @@ from electionguard.chaum_pedersen import DisjunctiveChaumPedersenProof
 from electionguard.elgamal import ElGamalCiphertext
 from electionguard.chaum_pedersen import ConstantChaumPedersenProof
 from electionguard.ballot_box import BallotBoxState
-from electionguard.proof import Proof, ProofUsage
+from electionguard.proof import ProofUsage
 
 
 from app.api.v1.common.type_mapper import (
@@ -194,6 +194,7 @@ class BallotSelectionDto(Base):
     is_placeholder_selection: bool
     nonce: Optional[str] = None
     proof: DisjunctiveChaumPedersenProofDto
+    extended_data: Optional[ElGamalCiphertextDto] = None
 
     def to_sdk_format(self) -> CiphertextBallotSelection:
         description_hash = string_to_element_mod_q(self.description_hash)
@@ -201,8 +202,9 @@ class BallotSelectionDto(Base):
         crypto_hash = string_to_element_mod_q(self.crypto_hash)
         nonce = string_to_nullable_element_mod_q(self.nonce)
         proof = self.proof.to_sdk_format()
-        # todo: extended_data
-        extended_data = None
+        extended_data = (
+            None if self.extended_data is None else self.extended_data.to_sdk_format()
+        )
         result = CiphertextBallotSelection(
             self.object_id,
             description_hash,
