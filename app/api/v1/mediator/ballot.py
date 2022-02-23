@@ -1,4 +1,3 @@
-from cmath import log
 from typing import List, Optional, Tuple, cast
 from logging import getLogger
 import sys
@@ -160,7 +159,7 @@ def spoil_ballots(
 
 
 @router.put(
-    "/submit2",
+    "/submit",
     response_model=BaseResponse,
     tags=[BALLOTS],
     status_code=status.HTTP_202_ACCEPTED,
@@ -170,6 +169,12 @@ def submit_ballots2(
     election_id: str,
     data: SubmitBallotsRequestDto = Body(...),
 ) -> BaseResponse:
+    """
+    Submit ballots for an election.
+
+    This method expects an `election_id` is provided either in the query string or the request body.
+    If both are provied, the query string will override.
+    """
 
     logger.info(f"Submitting ballots for {election_id}")
 
@@ -200,44 +205,6 @@ def submit_ballots2(
         res += str(ballot.state)
 
     return _submit_ballots(election_id, ballots_sdk, request.app.state.settings)
-
-
-@router.put(
-    "/submit",
-    response_model=BaseResponse,
-    tags=[BALLOTS],
-    status_code=status.HTTP_202_ACCEPTED,
-)
-def submit_ballots(
-    request: Request,
-    election_id: Optional[str] = None,
-    data: SubmitBallotsRequest = Body(...),
-) -> BaseResponse:
-    """
-    Submit ballots for an election.
-
-    This method expects an `election_id` is provided either in the query string or the request body.
-    If both are provied, the query string will override.
-    """
-
-    manifest, context, election_id = _get_election_parameters(
-        election_id, data, request.app.state.settings
-    )
-
-    # Check each ballot's state and validate
-    ballots = [SubmittedBallot.from_json_object(ballot) for ballot in data.ballots]
-    for ballot in ballots:
-        if ballot.state == BallotBoxState.UNKNOWN:
-            raise HTTPException(
-                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                detail=f"Submitted ballot {ballot.object_id} must have a cast or spoil state",
-            )
-        validation_request = ValidateBallotRequest(
-            ballot=ballot.to_json_object(), manifest=manifest, context=context
-        )
-        _validate_ballot(validation_request)
-
-    return _submit_ballots(election_id, ballots, request.app.state.settings)
 
 
 @router.post("/validate", response_model=BaseResponse, tags=[BALLOTS])
@@ -288,7 +255,7 @@ def _submit_ballots(
 ) -> BaseResponse:
     logger.info("submitting ballots")
     set_response = set_ballots(election_id, ballots, settings)
-    logger.info("successfully set ballots: " + str(set_response))
+    logger.info(f"successfully set ballots: {str(set_response)}")
     if set_response.is_success():
         inventory = get_ballot_inventory(election_id, settings)
         for ballot in ballots:
