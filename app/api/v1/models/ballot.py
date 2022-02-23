@@ -1,5 +1,4 @@
 from typing import Any, Dict, List, Optional
-from enum import Enum
 from electionguard.ballot import (
     SubmittedBallot,
     CiphertextBallot,
@@ -16,12 +15,11 @@ from electionguard.proof import ProofUsage
 from app.api.v1.common.type_mapper import (
     string_to_element_mod_p,
     string_to_element_mod_q,
-    string_to_nullable_element_mod_q,
 )
 from app.api.v1_1.models.election import CiphertextElectionContext
 
 from .base import Base, BaseRequest, BaseResponse, BaseValidationRequest
-from .manifest import ElectionManifest
+from .manifest import ElectionManifest, ElementModQ
 
 __all__ = [
     "BallotQueryResponse",
@@ -41,6 +39,20 @@ PlaintextBallot = Any
 
 BALLOT_CODE = str
 BALLOT_URL = str
+
+
+class ElementModQDto(Base):
+    data: str
+
+    def to_sdk_format(self) -> ElementModQ:
+        return string_to_element_mod_q(self.data)
+
+
+class ElementModPDto(Base):
+    data: str
+
+    def to_sdk_format(self) -> ElementModQ:
+        return string_to_element_mod_p(self.data)
 
 
 class BallotInventory(Base):
@@ -99,46 +111,30 @@ class SubmitBallotsRequest(BaseBallotRequest):
     ballots: List[AnySubmittedBallot]
 
 
-class BallotBoxStateDto(Enum):
-    CAST = "CAST"
-    SPOILED = "SPOILED"
-    UNKNOWN = "UNKNOWN"
-
-
-def ballot_box_state_dto_to_sdk(
-    ballot_box_state_dto: BallotBoxStateDto,
-) -> BallotBoxState:
-    if ballot_box_state_dto == BallotBoxStateDto.CAST:
-        return BallotBoxState.CAST
-    if ballot_box_state_dto == BallotBoxStateDto.SPOILED:
-        return BallotBoxState.SPOILED
-    return BallotBoxState.UNKNOWN
-
-
 class ElGamalCiphertextDto(Base):
-    pad: str
-    data: str
+    pad: ElementModPDto
+    data: ElementModPDto
 
     def to_sdk_format(self) -> ElGamalCiphertext:
-        pad = string_to_element_mod_p(self.pad)
-        data = string_to_element_mod_p(self.data)
+        pad = self.pad.to_sdk_format()
+        data = self.data.to_sdk_format()
         result = ElGamalCiphertext(pad, data)
         return result
 
 
 class ConstantChaumPedersenProofDto(Base):
-    proof_zero_pad: str
-    proof_zero_data: str
-    challenge: str
-    proof_zero_response: str
+    pad: ElementModPDto
+    data: ElementModPDto
+    challenge: ElementModQDto
+    response: ElementModQDto
     constant: int
     usage: str
 
     def to_sdk_format(self) -> ConstantChaumPedersenProof:
-        pad = string_to_element_mod_p(self.proof_zero_pad)
-        data = string_to_element_mod_p(self.proof_zero_data)
-        challenge = string_to_element_mod_q(self.challenge)
-        proof_response = string_to_element_mod_q(self.proof_zero_response)
+        pad = self.pad.to_sdk_format()
+        data = self.data.to_sdk_format()
+        challenge = self.challenge.to_sdk_format()
+        proof_response = self.response.to_sdk_format()
         usage = ProofUsage(self.usage)
         result = ConstantChaumPedersenProof(
             pad, data, challenge, proof_response, self.constant, usage
@@ -147,27 +143,27 @@ class ConstantChaumPedersenProofDto(Base):
 
 
 class DisjunctiveChaumPedersenProofDto(Base):
-    proof_zero_pad: str
-    proof_zero_data: str
-    proof_one_pad: str
-    proof_one_data: str
-    proof_zero_challenge: str
-    proof_one_challenge: str
-    challenge: str
-    proof_zero_response: str
-    proof_one_response: str
+    proof_zero_pad: ElementModPDto
+    proof_zero_data: ElementModPDto
+    proof_one_pad: ElementModPDto
+    proof_one_data: ElementModPDto
+    proof_zero_challenge: ElementModQDto
+    proof_one_challenge: ElementModQDto
+    challenge: ElementModQDto
+    proof_zero_response: ElementModQDto
+    proof_one_response: ElementModQDto
     usage: str
 
     def to_sdk_format(self) -> DisjunctiveChaumPedersenProof:
-        proof_zero_pad = string_to_element_mod_p(self.proof_zero_pad)
-        proof_zero_data = string_to_element_mod_p(self.proof_zero_data)
-        proof_one_pad = string_to_element_mod_p(self.proof_one_pad)
-        proof_one_data = string_to_element_mod_p(self.proof_one_data)
-        proof_zero_challenge = string_to_element_mod_q(self.proof_zero_challenge)
-        proof_one_challenge = string_to_element_mod_q(self.proof_one_challenge)
-        challenge = string_to_element_mod_q(self.challenge)
-        proof_zero_response = string_to_element_mod_q(self.proof_zero_response)
-        proof_one_response = string_to_element_mod_q(self.proof_one_response)
+        proof_zero_pad = self.proof_zero_pad.to_sdk_format()
+        proof_zero_data = self.proof_zero_data.to_sdk_format()
+        proof_one_pad = self.proof_one_pad.to_sdk_format()
+        proof_one_data = self.proof_one_data.to_sdk_format()
+        proof_zero_challenge = self.proof_zero_challenge.to_sdk_format()
+        proof_one_challenge = self.proof_one_challenge.to_sdk_format()
+        challenge = self.challenge.to_sdk_format()
+        proof_zero_response = self.proof_zero_response.to_sdk_format()
+        proof_one_response = self.proof_one_response.to_sdk_format()
         usage = ProofUsage(self.usage)
 
         result = DisjunctiveChaumPedersenProof(
@@ -188,19 +184,19 @@ class DisjunctiveChaumPedersenProofDto(Base):
 class BallotSelectionDto(Base):
     object_id: str
     sequence_order: int
-    description_hash: str
+    description_hash: ElementModQDto
     ciphertext: ElGamalCiphertextDto
-    crypto_hash: str
+    crypto_hash: ElementModQDto
     is_placeholder_selection: bool
-    nonce: Optional[str] = None
+    nonce: Optional[ElementModQDto] = None
     proof: DisjunctiveChaumPedersenProofDto
     extended_data: Optional[ElGamalCiphertextDto] = None
 
     def to_sdk_format(self) -> CiphertextBallotSelection:
-        description_hash = string_to_element_mod_q(self.description_hash)
+        description_hash = self.description_hash.to_sdk_format()
         ciphertext = self.ciphertext.to_sdk_format()
-        crypto_hash = string_to_element_mod_q(self.crypto_hash)
-        nonce = string_to_nullable_element_mod_q(self.nonce)
+        crypto_hash = self.crypto_hash.to_sdk_format()
+        nonce = None if self.nonce is None else self.nonce.to_sdk_format()
         proof = self.proof.to_sdk_format()
         extended_data = (
             None if self.extended_data is None else self.extended_data.to_sdk_format()
@@ -220,21 +216,21 @@ class BallotSelectionDto(Base):
 
 class ContestDto(Base):
     object_id: str
-    description_hash: str
+    description_hash: ElementModQDto
     ciphertext_accumulation: ElGamalCiphertextDto
-    crypto_hash: str
-    nonce: Optional[str] = None
+    crypto_hash: ElementModQDto
+    nonce: Optional[ElementModQDto] = None
     proof: ConstantChaumPedersenProofDto
     ballot_selections: List[BallotSelectionDto]
 
     def to_sdk_format(self) -> CiphertextBallotContest:
-        description_hash = string_to_element_mod_q(self.description_hash)
-        crypto_hash = string_to_element_mod_q(self.crypto_hash)
+        description_hash = self.description_hash.to_sdk_format()
+        crypto_hash = self.crypto_hash.to_sdk_format()
         ballot_selections = list(
             map(lambda s: s.to_sdk_format(), self.ballot_selections)
         )
         ciphertext_accumulation = self.ciphertext_accumulation.to_sdk_format()
-        nonce = string_to_nullable_element_mod_q(self.nonce)
+        nonce = None if self.nonce is None else self.nonce.to_sdk_format()
         proof = self.proof.to_sdk_format()
         result = CiphertextBallotContest(
             self.object_id,
@@ -249,25 +245,25 @@ class ContestDto(Base):
 
 
 class SubmittedBallotDto(Base):
-    state: BallotBoxStateDto
-    code: str
+    state: int
+    code: ElementModQDto
     object_id: str
     style_id: str
-    manifest_hash: str
-    code_seed: str
-    crypto_hash: str
-    nonce: Optional[str] = None
+    manifest_hash: ElementModQDto
+    code_seed: ElementModQDto
+    crypto_hash: ElementModQDto
+    nonce: Optional[ElementModQDto] = None
     timestamp: int
     contests: List[ContestDto]
 
     def to_sdk_format(self) -> SubmittedBallot:
-        state = ballot_box_state_dto_to_sdk(self.state)
-        code = string_to_element_mod_q(self.code)
-        manifest_hash = string_to_element_mod_q(self.manifest_hash)
-        code_seed = string_to_element_mod_q(self.code_seed)
-        crypto_hash = string_to_element_mod_q(self.crypto_hash)
+        state = BallotBoxState(self.state)
+        code = self.code.to_sdk_format()
+        manifest_hash = self.manifest_hash.to_sdk_format()
+        code_seed = self.code_seed.to_sdk_format()
+        crypto_hash = self.crypto_hash.to_sdk_format()
         contests = list(map(lambda c: c.to_sdk_format(), self.contests))
-        nonce = string_to_nullable_element_mod_q(self.nonce)
+        nonce = None if self.nonce is None else self.nonce.to_sdk_format()
 
         ballot = SubmittedBallot(
             self.object_id,

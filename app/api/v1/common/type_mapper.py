@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Union
 from electionguard.group import (
     ElementModP,
     ElementModQ,
@@ -21,12 +21,6 @@ def string_to_element_mod_q(value: Union[int, str]) -> ElementModQ:
     if element is None:
         raise ValueError(type_error_message(str(value), "element_mod_q"))
     return element
-
-
-def string_to_nullable_element_mod_q(value: Union[int, Optional[str]]) -> ElementModQ:
-    if value is None:
-        return None
-    return string_to_element_mod_q(value)
 
 
 def type_error_message(value: str, type: str) -> str:
