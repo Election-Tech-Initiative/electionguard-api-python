@@ -1,13 +1,17 @@
 from typing import Any, Dict, List, Optional
 from enum import Enum
+from urllib import response
 from electionguard.ballot import (
     SubmittedBallot,
     CiphertextBallot,
     CiphertextBallotContest,
 )
 from electionguard.elgamal import ElGamalCiphertext
+from electionguard.chaum_pedersen import ConstantChaumPedersenProof
 from electionguard.ballot_box import BallotBoxState
 from electionguard.group import hex_to_q
+from electionguard.proof import Proof, ProofUsage
+
 
 from app.api.v1.common.type_mapper import (
     string_to_element_mod_p,
@@ -121,12 +125,33 @@ class CiphertextAccumulationDto(Base):
         return result
 
 
+class ConstantChaumPedersenProofDto(Base):
+    proof_zero_pad: str
+    proof_zero_data: str
+    challenge: str
+    proof_zero_response: str
+    constant: int
+    usage: str
+
+    def to_sdk_format(self) -> ConstantChaumPedersenProof:
+        pad = string_to_element_mod_p(self.proof_zero_pad)
+        data = string_to_element_mod_p(self.proof_zero_data)
+        challenge = string_to_element_mod_q(self.challenge)
+        proof_response = string_to_element_mod_q(self.proof_zero_response)
+        usage = ProofUsage(self.usage)
+        result = ConstantChaumPedersenProof(
+            pad, data, challenge, proof_response, self.constant, usage
+        )
+        return result
+
+
 class ContestDto(Base):
     object_id: str
     description_hash: str
     ciphertext_accumulation: CiphertextAccumulationDto
     crypto_hash: str
     nonce: Optional[str] = None
+    proof: ConstantChaumPedersenProofDto
 
     def to_sdk_format(self) -> CiphertextBallotContest:
         description_hash = string_to_element_mod_q(self.description_hash)
@@ -136,7 +161,7 @@ class ContestDto(Base):
         ciphertext_accumulation = self.ciphertext_accumulation.to_sdk_format()
         nonce = None if self.nonce is None else hex_to_q(self.nonce)
         # todo: implement proof
-        proof = None
+        proof = self.proof.to_sdk_format()
         result = CiphertextBallotContest(
             self.object_id,
             description_hash,
