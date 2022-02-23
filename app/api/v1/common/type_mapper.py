@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional, Union
 from electionguard.group import (
     ElementModP,
     ElementModQ,
@@ -23,7 +23,7 @@ def string_to_element_mod_q(value: Union[int, str]) -> ElementModQ:
     return element
 
 
-def string_to_nullable_element_mod_q(value: Union[int, str]) -> ElementModQ:
+def string_to_nullable_element_mod_q(value: Union[int, Optional[str]]) -> ElementModQ:
     if value is None:
         return None
     return string_to_element_mod_q(value)

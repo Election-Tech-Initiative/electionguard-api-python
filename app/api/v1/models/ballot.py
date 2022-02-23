@@ -6,10 +6,10 @@ from electionguard.ballot import (
     CiphertextBallotContest,
     CiphertextBallotSelection,
 )
+from electionguard.chaum_pedersen import DisjunctiveChaumPedersenProof
 from electionguard.elgamal import ElGamalCiphertext
 from electionguard.chaum_pedersen import ConstantChaumPedersenProof
 from electionguard.ballot_box import BallotBoxState
-from electionguard.group import hex_to_q
 from electionguard.proof import Proof, ProofUsage
 
 
@@ -146,6 +146,45 @@ class ConstantChaumPedersenProofDto(Base):
         return result
 
 
+class DisjunctiveChaumPedersenProofDto(Base):
+    proof_zero_pad: str
+    proof_zero_data: str
+    proof_one_pad: str
+    proof_one_data: str
+    proof_zero_challenge: str
+    proof_one_challenge: str
+    challenge: str
+    proof_zero_response: str
+    proof_one_response: str
+    usage: str
+
+    def to_sdk_format(self) -> DisjunctiveChaumPedersenProof:
+        proof_zero_pad = string_to_element_mod_p(self.proof_zero_pad)
+        proof_zero_data = string_to_element_mod_p(self.proof_zero_data)
+        proof_one_pad = string_to_element_mod_p(self.proof_one_pad)
+        proof_one_data = string_to_element_mod_p(self.proof_one_data)
+        proof_zero_challenge = string_to_element_mod_q(self.proof_zero_challenge)
+        proof_one_challenge = string_to_element_mod_q(self.proof_one_challenge)
+        challenge = string_to_element_mod_q(self.challenge)
+        proof_zero_response = string_to_element_mod_q(self.proof_zero_response)
+        proof_one_response = string_to_element_mod_q(self.proof_one_response)
+        usage = ProofUsage(self.usage)
+
+        result = DisjunctiveChaumPedersenProof(
+            proof_zero_pad,
+            proof_zero_data,
+            proof_one_pad,
+            proof_one_data,
+            proof_zero_challenge,
+            proof_one_challenge,
+            challenge,
+            proof_zero_response,
+            proof_one_response,
+            usage,
+        )
+        return result
+
+
 class BallotSelectionDto(Base):
     object_id: str
     sequence_order: int
@@ -154,15 +193,14 @@ class BallotSelectionDto(Base):
     crypto_hash: str
     is_placeholder_selection: bool
     nonce: Optional[str] = None
-    # todo: proof, which looks suspiciously like ConstantChaumPedersenProofDto
+    proof: DisjunctiveChaumPedersenProofDto
 
     def to_sdk_format(self) -> CiphertextBallotSelection:
         description_hash = string_to_element_mod_q(self.description_hash)
         ciphertext = self.ciphertext.to_sdk_format()
         crypto_hash = string_to_element_mod_q(self.crypto_hash)
         nonce = string_to_nullable_element_mod_q(self.nonce)
-        # todo: proof
-        proof = None
+        proof = self.proof.to_sdk_format()
         # todo: extended_data
         extended_data = None
         result = CiphertextBallotSelection(
@@ -226,7 +264,6 @@ class SubmittedBallotDto(Base):
         manifest_hash = string_to_element_mod_q(self.manifest_hash)
         code_seed = string_to_element_mod_q(self.code_seed)
         crypto_hash = string_to_element_mod_q(self.crypto_hash)
-        # todo: implement contests
         contests = list(map(lambda c: c.to_sdk_format(), self.contests))
         nonce = string_to_nullable_element_mod_q(self.nonce)
 
