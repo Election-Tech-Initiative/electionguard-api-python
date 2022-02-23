@@ -1,10 +1,10 @@
 from typing import Any, Dict, List, Optional
 from enum import Enum
-from urllib import response
 from electionguard.ballot import (
     SubmittedBallot,
     CiphertextBallot,
     CiphertextBallotContest,
+    CiphertextBallotSelection,
 )
 from electionguard.elgamal import ElGamalCiphertext
 from electionguard.chaum_pedersen import ConstantChaumPedersenProof
@@ -16,6 +16,7 @@ from electionguard.proof import Proof, ProofUsage
 from app.api.v1.common.type_mapper import (
     string_to_element_mod_p,
     string_to_element_mod_q,
+    string_to_nullable_element_mod_q,
 )
 from app.api.v1_1.models.election import CiphertextElectionContext
 
@@ -114,7 +115,7 @@ def ballot_box_state_dto_to_sdk(
     return BallotBoxState.UNKNOWN
 
 
-class CiphertextAccumulationDto(Base):
+class ElGamalCiphertextDto(Base):
     pad: str
     data: str
 
@@ -145,22 +146,55 @@ class ConstantChaumPedersenProofDto(Base):
         return result
 
 
+class BallotSelectionDto(Base):
+    object_id: str
+    sequence_order: int
+    description_hash: str
+    ciphertext: ElGamalCiphertextDto
+    crypto_hash: str
+    is_placeholder_selection: bool
+    nonce: Optional[str] = None
+    # todo: proof, which looks suspiciously like ConstantChaumPedersenProofDto
+
+    def to_sdk_format(self) -> CiphertextBallotSelection:
+        description_hash = string_to_element_mod_q(self.description_hash)
+        ciphertext = self.ciphertext.to_sdk_format()
+        crypto_hash = string_to_element_mod_q(self.crypto_hash)
+        nonce = string_to_nullable_element_mod_q(self.nonce)
+        # todo: proof
+        proof = None
+        # todo: extended_data
+        extended_data = None
+        result = CiphertextBallotSelection(
+            self.object_id,
+            description_hash,
+            ciphertext,
+            crypto_hash,
+            self.is_placeholder_selection,
+            nonce,
+            proof,
+            extended_data,
+        )
+        return result
+
+
 class ContestDto(Base):
     object_id: str
     description_hash: str
-    ciphertext_accumulation: CiphertextAccumulationDto
+    ciphertext_accumulation: ElGamalCiphertextDto
     crypto_hash: str
     nonce: Optional[str] = None
     proof: ConstantChaumPedersenProofDto
+    ballot_selections: List[BallotSelectionDto]
 
     def to_sdk_format(self) -> CiphertextBallotContest:
         description_hash = string_to_element_mod_q(self.description_hash)
         crypto_hash = string_to_element_mod_q(self.crypto_hash)
-        # todo: implement selections
-        ballot_selections = []
+        ballot_selections = list(
+            map(lambda s: s.to_sdk_format(), self.ballot_selections)
+        )
         ciphertext_accumulation = self.ciphertext_accumulation.to_sdk_format()
-        nonce = None if self.nonce is None else hex_to_q(self.nonce)
-        # todo: implement proof
+        nonce = string_to_nullable_element_mod_q(self.nonce)
         proof = self.proof.to_sdk_format()
         result = CiphertextBallotContest(
             self.object_id,
@@ -194,7 +228,7 @@ class SubmittedBallotDto(Base):
         crypto_hash = string_to_element_mod_q(self.crypto_hash)
         # todo: implement contests
         contests = list(map(lambda c: c.to_sdk_format(), self.contests))
-        nonce = None if self.nonce is None else hex_to_q(self.nonce)
+        nonce = string_to_nullable_element_mod_q(self.nonce)
 
         ballot = SubmittedBallot(
             self.object_id,

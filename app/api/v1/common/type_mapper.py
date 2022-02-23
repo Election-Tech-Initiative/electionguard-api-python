@@ -23,5 +23,11 @@ def string_to_element_mod_q(value: Union[int, str]) -> ElementModQ:
     return element
 
 
+def string_to_nullable_element_mod_q(value: Union[int, str]) -> ElementModQ:
+    if value is None:
+        return None
+    return string_to_element_mod_q(value)
+
+
 def type_error_message(value: str, type: str) -> str:
     return f"{value} cannot be converted to {type}."
