@@ -1,3 +1,4 @@
+from queue import Empty
 from typing import List, Optional, Tuple, cast
 from logging import getLogger
 import sys
@@ -15,7 +16,7 @@ from electionguard.election import CiphertextElectionContext
 from electionguard.manifest import InternalManifest, Manifest
 from electionguard.serializable import write_json_object
 
-from app.api.v1.models.ballot import SubmitBallotsRequestDto
+from app.api.v1.models.ballot import BallotInventory, SubmitBallotsRequestDto
 
 from ....core.ballot import (
     filter_ballots,
@@ -260,6 +261,14 @@ def _submit_ballots(
     if set_response.is_success():
         logger.info(f"successfully set ballots: {str(set_response)}")
         inventory = get_ballot_inventory(election_id, settings)
+        if inventory is Empty:
+            inventory = BallotInventory(
+                election_id=election_id,
+                cast_ballot_count=0,
+                spoiled_ballot_count=0,
+                cast_ballots=[],
+                spoiled_ballots=[],
+            )
         for ballot in ballots:
             if ballot.state == BallotBoxState.CAST:
                 inventory.cast_ballot_count += 1

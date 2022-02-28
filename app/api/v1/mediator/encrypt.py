@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Body, HTTPException, Request, status
 
 from electionguard.ballot import PlaintextBallot
-from electionguard.election import CiphertextElectionContext
 from electionguard.manifest import InternalManifest, Manifest
 from electionguard.encrypt import encrypt_ballot
 from electionguard.group import ElementModQ

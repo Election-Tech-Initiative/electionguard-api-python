@@ -1,3 +1,4 @@
+from queue import Empty
 from typing import Any, List
 import sys
 from fastapi import HTTPException, status
@@ -95,10 +96,7 @@ def get_ballot_inventory(
         ) as repository:
             query_result = repository.get({"election_id": election_id})
             if not query_result:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Could not find ballot_id {election_id}",
-                )
+                return Empty
             return BallotInventory(
                 election_id=query_result["election_id"],
                 cast_ballot_count=query_result["cast_ballot_count"],
