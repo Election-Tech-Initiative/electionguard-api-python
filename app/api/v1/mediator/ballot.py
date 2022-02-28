@@ -110,6 +110,7 @@ def cast_ballots(
     """
     Cast ballot
     """
+    logger.info(f"casting ballot for election {election_id}")
     manifest, context, election_id = _get_election_parameters(election_id, data)
     ballots = [
         from_ciphertext_ballot(
@@ -124,6 +125,7 @@ def cast_ballots(
         )
         _validate_ballot(validation_request)
 
+    logger.info(f"all {len(ballots)} ballots validated successfully")
     return _submit_ballots(election_id, ballots, request.app.state.settings)
 
 
@@ -255,8 +257,8 @@ def _submit_ballots(
 ) -> BaseResponse:
     logger.info("submitting ballots")
     set_response = set_ballots(election_id, ballots, settings)
-    logger.info(f"successfully set ballots: {str(set_response)}")
     if set_response.is_success():
+        logger.info(f"successfully set ballots: {str(set_response)}")
         inventory = get_ballot_inventory(election_id, settings)
         for ballot in ballots:
             if ballot.state == BallotBoxState.CAST:
