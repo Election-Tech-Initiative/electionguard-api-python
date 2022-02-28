@@ -1,0 +1,27 @@
+{
+  "election_id": "hamilton-general-election-simple",
+  "seed_hash": "B52C5D5946B74F45001E90F5D9BED765C52921F0ED11A5F430F50CDF82EE4756",
+  "ballots": [
+    {
+      "object_id": "ballot-1663ab54-e95f-11eb-bd0c-acde48001123",
+      "style_id": "congress-district-7-lacroix",
+      "contests": [
+        {
+          "object_id": "president-vice-president-contest",
+          "ballot_selections": [
+            {
+              "is_placeholder_selection": false,
+              "object_id": "barchi-hallaren-selection",
+              "vote": 1
+            },
+            {
+              "is_placeholder_selection": false,
+              "object_id": "cramer-vuocolo-selection",
+              "vote": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
