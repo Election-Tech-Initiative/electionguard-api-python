@@ -245,7 +245,7 @@ def _get_election_parameters(
     if request_data.context:
         context = cast(CiphertextElectionContext, request_data.context)
     else:
-        context = CiphertextElectionContext.from_json_object(election.context)
+        context = election.context.to_sdk_format()
 
     return manifest, context, election_id
 

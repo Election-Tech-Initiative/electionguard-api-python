@@ -30,7 +30,7 @@ def encrypt_ballots(
     """
     election = get_election(data.election_id, request.app.state.settings)
     manifest = InternalManifest(Manifest.from_json_object(election.manifest))
-    context = CiphertextElectionContext.from_json_object(election.context)
+    context = election.context.to_sdk_format()
     seed_hash = read_json_object(data.seed_hash, ElementModQ)
 
     ballots = [PlaintextBallot.from_json_object(ballot) for ballot in data.ballots]
