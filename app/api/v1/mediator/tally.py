@@ -86,6 +86,11 @@ def tally_ballots(
     # get the cast and spoiled ballots by checking the current ballot inventory
     # and filtering the table for
     inventory = get_ballot_inventory(election_id, request.app.state.settings)
+    if inventory is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Could not find ballot_id {election_id}",
+        )
     cast_ballots = filter_ballots(
         election_id,
         {"state": BallotBoxState.CAST.name},

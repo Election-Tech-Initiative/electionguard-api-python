@@ -1,4 +1,3 @@
-from queue import Empty
 from typing import Any, List, Optional
 import sys
 from fastapi import HTTPException, status
