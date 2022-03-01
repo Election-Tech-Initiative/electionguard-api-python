@@ -1,7 +1,6 @@
 from typing import Any, Dict, List, Optional
 from electionguard.ballot import (
     SubmittedBallot,
-    CiphertextBallot,
     CiphertextBallotContest,
     CiphertextBallotSelection,
 )
