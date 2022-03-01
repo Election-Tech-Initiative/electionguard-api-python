@@ -34,7 +34,7 @@ __all__ = [
 
 DecryptionShare = Any
 AnySubmittedBallot = Any
-CiphertextBallot = Any
+AnyCiphertextBallot = Any
 PlaintextBallot = Any
 
 BALLOT_CODE = str

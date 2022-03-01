@@ -1,4 +1,3 @@
-from queue import Empty
 from typing import List, Optional, Tuple, cast
 from logging import getLogger
 import sys
@@ -261,7 +260,7 @@ def _submit_ballots(
     if set_response.is_success():
         logger.info(f"successfully set ballots: {str(set_response)}")
         inventory = get_ballot_inventory(election_id, settings)
-        if inventory is Empty:
+        if inventory is None:
             inventory = BallotInventory(
                 election_id=election_id,
                 cast_ballot_count=0,

@@ -1,4 +1,4 @@
-import logging
+import logging.config
 from typing import Optional
 from fastapi import FastAPI, HTTPException
 from starlette.middleware.cors import CORSMiddleware
