@@ -166,7 +166,7 @@ def spoil_ballots(
     tags=[BALLOTS],
     status_code=status.HTTP_202_ACCEPTED,
 )
-def submit_ballots2(
+def submit_ballots(
     request: Request,
     election_id: str,
     data: SubmitBallotsRequestDto = Body(...),
@@ -192,7 +192,7 @@ def submit_ballots2(
     for ballot in ballots_sdk:
         if ballot.state == BallotBoxState.UNKNOWN:
             raise HTTPException(
-                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=f"Submitted ballot {ballot.object_id} must have a cast or spoil state",
             )
         ballot_json = ballot.to_json_object()
