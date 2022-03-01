@@ -84,7 +84,7 @@ class BallotInventoryResponse(BaseResponse):
 
 class BallotQueryResponse(BaseResponse):
     election_id: str
-    ballots: List[CiphertextBallot] = []
+    ballots: List[Any] = []
 
 
 class BaseBallotRequest(BaseRequest):
@@ -96,13 +96,13 @@ class BaseBallotRequest(BaseRequest):
 class CastBallotsRequest(BaseBallotRequest):
     """Cast the enclosed ballots."""
 
-    ballots: List[CiphertextBallot]
+    ballots: List[AnyCiphertextBallot]
 
 
 class SpoilBallotsRequest(BaseBallotRequest):
     """Spoil the enclosed ballots."""
 
-    ballots: List[CiphertextBallot]
+    ballots: List[AnyCiphertextBallot]
 
 
 class SubmitBallotsRequest(BaseBallotRequest):
@@ -289,6 +289,6 @@ class SubmitBallotsRequestDto(BaseValidationRequest):
 class ValidateBallotRequest(BaseValidationRequest):
     """Submit a ballot against a specific election description and contest to determine if it is accepted."""
 
-    ballot: CiphertextBallot
+    ballot: AnyCiphertextBallot
     manifest: ElectionManifest
     context: CiphertextElectionContext
