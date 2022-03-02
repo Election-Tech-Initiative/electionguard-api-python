@@ -89,7 +89,7 @@ def tally_ballots(
     if inventory is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Could not find ballot_id {election_id}",
+            detail=f"Could not find a ballot inventory with election_id {election_id}",
         )
     cast_ballots = filter_ballots(
         election_id,
