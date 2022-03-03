@@ -128,8 +128,8 @@ def create_election(
     return set_election(election, request.app.state.settings)
 
 
-def to_election_summary(election: Election):
-    dto = ElectionSummaryDto(
+def to_election_summary(election: Election) -> ElectionSummaryDto:
+    return ElectionSummaryDto(
         election_id=election.election_id,
         name=election.get_name(),
         state=election.state,
@@ -139,7 +139,6 @@ def to_election_summary(election: Election):
         spoiled_ballots=0,
         index=0,
     )
-    return dto
 
 
 @router.post(

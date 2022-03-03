@@ -79,7 +79,7 @@ class Election(Base):
         text = self.manifest["name"]["text"]
         # todo: replace "en" with user's current culture
         enText = [t["value"] for t in text if t["language"] == "en"]
-        return enText[0]
+        return str(enText[0])
 
     election_id: str
     key_name: str
