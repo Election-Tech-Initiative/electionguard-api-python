@@ -131,6 +131,7 @@ def create_election(
 def to_election_summary(election: Election):
     dto = ElectionSummaryDto(
         election_id=election.election_id,
+        name=election.get_name(),
         state=str(election.state),
         number_of_guardians=election.context.number_of_guardians,
         quorum=election.context.quorum,
@@ -155,7 +156,7 @@ def list_elections(
 
     result = ElectionListResponseDto()
     elections = filter_elections({}, 0, 1000, request.app.state.settings)
-    result.elections = list(map(to_election_summary, elections))
+    result.elections = [to_election_summary(e) for e in elections]
     for election in result.elections:
         inventory = get_ballot_inventory(
             election.election_id, request.app.state.settings
