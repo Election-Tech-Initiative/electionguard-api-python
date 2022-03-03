@@ -12,8 +12,10 @@ from electionguard.group import ElementModP, ElementModQ
 from electionguard.manifest import Manifest
 from electionguard.serializable import read_json_object, write_json_object
 from electionguard.utils import get_optional
+from app.api.v1.auth.auth import ScopedTo
 
 from app.api.v1.models.election import ElectionListResponseDto, ElectionSummaryDto
+from app.api.v1.models.user import UserScope
 
 from .manifest import get_manifest
 from ....core.ballot import get_ballot_inventory, upsert_ballot_inventory
@@ -40,7 +42,7 @@ from ..tags import ELECTION
 router = APIRouter()
 
 
-@router.get("/constants", tags=[ELECTION])
+@router.get("/constants", dependencies=[ScopedTo([UserScope.admin])], tags=[ELECTION])
 def get_election_constants() -> Any:
     """
     Get the constants defined for an election.
@@ -49,7 +51,12 @@ def get_election_constants() -> Any:
     return constants.to_json_object()
 
 
-@router.get("", response_model=ElectionQueryResponse, tags=[ELECTION])
+@router.get(
+    "",
+    response_model=ElectionQueryResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def fetch_election(request: Request, election_id: str) -> ElectionQueryResponse:
     """Get an election by election id."""
     election = get_election(election_id, request.app.state.settings)
@@ -58,7 +65,12 @@ def fetch_election(request: Request, election_id: str) -> ElectionQueryResponse:
     )
 
 
-@router.put("", response_model=BaseResponse, tags=[ELECTION])
+@router.put(
+    "",
+    response_model=BaseResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def create_election(
     request: Request,
     data: SubmitElectionRequest = Body(...),
@@ -128,7 +140,12 @@ def to_election_summary(election: Election):
     return dto
 
 
-@router.post("/list", response_model=ElectionListResponseDto, tags=[ELECTION])
+@router.post(
+    "/list",
+    response_model=ElectionListResponseDto,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def list_elections(
     request: Request,
 ) -> ElectionListResponseDto:
@@ -150,7 +167,12 @@ def list_elections(
     return result
 
 
-@router.post("/find", response_model=ElectionQueryResponse, tags=[ELECTION])
+@router.post(
+    "/find",
+    response_model=ElectionQueryResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def find_elections(
     request: Request,
     skip: int = 0,
@@ -168,7 +190,12 @@ def find_elections(
     return ElectionQueryResponse(elections=elections)
 
 
-@router.post("/open", response_model=BaseResponse, tags=[ELECTION])
+@router.post(
+    "/open",
+    response_model=BaseResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def open_election(request: Request, election_id: str) -> BaseResponse:
     """
     Open an election.
@@ -182,7 +209,12 @@ def open_election(request: Request, election_id: str) -> BaseResponse:
     )
 
 
-@router.post("/close", response_model=BaseResponse, tags=[ELECTION])
+@router.post(
+    "/close",
+    response_model=BaseResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def close_election(request: Request, election_id: str) -> BaseResponse:
     """
     Close an election.
@@ -192,7 +224,12 @@ def close_election(request: Request, election_id: str) -> BaseResponse:
     )
 
 
-@router.post("/publish", response_model=BaseResponse, tags=[ELECTION])
+@router.post(
+    "/publish",
+    response_model=BaseResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def publish_election(request: Request, election_id: str) -> BaseResponse:
     """
     Publish an election.
@@ -202,7 +239,12 @@ def publish_election(request: Request, election_id: str) -> BaseResponse:
     )
 
 
-@router.post("/context", response_model=MakeElectionContextResponse, tags=[ELECTION])
+@router.post(
+    "/context",
+    response_model=MakeElectionContextResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def build_election_context(
     request: Request,
     data: MakeElectionContextRequest = Body(...),
