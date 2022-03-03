@@ -14,7 +14,10 @@ from app.api.v1.models import UserInfo, UserScope
 from app.core import AuthenticationContext, set_auth_credential, set_user_info
 
 # setup loggers
-logging.config.fileConfig("app/logging.conf", disable_existing_loggers=False)
+logging.basicConfig(
+    level="DEBUG",
+    format="%(asctime)s %(levelname)-8s %(funcName)s() L%(lineno)-4d %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
