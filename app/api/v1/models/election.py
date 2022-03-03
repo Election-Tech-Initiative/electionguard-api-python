@@ -100,6 +100,21 @@ class ElectionQueryResponse(BaseResponse):
     elections: List[Election] = []
 
 
+class ElectionSummaryDto(Base):
+    election_id: str
+    state: str
+    number_of_guardians: int
+    quorum: int
+    cast_ballots: int
+    spoiled_ballots: int
+
+
+class ElectionListResponseDto(BaseResponse):
+    """A collection of elections."""
+
+    elections: List[ElectionSummaryDto] = []
+
+
 class SubmitElectionRequest(BaseRequest):
     """Submit an election."""
 

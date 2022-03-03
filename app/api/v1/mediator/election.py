@@ -13,8 +13,10 @@ from electionguard.manifest import Manifest
 from electionguard.serializable import read_json_object, write_json_object
 from electionguard.utils import get_optional
 
+from app.api.v1.models.election import ElectionListResponseDto, ElectionSummaryDto
+
 from .manifest import get_manifest
-from ....core.ballot import upsert_ballot_inventory
+from ....core.ballot import get_ballot_inventory, upsert_ballot_inventory
 from ....core.key_ceremony import get_key_ceremony
 from ....core.election import (
     get_election,
@@ -112,6 +114,40 @@ def create_election(
     )
 
     return set_election(election, request.app.state.settings)
+
+
+def to_election_summary(election: Election):
+    dto = ElectionSummaryDto(
+        election_id=election.election_id,
+        state=str(election.state),
+        number_of_guardians=election.context.number_of_guardians,
+        quorum=election.context.quorum,
+        cast_ballots=0,
+        spoiled_ballots=0,
+    )
+    return dto
+
+
+@router.post("/list", response_model=ElectionListResponseDto, tags=[ELECTION])
+def list_elections(
+    request: Request,
+) -> ElectionListResponseDto:
+    """
+    List all elections including state and number of ballots cast or submitted if any.
+    """
+
+    result = ElectionListResponseDto()
+    elections = filter_elections({}, 0, 1000, request.app.state.settings)
+    result.elections = list(map(to_election_summary, elections))
+    for election in result.elections:
+        inventory = get_ballot_inventory(
+            election.election_id, request.app.state.settings
+        )
+        if inventory is not None:
+            election.cast_ballots = inventory.cast_ballot_count
+            election.spoiled_ballots = inventory.spoiled_ballot_count
+
+    return result
 
 
 @router.post("/find", response_model=ElectionQueryResponse, tags=[ELECTION])
