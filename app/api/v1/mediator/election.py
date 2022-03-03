@@ -137,6 +137,7 @@ def to_election_summary(election: Election):
         quorum=election.context.quorum,
         cast_ballots=0,
         spoiled_ballots=0,
+        index=0,
     )
     return dto
 
@@ -155,15 +156,19 @@ def list_elections(
     """
 
     result = ElectionListResponseDto()
-    elections = filter_elections({}, 0, 1000, request.app.state.settings)
+    elections = filter_elections(filter={}, settings=request.app.state.settings)
     result.elections = [to_election_summary(e) for e in elections]
+    index = 0
     for election in result.elections:
+        election.index = index
         inventory = get_ballot_inventory(
             election.election_id, request.app.state.settings
         )
         if inventory is not None:
             election.cast_ballots = inventory.cast_ballot_count
             election.spoiled_ballots = inventory.spoiled_ballot_count
+        index = index + 1
+    result.elections.sort(key=lambda e: e.index, reverse=True)
 
     return result
 

@@ -114,6 +114,7 @@ class ElectionSummaryDto(Base):
     quorum: int
     cast_ballots: int
     spoiled_ballots: int
+    index: int
 
 
 class ElectionListResponseDto(BaseResponse):
