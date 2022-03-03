@@ -14,8 +14,10 @@ from electionguard.ballot_validator import ballot_is_valid_for_election
 from electionguard.election import CiphertextElectionContext
 from electionguard.manifest import InternalManifest, Manifest
 from electionguard.serializable import write_json_object
+from app.api.v1.auth.auth import ScopedTo
 
 from app.api.v1.models.ballot import BallotInventory, SubmitBallotsRequestDto
+from app.api.v1.models.user import UserScope
 
 from ....core.ballot import (
     filter_ballots,
@@ -100,6 +102,7 @@ def find_ballots(
     "/cast",
     response_model=BaseResponse,
     tags=[BALLOTS],
+    dependencies=[ScopedTo([UserScope.admin])],
     status_code=status.HTTP_202_ACCEPTED,
 )
 def cast_ballots(
@@ -133,6 +136,7 @@ def cast_ballots(
     "/spoil",
     response_model=BaseResponse,
     tags=[BALLOTS],
+    dependencies=[ScopedTo([UserScope.admin])],
     status_code=status.HTTP_202_ACCEPTED,
 )
 def spoil_ballots(
@@ -164,6 +168,7 @@ def spoil_ballots(
     "/submit",
     response_model=BaseResponse,
     tags=[BALLOTS],
+    dependencies=[ScopedTo([UserScope.admin])],
     status_code=status.HTTP_202_ACCEPTED,
 )
 def submit_ballots(
