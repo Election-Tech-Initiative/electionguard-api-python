@@ -7,7 +7,7 @@ __all__ = [
     "CreateElectionRequest",
 ]
 
-CiphertextElectionContext = Any
+AnyCiphertextElectionContext = Any
 
 
 class CreateElectionRequest(BaseRequest):

@@ -53,7 +53,7 @@ class CiphertextElectionContextDto(Base):
     """The `extended base hash code (𝑄')` in [ElectionGuard Spec](https://github.com/microsoft/electionguard/wiki)"""
 
     def to_sdk_format(self) -> CiphertextElectionContext:
-        sdkContext = CiphertextElectionContext(
+        sdk_context = CiphertextElectionContext(
             self.number_of_guardians,
             self.quorum,
             string_to_element_mod_p(self.elgamal_public_key),
@@ -62,7 +62,7 @@ class CiphertextElectionContextDto(Base):
             string_to_element_mod_q(self.crypto_base_hash),
             string_to_element_mod_q(self.crypto_extended_base_hash),
         )
-        return sdkContext
+        return sdk_context
 
 
 class ElectionState(str, Enum):

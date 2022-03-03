@@ -1,4 +1,5 @@
 from typing import List, Optional, Tuple, cast
+from logging import getLogger
 import sys
 
 from fastapi import APIRouter, Body, HTTPException, Request, status
@@ -13,6 +14,10 @@ from electionguard.ballot_validator import ballot_is_valid_for_election
 from electionguard.election import CiphertextElectionContext
 from electionguard.manifest import InternalManifest, Manifest
 from electionguard.serializable import write_json_object
+from app.api.v1.auth.auth import ScopedTo
+
+from app.api.v1.models.ballot import BallotInventory, SubmitBallotsRequestDto
+from app.api.v1.models.user import UserScope
 
 from ....core.ballot import (
     filter_ballots,
@@ -38,6 +43,7 @@ from ..models import (
 )
 from ..tags import BALLOTS
 
+logger = getLogger(__name__)
 router = APIRouter()
 
 
@@ -96,6 +102,7 @@ def find_ballots(
     "/cast",
     response_model=BaseResponse,
     tags=[BALLOTS],
+    dependencies=[ScopedTo([UserScope.admin])],
     status_code=status.HTTP_202_ACCEPTED,
 )
 def cast_ballots(
@@ -106,6 +113,7 @@ def cast_ballots(
     """
     Cast ballot
     """
+    logger.info(f"casting ballot for election {election_id}")
     manifest, context, election_id = _get_election_parameters(election_id, data)
     ballots = [
         from_ciphertext_ballot(
@@ -120,6 +128,7 @@ def cast_ballots(
         )
         _validate_ballot(validation_request)
 
+    logger.info(f"all {len(ballots)} ballots validated successfully")
     return _submit_ballots(election_id, ballots, request.app.state.settings)
 
 
@@ -127,6 +136,7 @@ def cast_ballots(
     "/spoil",
     response_model=BaseResponse,
     tags=[BALLOTS],
+    dependencies=[ScopedTo([UserScope.admin])],
     status_code=status.HTTP_202_ACCEPTED,
 )
 def spoil_ballots(
@@ -158,12 +168,13 @@ def spoil_ballots(
     "/submit",
     response_model=BaseResponse,
     tags=[BALLOTS],
+    dependencies=[ScopedTo([UserScope.admin])],
     status_code=status.HTTP_202_ACCEPTED,
 )
 def submit_ballots(
     request: Request,
-    election_id: Optional[str] = None,
-    data: SubmitBallotsRequest = Body(...),
+    election_id: str,
+    data: SubmitBallotsRequestDto = Body(...),
 ) -> BaseResponse:
     """
     Submit ballots for an election.
@@ -172,24 +183,35 @@ def submit_ballots(
     If both are provied, the query string will override.
     """
 
-    manifest, context, election_id = _get_election_parameters(
-        election_id, data, request.app.state.settings
-    )
+    logger.info(f"Submitting ballots for {election_id}")
 
-    # Check each ballot's state and validate
-    ballots = [SubmittedBallot.from_json_object(ballot) for ballot in data.ballots]
-    for ballot in ballots:
+    settings = request.app.state.settings
+    election_sdk = get_election(election_id, settings)
+    manifest_sdk = election_sdk.manifest
+    context_dto = election_sdk.context
+    context_sdk = context_dto.to_sdk_format()
+
+    res: str = ""
+    logger.info(f"Converting {len(data.ballots)} ballots to sdk format")
+    ballots_sdk = list(map(lambda b: b.to_sdk_format(), data.ballots))
+    for ballot in ballots_sdk:
         if ballot.state == BallotBoxState.UNKNOWN:
             raise HTTPException(
-                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=f"Submitted ballot {ballot.object_id} must have a cast or spoil state",
             )
+        ballot_json = ballot.to_json_object()
         validation_request = ValidateBallotRequest(
-            ballot=ballot.to_json_object(), manifest=manifest, context=context
+            ballot=ballot_json,
+            manifest=manifest_sdk,
+            context=context_sdk,
         )
+        logger.info("about to validate ballots")
         _validate_ballot(validation_request)
+        logger.info("validated ballots successfully")
+        res += str(ballot.state)
 
-    return _submit_ballots(election_id, ballots, request.app.state.settings)
+    return _submit_ballots(election_id, ballots_sdk, request.app.state.settings)
 
 
 @router.post("/validate", response_model=BaseResponse, tags=[BALLOTS])
@@ -230,7 +252,7 @@ def _get_election_parameters(
     if request_data.context:
         context = cast(CiphertextElectionContext, request_data.context)
     else:
-        context = CiphertextElectionContext.from_json_object(election.context)
+        context = election.context.to_sdk_format()
 
     return manifest, context, election_id
 
@@ -238,9 +260,19 @@ def _get_election_parameters(
 def _submit_ballots(
     election_id: str, ballots: List[SubmittedBallot], settings: Settings = Settings()
 ) -> BaseResponse:
+    logger.info("submitting ballots")
     set_response = set_ballots(election_id, ballots, settings)
     if set_response.is_success():
+        logger.info(f"successfully set ballots: {str(set_response)}")
         inventory = get_ballot_inventory(election_id, settings)
+        if inventory is None:
+            inventory = BallotInventory(
+                election_id=election_id,
+                cast_ballot_count=0,
+                spoiled_ballot_count=0,
+                cast_ballots=[],
+                spoiled_ballots=[],
+            )
         for ballot in ballots:
             if ballot.state == BallotBoxState.CAST:
                 inventory.cast_ballot_count += 1

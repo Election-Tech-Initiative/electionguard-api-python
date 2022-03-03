@@ -1,4 +1,4 @@
-from logging import getLogger
+import logging.config
 from typing import Optional
 from fastapi import FastAPI, HTTPException
 from starlette.middleware.cors import CORSMiddleware
@@ -13,7 +13,12 @@ from app.core.scheduler import get_scheduler
 from app.api.v1.models import UserInfo, UserScope
 from app.core import AuthenticationContext, set_auth_credential, set_user_info
 
-logger = getLogger(__name__)
+# setup loggers
+logging.basicConfig(
+    level="DEBUG",
+    format="%(asctime)s %(levelname)-8s %(funcName)s() L%(lineno)-4d %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
 def seed_default_user(settings: Settings = Settings()) -> None:

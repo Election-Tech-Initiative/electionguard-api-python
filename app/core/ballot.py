@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Optional
 import sys
 from fastapi import HTTPException, status
 
@@ -88,17 +88,14 @@ def filter_ballots(
 
 def get_ballot_inventory(
     election_id: str, settings: Settings = Settings()
-) -> BallotInventory:
+) -> Optional[BallotInventory]:
     try:
         with get_repository(
             election_id, DataCollection.BALLOT_INVENTORY, settings
         ) as repository:
             query_result = repository.get({"election_id": election_id})
             if not query_result:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Could not find ballot_id {election_id}",
-                )
+                return None
             return BallotInventory(
                 election_id=query_result["election_id"],
                 cast_ballot_count=query_result["cast_ballot_count"],
