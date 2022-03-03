@@ -132,7 +132,7 @@ def to_election_summary(election: Election):
     dto = ElectionSummaryDto(
         election_id=election.election_id,
         name=election.get_name(),
-        state=str(election.state),
+        state=election.state,
         number_of_guardians=election.context.number_of_guardians,
         quorum=election.context.quorum,
         cast_ballots=0,
