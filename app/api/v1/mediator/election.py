@@ -247,7 +247,6 @@ def publish_election(request: Request, election_id: str) -> BaseResponse:
 @router.post(
     "/context",
     response_model=MakeElectionContextResponse,
-    dependencies=[ScopedTo([UserScope.admin])],
     tags=[ELECTION],
 )
 def build_election_context(
