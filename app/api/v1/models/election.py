@@ -75,6 +75,12 @@ class ElectionState(str, Enum):
 class Election(Base):
     """An election object."""
 
+    def get_name(self) -> str:
+        text = self.manifest["name"]["text"]
+        # todo: replace "en" with user's current culture
+        enText = [t["value"] for t in text if t["language"] == "en"]
+        return str(enText[0])
+
     election_id: str
     key_name: str
     state: ElectionState
@@ -98,6 +104,23 @@ class ElectionQueryResponse(BaseResponse):
     """A collection of elections."""
 
     elections: List[Election] = []
+
+
+class ElectionSummaryDto(Base):
+    election_id: str
+    name: Any
+    state: str
+    number_of_guardians: int
+    quorum: int
+    cast_ballot_count: int
+    spoiled_ballot_count: int
+    index: int
+
+
+class ElectionListResponseDto(BaseResponse):
+    """A collection of elections."""
+
+    elections: List[ElectionSummaryDto] = []
 
 
 class SubmitElectionRequest(BaseRequest):

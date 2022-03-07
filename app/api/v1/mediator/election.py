@@ -12,9 +12,13 @@ from electionguard.group import ElementModP, ElementModQ
 from electionguard.manifest import Manifest
 from electionguard.serializable import read_json_object, write_json_object
 from electionguard.utils import get_optional
+from app.api.v1.auth.auth import ScopedTo
+
+from app.api.v1.models.election import ElectionListResponseDto, ElectionSummaryDto
+from app.api.v1.models.user import UserScope
 
 from .manifest import get_manifest
-from ....core.ballot import upsert_ballot_inventory
+from ....core.ballot import get_ballot_inventory, upsert_ballot_inventory
 from ....core.key_ceremony import get_key_ceremony
 from ....core.election import (
     get_election,
@@ -38,7 +42,7 @@ from ..tags import ELECTION
 router = APIRouter()
 
 
-@router.get("/constants", tags=[ELECTION])
+@router.get("/constants", dependencies=[ScopedTo([UserScope.admin])], tags=[ELECTION])
 def get_election_constants() -> Any:
     """
     Get the constants defined for an election.
@@ -47,7 +51,12 @@ def get_election_constants() -> Any:
     return constants.to_json_object()
 
 
-@router.get("", response_model=ElectionQueryResponse, tags=[ELECTION])
+@router.get(
+    "",
+    response_model=ElectionQueryResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def fetch_election(request: Request, election_id: str) -> ElectionQueryResponse:
     """Get an election by election id."""
     election = get_election(election_id, request.app.state.settings)
@@ -56,7 +65,12 @@ def fetch_election(request: Request, election_id: str) -> ElectionQueryResponse:
     )
 
 
-@router.put("", response_model=BaseResponse, tags=[ELECTION])
+@router.put(
+    "",
+    response_model=BaseResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def create_election(
     request: Request,
     data: SubmitElectionRequest = Body(...),
@@ -114,7 +128,56 @@ def create_election(
     return set_election(election, request.app.state.settings)
 
 
-@router.post("/find", response_model=ElectionQueryResponse, tags=[ELECTION])
+def to_election_summary(election: Election) -> ElectionSummaryDto:
+    return ElectionSummaryDto(
+        election_id=election.election_id,
+        name=election.get_name(),
+        state=election.state,
+        number_of_guardians=election.context.number_of_guardians,
+        quorum=election.context.quorum,
+        cast_ballot_count=0,
+        spoiled_ballot_count=0,
+        index=0,
+    )
+
+
+@router.post(
+    "/list",
+    response_model=ElectionListResponseDto,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
+def list_elections(
+    request: Request,
+) -> ElectionListResponseDto:
+    """
+    List all elections including state and number of ballots cast or submitted if any.
+    """
+
+    result = ElectionListResponseDto()
+    elections = filter_elections(filter={}, settings=request.app.state.settings)
+    result.elections = [to_election_summary(e) for e in elections]
+    index = 0
+    for election in result.elections:
+        election.index = index
+        inventory = get_ballot_inventory(
+            election.election_id, request.app.state.settings
+        )
+        if inventory is not None:
+            election.cast_ballot_count = inventory.cast_ballot_count
+            election.spoiled_ballot_count = inventory.spoiled_ballot_count
+        index = index + 1
+    result.elections.sort(key=lambda e: e.index, reverse=True)
+
+    return result
+
+
+@router.post(
+    "/find",
+    response_model=ElectionQueryResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def find_elections(
     request: Request,
     skip: int = 0,
@@ -132,7 +195,12 @@ def find_elections(
     return ElectionQueryResponse(elections=elections)
 
 
-@router.post("/open", response_model=BaseResponse, tags=[ELECTION])
+@router.post(
+    "/open",
+    response_model=BaseResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def open_election(request: Request, election_id: str) -> BaseResponse:
     """
     Open an election.
@@ -146,7 +214,12 @@ def open_election(request: Request, election_id: str) -> BaseResponse:
     )
 
 
-@router.post("/close", response_model=BaseResponse, tags=[ELECTION])
+@router.post(
+    "/close",
+    response_model=BaseResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def close_election(request: Request, election_id: str) -> BaseResponse:
     """
     Close an election.
@@ -156,7 +229,12 @@ def close_election(request: Request, election_id: str) -> BaseResponse:
     )
 
 
-@router.post("/publish", response_model=BaseResponse, tags=[ELECTION])
+@router.post(
+    "/publish",
+    response_model=BaseResponse,
+    dependencies=[ScopedTo([UserScope.admin])],
+    tags=[ELECTION],
+)
 def publish_election(request: Request, election_id: str) -> BaseResponse:
     """
     Publish an election.
@@ -166,7 +244,11 @@ def publish_election(request: Request, election_id: str) -> BaseResponse:
     )
 
 
-@router.post("/context", response_model=MakeElectionContextResponse, tags=[ELECTION])
+@router.post(
+    "/context",
+    response_model=MakeElectionContextResponse,
+    tags=[ELECTION],
+)
 def build_election_context(
     request: Request,
     data: MakeElectionContextRequest = Body(...),

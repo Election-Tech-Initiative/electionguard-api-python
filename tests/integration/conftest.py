@@ -3,7 +3,7 @@ import pytest
 from app.core.scheduler import get_scheduler
 
 
-@pytest.yield_fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 def scheduler_lifespan() -> Generator[None, None, None]:
     """
     Ensure that the global scheduler singleton is
