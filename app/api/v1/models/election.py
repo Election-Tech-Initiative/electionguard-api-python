@@ -112,8 +112,8 @@ class ElectionSummaryDto(Base):
     state: str
     number_of_guardians: int
     quorum: int
-    cast_ballots: int
-    spoiled_ballots: int
+    cast_ballot_count: int
+    spoiled_ballot_count: int
     index: int
 
 
