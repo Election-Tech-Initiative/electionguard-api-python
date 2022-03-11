@@ -18,11 +18,10 @@ from fastapi import (
 from electionguard.ballot import BallotBoxState
 from electionguard.decrypt_with_shares import decrypt_tally as decrypt
 from electionguard.decryption_share import DecryptionShare
-from electionguard.election import CiphertextElectionContext
 from electionguard.manifest import ElectionType, InternalManifest, Manifest
 from electionguard.scheduler import Scheduler
 from electionguard.serializable import read_json_object, write_json_object
-from electionguard.types import CONTEST_ID
+from electionguard.type import CONTEST_ID
 import electionguard.tally
 
 

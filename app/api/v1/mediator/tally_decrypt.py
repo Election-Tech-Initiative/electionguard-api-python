@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Body, HTTPException, Request, status
 
 from electionguard.key_ceremony import PublicKeySet
-from electionguard.election import CiphertextElectionContext
 from electionguard.decryption_share import DecryptionShare
 from electionguard.serializable import read_json_object
 from electionguard.tally import CiphertextTallyContest

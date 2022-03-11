@@ -6,7 +6,7 @@ from electionguard.decrypt_with_shares import decrypt_ballot
 from electionguard.decryption_share import DecryptionShare
 from electionguard.election import CiphertextElectionContext
 from electionguard.serializable import read_json_object, write_json_object
-from electionguard.types import BALLOT_ID, GUARDIAN_ID
+from electionguard.type import BALLOT_ID, GUARDIAN_ID
 from fastapi import APIRouter, Body, HTTPException
 
 from ..models import DecryptBallotsWithSharesRequest

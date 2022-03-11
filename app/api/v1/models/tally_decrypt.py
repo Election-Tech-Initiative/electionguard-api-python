@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 
-from electionguard.types import BALLOT_ID
+from electionguard.type import BALLOT_ID
 
 from .base import BaseResponse, BaseRequest, Base
 from .election import CiphertextElectionContextDto
