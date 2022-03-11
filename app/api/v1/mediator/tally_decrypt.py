@@ -50,7 +50,7 @@ def submit_share(
     """
 
     election = get_election(data.share.election_id, request.app.state.settings)
-    context = CiphertextElectionContext.from_json_object(election.context)
+    context = election.context.to_sdk_format()
     guardian = get_key_guardian(
         election.key_name, data.share.guardian_id, request.app.state.settings
     )

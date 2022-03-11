@@ -50,7 +50,7 @@ def decrypt_share(
     Decrypt a single guardian's share of a tally
     """
     guardian = get_guardian(data.guardian_id, request.app.state.settings)
-    context = CiphertextElectionContext.from_json_object(data.context)
+    context = data.context.to_sdk_format()
 
     # TODO: HACK: Remove The Empty Manifest
     # Note: The CiphertextTally requires an internal manifest passed into its constructor

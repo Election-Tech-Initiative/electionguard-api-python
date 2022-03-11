@@ -1,5 +1,6 @@
 # pylint: disable=unused-argument
 from typing import Dict
+from logging import getLogger
 from datetime import datetime
 import sys
 
@@ -51,6 +52,7 @@ from ..tags import TALLY
 
 
 router = APIRouter()
+logger = getLogger(__name__)
 
 
 @router.get("", response_model=CiphertextTally, tags=[TALLY])
@@ -81,7 +83,7 @@ def tally_ballots(
     """
     election = get_election(election_id, request.app.state.settings)
     manifest = Manifest.from_json_object(election.manifest)
-    context = CiphertextElectionContext.from_json_object(election.context)
+    context = election.context.to_sdk_format()
 
     # get the cast and spoiled ballots by checking the current ballot inventory
     # and filtering the table for
@@ -178,7 +180,10 @@ async def decrypt_tally(
         request.app.state.settings,
     )
     if not restart and len(plaintext_tallies) > 0:
+        logger.info("returning plaintext tally from cache")
         return PlaintextTallyQueryResponse(tallies=plaintext_tallies)
+
+    logger.info("no tally exists in cache")
 
     tally = PlaintextTally(
         election_id=data.election_id,
@@ -213,7 +218,7 @@ async def _decrypt_tally(
         )
 
         election = get_election(api_plaintext_tally.election_id, settings)
-        context = CiphertextElectionContext.from_json_object(election.context)
+        context = election.context.to_sdk_format()
 
         # filter the guardian shares
         query_shares = filter_decryption_shares(
@@ -229,7 +234,7 @@ async def _decrypt_tally(
         if len(query_shares) != context.number_of_guardians:
             raise HTTPException(
                 status_code=status.HTTP_412_PRECONDITION_FAILED,
-                detail="Not all guardians have submitted shares",
+                detail=f"{len(query_shares)} of {context.number_of_guardians} guardians have submitted shares",
             )
 
         # transform the tally shares
@@ -292,6 +297,7 @@ async def _decrypt_tally(
     except Exception as error:
         api_plaintext_tally.state = PlaintextTallyState.ERROR
         update_plaintext_tally(api_plaintext_tally, settings)
+        logger.exception(sys.exc_info())
         print(sys.exc_info())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
