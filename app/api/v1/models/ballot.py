@@ -15,6 +15,7 @@ from app.api.v1.common.type_mapper import (
     string_to_element_mod_p,
     string_to_element_mod_q,
 )
+from app.api.v1.models.election import CiphertextElectionContextDto
 from app.api.v1_1.models.election import AnyCiphertextElectionContext
 
 from .base import Base, BaseRequest, BaseResponse, BaseValidationRequest
@@ -89,7 +90,7 @@ class BallotQueryResponse(BaseResponse):
 class BaseBallotRequest(BaseRequest):
     election_id: Optional[str] = None
     manifest: Optional[ElectionManifest] = None
-    context: Optional[AnyCiphertextElectionContext] = None
+    context: Optional[CiphertextElectionContextDto] = None
 
 
 class CastBallotsRequest(BaseBallotRequest):
