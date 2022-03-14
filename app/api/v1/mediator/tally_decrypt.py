@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Body, HTTPException, Request, status
 
 from electionguard.key_ceremony import PublicKeySet
-from electionguard.election import CiphertextElectionContext
 from electionguard.decryption_share import DecryptionShare
 from electionguard.serializable import read_json_object
 from electionguard.tally import CiphertextTallyContest
@@ -50,7 +49,7 @@ def submit_share(
     """
 
     election = get_election(data.share.election_id, request.app.state.settings)
-    context = CiphertextElectionContext.from_json_object(election.context)
+    context = election.context.to_sdk_format()
     guardian = get_key_guardian(
         election.key_name, data.share.guardian_id, request.app.state.settings
     )

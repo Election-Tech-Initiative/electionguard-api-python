@@ -19,7 +19,7 @@ from electionguard.key_ceremony import (
 )
 from electionguard.rsa import rsa_decrypt, rsa_encrypt
 from electionguard.serializable import read_json_object, write_json_object
-from electionguard.types import GUARDIAN_ID
+from electionguard.type import GUARDIAN_ID
 
 from app.api.v1.models.base import BaseQueryRequest
 from app.api.v1.models.guardian import ApiGuardianQueryResponse

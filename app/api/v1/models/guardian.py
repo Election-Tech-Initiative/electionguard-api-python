@@ -8,7 +8,7 @@ import electionguard.guardian
 import electionguard.key_ceremony
 import electionguard.schnorr
 from electionguard.serializable import read_json_object
-from electionguard.types import GUARDIAN_ID
+from electionguard.type import GUARDIAN_ID
 
 from .base import Base, BaseRequest, BaseResponse
 

@@ -1,7 +1,7 @@
 from typing import Any, List, Optional
 from enum import Enum
 
-from electionguard.types import GUARDIAN_ID
+from electionguard.type import GUARDIAN_ID
 
 from .base import Base, BaseRequest, BaseResponse
 

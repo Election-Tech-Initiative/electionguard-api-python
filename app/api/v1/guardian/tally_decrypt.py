@@ -1,12 +1,11 @@
 # pylint: disable=unused-argument
 from datetime import datetime
 from typing import Dict
-from electionguard.election import CiphertextElectionContext
 from electionguard.scheduler import Scheduler
 from electionguard.manifest import ElectionType, Manifest, InternalManifest
 from electionguard.tally import CiphertextTally, CiphertextTallyContest
 from electionguard.serializable import read_json_object, write_json_object
-from electionguard.types import CONTEST_ID
+from electionguard.type import CONTEST_ID
 from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
 
 from app.core.scheduler import get_scheduler
@@ -50,7 +49,7 @@ def decrypt_share(
     Decrypt a single guardian's share of a tally
     """
     guardian = get_guardian(data.guardian_id, request.app.state.settings)
-    context = CiphertextElectionContext.from_json_object(data.context)
+    context = data.context.to_sdk_format()
 
     # TODO: HACK: Remove The Empty Manifest
     # Note: The CiphertextTally requires an internal manifest passed into its constructor
