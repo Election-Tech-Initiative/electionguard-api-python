@@ -33,12 +33,12 @@
 									"urlencoded": [
 										{
 											"key": "username",
-											"value": "default",
+											"value": "{{admin-username}}",
 											"type": "text"
 										},
 										{
 											"key": "password",
-											"value": "<this is a default value and should be changed>",
+											"value": "{{admin-password}}",
 											"type": "text"
 										},
 										{
