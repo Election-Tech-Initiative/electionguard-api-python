@@ -1,0 +1,182 @@
+{
+	"info": {
+		"_postman_id": "6909f57a-7b81-4378-9548-140b6135d969",
+		"name": "ElectionGuard API Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "End-To-End Happy Path",
+			"item": [
+				{
+					"name": "1. Authenticate",
+					"item": [
+						{
+							"name": "1.1 Login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"token\", jsonData.access_token);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "username",
+											"value": "default",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "<this is a default value and should be changed>",
+											"type": "text"
+										},
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "admin",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "electionguard-default-client-id",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "electionguard-default-client-secret",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/auth/login",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "2. Create User",
+					"item": [
+						{
+							"name": "2.1 Create Guardian",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"run-id\", Math.floor(Math.random() * 10000).toString());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"e2e-{{run-id}}\",\n    \"first_name\": \"Ben-{{run-id}}\",\n    \"last_name\": \"Franklin-{{run-id}}\",\n    \"email\": \"ben.franklin.{{run-id}}@usa.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/user",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"user"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "3. Create Joint Key",
+					"item": []
+				},
+				{
+					"name": "4. Key Ceremony",
+					"item": []
+				},
+				{
+					"name": "5. Election Setup",
+					"item": []
+				},
+				{
+					"name": "New Folder",
+					"item": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "run-id",
+			"value": ""
+		}
+	]
+}
