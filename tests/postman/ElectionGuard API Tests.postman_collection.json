@@ -224,7 +224,7 @@
 							"response": []
 						},
 						{
-							"name": "3.2 Create Mediator Guardian2",
+							"name": "3.3 Create Mediator Guardian2",
 							"request": {
 								"method": "PUT",
 								"header": [],
@@ -246,6 +246,566 @@
 										"api",
 										"{{version}}",
 										"guardian"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.4 Create Guardian1",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"name\": \"Ada Lovelace\",\n    \"sequence_order\": 1,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{guardian-url}}/api/{{version}}/guardian",
+									"host": [
+										"{{guardian-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"guardian"
+									]
+								},
+								"description": "Start a tally by passing in a batch of ballots.  This will return a tally that can be passed back in to accumulate further ballots."
+							},
+							"response": []
+						},
+						{
+							"name": "3.5 Create Guardian2",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"name\": \"Alan Turing\",\n    \"sequence_order\": 2,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{guardian-url}}/api/{{version}}/guardian",
+									"host": [
+										"{{guardian-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"guardian"
+									]
+								},
+								"description": "Start a tally by passing in a batch of ballots.  This will return a tally that can be passed back in to accumulate further ballots."
+							},
+							"response": []
+						},
+						{
+							"name": "3.6 Get Public Key1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = pm.response.json();\r",
+											"pm.collectionVariables.set(\"user1-public-key-value\", jsonData.public_keys.election.key);\r",
+											"pm.collectionVariables.set(\"user1-public-key-all\", JSON.stringify(jsonData.public_keys));"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{guardian-url}}/api/{{version}}/guardian/public-keys?guardian_id=e2e-ada-{{run-id}}",
+									"host": [
+										"{{guardian-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"guardian",
+										"public-keys"
+									],
+									"query": [
+										{
+											"key": "guardian_id",
+											"value": "e2e-ada-{{run-id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.7 Get Public Key2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = pm.response.json();\r",
+											"pm.collectionVariables.set(\"user2-public-key-value\", jsonData.public_keys.election.key);\r",
+											"pm.collectionVariables.set(\"user2-public-key-all\", JSON.stringify(jsonData.public_keys));"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{guardian-url}}/api/{{version}}/guardian/public-keys?guardian_id=e2e-alan-{{run-id}}",
+									"host": [
+										"{{guardian-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"guardian",
+										"public-keys"
+									],
+									"query": [
+										{
+											"key": "guardian_id",
+											"value": "e2e-alan-{{run-id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.8 Open Key Ceremony",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/open?key_name=e2e-key_ceremony_{{run-id}}",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"key",
+										"ceremony",
+										"open"
+									],
+									"query": [
+										{
+											"key": "key_name",
+											"value": "e2e-key_ceremony_{{run-id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.9 Announce Guardian1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"public_keys\": {{user1-public-key-all}}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/key/guardian/announce",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"key",
+										"guardian",
+										"announce"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.10 Announce Guardian2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"public_keys\": {{user2-public-key-all}}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/key/guardian/announce",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"key",
+										"guardian",
+										"announce"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.11 Create Guardian1 Backup",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = pm.response.json();\r",
+											"pm.collectionVariables.set(\"user1-backups\", JSON.stringify(jsonData.backups));\r",
+											"pm.collectionVariables.set(\"user1-backup1-value\", jsonData.backups[0].encrypted_value);\r",
+											"pm.collectionVariables.set(\"user1-backup2-value\", jsonData.backups[1].encrypted_value);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"quorum\": 2,\n    \"public_keys\": [\n        {{user1-public-key-all}},\n        {{user2-public-key-all}}\n    ],\n    \"override_rsa\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{guardian-url}}/api/{{version}}/guardian/backup",
+									"host": [
+										"{{guardian-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"guardian",
+										"backup"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.12 Create Guardian2 Backup",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = pm.response.json();\r",
+											"pm.collectionVariables.set(\"user2-backups\", JSON.stringify(jsonData.backups));\r",
+											"pm.collectionVariables.set(\"user2-backup1-value\", jsonData.backups[0].encrypted_value);\r",
+											"pm.collectionVariables.set(\"user2-backup2-value\", jsonData.backups[1].encrypted_value);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"quorum\": 2,\n    \"public_keys\": [\n        {{user2-public-key-all}},\n        {{user1-public-key-all}}\n    ],\n    \"override_rsa\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{guardian-url}}/api/{{version}}/guardian/backup",
+									"host": [
+										"{{guardian-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"guardian",
+										"backup"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.13 Share Guardian1 Backups",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"backups\": {{user1-backups}}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/key/guardian/backup",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"key",
+										"guardian",
+										"backup"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.14 Share Guardian2 Backups",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"backups\": {{user2-backups}}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/key/guardian/backup",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"key",
+										"guardian",
+										"backup"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.15 Verify Guardian1 Backup (Guardian)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"backup\": {\n            \"owner_id\": \"e2e-alan-{{run-id}}\",\n            \"designated_id\": \"e2e-ada-{{run-id}}\",\n            \"designated_sequence_order\": 1,\n            \"encrypted_value\": \"{{user1-backup2-value}}\"\n    },\n    \"override_rsa\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{guardian-url}}/api/{{version}}/guardian/backup/verify",
+									"host": [
+										"{{guardian-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"guardian",
+										"backup",
+										"verify"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.16 Verify Guardian2 Backup (Guardian)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"backup\": {\n            \"owner_id\": \"e2e-ada-{{run-id}}\",\n            \"designated_id\": \"e2e-alan-{{run-id}}\",\n            \"designated_sequence_order\": 2,\n            \"encrypted_value\": \"{{user2-backup2-value}}\"\n    },\n    \"override_rsa\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{guardian-url}}/api/{{version}}/guardian/backup/verify",
+									"host": [
+										"{{guardian-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"guardian",
+										"backup",
+										"verify"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.17 Verify Guardian1 Backups (Mediator)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-alan-{{run-id}}\",\n            \"designated_id\": \"e2e-ada-{{run-id}}\",\n            \"verifier_id\": \"e2e-ada-{{run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/key/guardian/verify",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"key",
+										"guardian",
+										"verify"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.18 Verify Guardian2 Backups (Mediator)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-ada-{{run-id}}\",\n            \"designated_id\": \"e2e-alan-{{run-id}}\",\n            \"verifier_id\": \"e2e-alan-{{run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/key/guardian/verify",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"key",
+										"guardian",
+										"verify"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.19 Publish Joint Key",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = pm.response.json();\r",
+											"pm.collectionVariables.set(\"elgamal_public_key\", jsonData.elgamal_public_key);\r",
+											"pm.collectionVariables.set(\"commitment_hash\", jsonData.commitment_hash);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"election_public_keys\":[\n        \"{{user1-public-key-value}}\",\n        \"{{user2-public-key-value}}\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/publish?key_name=e2e-key_ceremony_{{run-id}}",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"key",
+										"ceremony",
+										"publish"
+									],
+									"query": [
+										{
+											"key": "key_name",
+											"value": "e2e-key_ceremony_{{run-id}}"
+										}
 									]
 								}
 							},
@@ -301,6 +861,54 @@
 	"variable": [
 		{
 			"key": "run-id",
+			"value": ""
+		},
+		{
+			"key": "user1-public-key-value",
+			"value": ""
+		},
+		{
+			"key": "user1-public-key-all",
+			"value": ""
+		},
+		{
+			"key": "user2-public-key-value",
+			"value": ""
+		},
+		{
+			"key": "user2-public-key-all",
+			"value": ""
+		},
+		{
+			"key": "user1-backups",
+			"value": ""
+		},
+		{
+			"key": "user1-backup1-value",
+			"value": ""
+		},
+		{
+			"key": "user1-backup2-value",
+			"value": ""
+		},
+		{
+			"key": "user2-backups",
+			"value": ""
+		},
+		{
+			"key": "user2-backup1-value",
+			"value": ""
+		},
+		{
+			"key": "user2-backup2-value",
+			"value": ""
+		},
+		{
+			"key": "elgamal_public_key",
+			"value": ""
+		},
+		{
+			"key": "commitment_hash",
 			"value": ""
 		}
 	]
