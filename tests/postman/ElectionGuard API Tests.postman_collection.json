@@ -81,10 +81,10 @@
 					]
 				},
 				{
-					"name": "2. Create User",
+					"name": "2. Create Users",
 					"item": [
 						{
-							"name": "2.1 Create Guardian",
+							"name": "2.1 Create User1",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -101,7 +101,46 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"username\": \"e2e-{{run-id}}\",\n    \"first_name\": \"Ben-{{run-id}}\",\n    \"last_name\": \"Franklin-{{run-id}}\",\n    \"email\": \"ben.franklin.{{run-id}}@usa.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
+									"raw": "{\n    \"username\": \"e2e-ada-{{run-id}}\",\n    \"first_name\": \"Ada\",\n    \"last_name\": \"Lovelace\",\n    \"email\": \"ada.lovelace.{{run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/user",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"user"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2.1 Create User2",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"e2e-alan-{{run-id}}\",\n    \"first_name\": \"Alan\",\n    \"last_name\": \"Turing\",\n    \"email\": \"alan.turing.{{run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -125,15 +164,101 @@
 					]
 				},
 				{
-					"name": "3. Create Joint Key",
-					"item": []
-				},
-				{
-					"name": "4. Key Ceremony",
-					"item": []
+					"name": "3. Key Ceremony",
+					"item": [
+						{
+							"name": "3.1 Create Key Ceremony",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"number_of_guardians\": 2,\n    \"quorum\": 2,\n    \"guardian_ids\": [\n        \"e2e-ada-{{run-id}}\",\n        \"e2e-alan-{{run-id}}\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"key",
+										"ceremony"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.2 Create Mediator Guardian1",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"name\": \"Ada Lovelace\",\n    \"sequence_order\": 1,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/guardian",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"guardian"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.2 Create Mediator Guardian2",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"name\": \"Alan Turing\",\n    \"sequence_order\": 2,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/guardian",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"guardian"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				},
 				{
 					"name": "5. Election Setup",
+					"item": []
+				},
+				{
+					"name": "3. Create Joint Key",
 					"item": []
 				},
 				{
