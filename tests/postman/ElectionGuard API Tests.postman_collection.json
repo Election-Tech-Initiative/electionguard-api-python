@@ -18,8 +18,12 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"var jsonData = pm.response.json();",
-											"pm.environment.set(\"token\", jsonData.access_token);"
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    var jsonData = pm.response.json();",
+											"    pm.environment.set(\"token\", jsonData.access_token);",
+											"});",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -90,7 +94,21 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"pm.collectionVariables.set(\"run-id\", Math.floor(Math.random() * 10000).toString());"
+											"const runId = Math.floor(Math.random() * 100000);\r",
+											"pm.collectionVariables.set(\"run-id\", runId.toString());\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -133,6 +151,18 @@
 										],
 										"type": "text/javascript"
 									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
 								}
 							],
 							"request": {
@@ -168,6 +198,20 @@
 					"item": [
 						{
 							"name": "3.1 Create Key Ceremony",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "PUT",
 								"header": [],
@@ -197,6 +241,20 @@
 						},
 						{
 							"name": "3.2 Create Mediator Guardian1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "PUT",
 								"header": [],
@@ -225,6 +283,20 @@
 						},
 						{
 							"name": "3.3 Create Mediator Guardian2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "PUT",
 								"header": [],
@@ -253,6 +325,20 @@
 						},
 						{
 							"name": "3.4 Create Guardian1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -282,6 +368,20 @@
 						},
 						{
 							"name": "3.5 Create Guardian2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -316,9 +416,14 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"var jsonData = pm.response.json();\r",
-											"pm.collectionVariables.set(\"user1-public-key-value\", jsonData.public_keys.election.key);\r",
-											"pm.collectionVariables.set(\"user1-public-key-all\", JSON.stringify(jsonData.public_keys));"
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.collectionVariables.set(\"user1-public-key-value\", jsonData.public_keys.election.key);\r",
+											"    pm.collectionVariables.set(\"user1-public-key-all\", JSON.stringify(jsonData.public_keys));\r",
+											"});\r",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -355,9 +460,14 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"var jsonData = pm.response.json();\r",
-											"pm.collectionVariables.set(\"user2-public-key-value\", jsonData.public_keys.election.key);\r",
-											"pm.collectionVariables.set(\"user2-public-key-all\", JSON.stringify(jsonData.public_keys));"
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.collectionVariables.set(\"user2-public-key-value\", jsonData.public_keys.election.key);\r",
+											"    pm.collectionVariables.set(\"user2-public-key-all\", JSON.stringify(jsonData.public_keys));\r",
+											"});\r",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -389,6 +499,20 @@
 						},
 						{
 							"name": "3.8 Open Key Ceremony",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -421,6 +545,9 @@
 									"listen": "test",
 									"script": {
 										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
 											""
 										],
 										"type": "text/javascript"
@@ -462,6 +589,9 @@
 									"listen": "test",
 									"script": {
 										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
 											""
 										],
 										"type": "text/javascript"
@@ -503,10 +633,15 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"var jsonData = pm.response.json();\r",
-											"pm.collectionVariables.set(\"user1-backups\", JSON.stringify(jsonData.backups));\r",
-											"pm.collectionVariables.set(\"user1-backup1-value\", jsonData.backups[0].encrypted_value);\r",
-											"pm.collectionVariables.set(\"user1-backup2-value\", jsonData.backups[1].encrypted_value);"
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.collectionVariables.set(\"user1-backups\", JSON.stringify(jsonData.backups));\r",
+											"    pm.collectionVariables.set(\"user1-backup1-value\", jsonData.backups[0].encrypted_value);\r",
+											"    pm.collectionVariables.set(\"user1-backup2-value\", jsonData.backups[1].encrypted_value);    \r",
+											"});\r",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -546,10 +681,15 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"var jsonData = pm.response.json();\r",
-											"pm.collectionVariables.set(\"user2-backups\", JSON.stringify(jsonData.backups));\r",
-											"pm.collectionVariables.set(\"user2-backup1-value\", jsonData.backups[0].encrypted_value);\r",
-											"pm.collectionVariables.set(\"user2-backup2-value\", jsonData.backups[1].encrypted_value);"
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.collectionVariables.set(\"user2-backups\", JSON.stringify(jsonData.backups));\r",
+											"    pm.collectionVariables.set(\"user2-backup1-value\", jsonData.backups[0].encrypted_value);\r",
+											"    pm.collectionVariables.set(\"user2-backup2-value\", jsonData.backups[1].encrypted_value);    \r",
+											"});\r",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -584,6 +724,20 @@
 						},
 						{
 							"name": "3.13 Share Guardian1 Backups",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -614,6 +768,20 @@
 						},
 						{
 							"name": "3.14 Share Guardian2 Backups",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -644,6 +812,20 @@
 						},
 						{
 							"name": "3.15 Verify Guardian1 Backup (Guardian)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -674,6 +856,20 @@
 						},
 						{
 							"name": "3.16 Verify Guardian2 Backup (Guardian)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -704,6 +900,20 @@
 						},
 						{
 							"name": "3.17 Verify Guardian1 Backups (Mediator)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -734,6 +944,20 @@
 						},
 						{
 							"name": "3.18 Verify Guardian2 Backups (Mediator)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -769,9 +993,23 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"var jsonData = pm.response.json();\r",
-											"pm.collectionVariables.set(\"elgamal_public_key\", jsonData.elgamal_public_key);\r",
-											"pm.collectionVariables.set(\"commitment_hash\", jsonData.commitment_hash);"
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Elgamal Public Key is defined\", function() {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    var elgamalPublicKey = jsonData.elgamal_public_key;\r",
+											"    pm.expect(elgamalPublicKey).not.eq(undefined);\r",
+											"\r",
+											"    pm.collectionVariables.set(\"elgamal_public_key\", elgamalPublicKey);\r",
+											"    pm.collectionVariables.set(\"commitment_hash\", jsonData.commitment_hash);\r",
+											"});\r",
+											"\r",
+											"// print key ceremony name to test results (since it contains the run id, everything else can be inferred)\r",
+											"const keyName = 'e2e-key_ceremony_' + pm.variables.get('run-id');\r",
+											"tests[keyName] = keyName;\r",
+											""
 										],
 										"type": "text/javascript"
 									}
