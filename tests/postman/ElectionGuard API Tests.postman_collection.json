@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "6909f57a-7b81-4378-9548-140b6135d969",
+		"_postman_id": "a66fde13-7db1-4f06-b3ba-3b4b97e4aebb",
 		"name": "ElectionGuard API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -21,7 +21,7 @@
 											"pm.test(\"Status code is 200\", function () {",
 											"    pm.response.to.have.status(200);",
 											"    var jsonData = pm.response.json();",
-											"    pm.environment.set(\"token\", jsonData.access_token);",
+											"    pm.environment.set(\"e2e-token\", jsonData.access_token);",
 											"});",
 											""
 										],
@@ -95,7 +95,7 @@
 									"script": {
 										"exec": [
 											"const runId = Math.floor(Math.random() * 100000);\r",
-											"pm.collectionVariables.set(\"run-id\", runId.toString());\r",
+											"pm.environment.set(\"e2e-run-id\", runId.toString());\r",
 											""
 										],
 										"type": "text/javascript"
@@ -119,7 +119,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"username\": \"e2e-ada-{{run-id}}\",\n    \"first_name\": \"Ada\",\n    \"last_name\": \"Lovelace\",\n    \"email\": \"ada.lovelace.{{run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
+									"raw": "{\n    \"username\": \"e2e-ada-{{e2e-run-id}}\",\n    \"first_name\": \"Ada\",\n    \"last_name\": \"Lovelace\",\n    \"email\": \"ada.lovelace.{{e2e-run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -170,7 +170,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"username\": \"e2e-alan-{{run-id}}\",\n    \"first_name\": \"Alan\",\n    \"last_name\": \"Turing\",\n    \"email\": \"alan.turing.{{run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
+									"raw": "{\n    \"username\": \"e2e-alan-{{e2e-run-id}}\",\n    \"first_name\": \"Alan\",\n    \"last_name\": \"Turing\",\n    \"email\": \"alan.turing.{{e2e-run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -217,7 +217,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"number_of_guardians\": 2,\n    \"quorum\": 2,\n    \"guardian_ids\": [\n        \"e2e-ada-{{run-id}}\",\n        \"e2e-alan-{{run-id}}\"\n    ]\n}",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{e2e-run-id}}\",\n    \"number_of_guardians\": 2,\n    \"quorum\": 2,\n    \"guardian_ids\": [\n        \"e2e-ada-{{e2e-run-id}}\",\n        \"e2e-alan-{{e2e-run-id}}\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -260,7 +260,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"name\": \"Ada Lovelace\",\n    \"sequence_order\": 1,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{e2e-run-id}}\",\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"name\": \"Ada Lovelace\",\n    \"sequence_order\": 1,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -302,7 +302,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"name\": \"Alan Turing\",\n    \"sequence_order\": 2,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{e2e-run-id}}\",\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"name\": \"Alan Turing\",\n    \"sequence_order\": 2,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -344,7 +344,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"name\": \"Ada Lovelace\",\n    \"sequence_order\": 1,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"name\": \"Ada Lovelace\",\n    \"sequence_order\": 1,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -387,7 +387,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"name\": \"Alan Turing\",\n    \"sequence_order\": 2,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"name\": \"Alan Turing\",\n    \"sequence_order\": 2,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -420,8 +420,8 @@
 											"    pm.response.to.have.status(200);\r",
 											"\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.collectionVariables.set(\"user1-public-key-value\", jsonData.public_keys.election.key);\r",
-											"    pm.collectionVariables.set(\"user1-public-key-all\", JSON.stringify(jsonData.public_keys));\r",
+											"    pm.environment.set(\"e2e-user1-public-key-value\", jsonData.public_keys.election.key);\r",
+											"    pm.environment.set(\"e2e-user1-public-key-all\", JSON.stringify(jsonData.public_keys));\r",
 											"});\r",
 											""
 										],
@@ -433,7 +433,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{guardian-url}}/api/{{version}}/guardian/public-keys?guardian_id=e2e-ada-{{run-id}}",
+									"raw": "{{guardian-url}}/api/{{version}}/guardian/public-keys?guardian_id=e2e-ada-{{e2e-run-id}}",
 									"host": [
 										"{{guardian-url}}"
 									],
@@ -446,7 +446,7 @@
 									"query": [
 										{
 											"key": "guardian_id",
-											"value": "e2e-ada-{{run-id}}"
+											"value": "e2e-ada-{{e2e-run-id}}"
 										}
 									]
 								}
@@ -464,8 +464,8 @@
 											"    pm.response.to.have.status(200);\r",
 											"\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.collectionVariables.set(\"user2-public-key-value\", jsonData.public_keys.election.key);\r",
-											"    pm.collectionVariables.set(\"user2-public-key-all\", JSON.stringify(jsonData.public_keys));\r",
+											"    pm.environment.set(\"e2e-user2-public-key-value\", jsonData.public_keys.election.key);\r",
+											"    pm.environment.set(\"e2e-user2-public-key-all\", JSON.stringify(jsonData.public_keys));\r",
 											"});\r",
 											""
 										],
@@ -477,7 +477,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{guardian-url}}/api/{{version}}/guardian/public-keys?guardian_id=e2e-alan-{{run-id}}",
+									"raw": "{{guardian-url}}/api/{{version}}/guardian/public-keys?guardian_id=e2e-alan-{{e2e-run-id}}",
 									"host": [
 										"{{guardian-url}}"
 									],
@@ -490,7 +490,7 @@
 									"query": [
 										{
 											"key": "guardian_id",
-											"value": "e2e-alan-{{run-id}}"
+											"value": "e2e-alan-{{e2e-run-id}}"
 										}
 									]
 								}
@@ -517,7 +517,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/open?key_name=e2e-key_ceremony_{{run-id}}",
+									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/open?key_name=e2e-key_ceremony_{{e2e-run-id}}",
 									"host": [
 										"{{mediator-url}}"
 									],
@@ -531,7 +531,7 @@
 									"query": [
 										{
 											"key": "key_name",
-											"value": "e2e-key_ceremony_{{run-id}}"
+											"value": "e2e-key_ceremony_{{e2e-run-id}}"
 										}
 									]
 								}
@@ -559,7 +559,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"public_keys\": {{user1-public-key-all}}\n}",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{e2e-run-id}}\",\n    \"public_keys\": {{e2e-user1-public-key-all}}\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -603,7 +603,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"public_keys\": {{user2-public-key-all}}\n}",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{e2e-run-id}}\",\n    \"public_keys\": {{e2e-user2-public-key-all}}\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -637,9 +637,9 @@
 											"    pm.response.to.have.status(200);\r",
 											"\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.collectionVariables.set(\"user1-backups\", JSON.stringify(jsonData.backups));\r",
-											"    pm.collectionVariables.set(\"user1-backup1-value\", jsonData.backups[0].encrypted_value);\r",
-											"    pm.collectionVariables.set(\"user1-backup2-value\", jsonData.backups[1].encrypted_value);    \r",
+											"    pm.environment.set(\"e2e-user1-backups\", JSON.stringify(jsonData.backups));\r",
+											"    pm.environment.set(\"e2e-user1-backup1-value\", jsonData.backups[0].encrypted_value);\r",
+											"    pm.environment.set(\"e2e-user1-backup2-value\", jsonData.backups[1].encrypted_value);    \r",
 											"});\r",
 											""
 										],
@@ -652,7 +652,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"quorum\": 2,\n    \"public_keys\": [\n        {{user1-public-key-all}},\n        {{user2-public-key-all}}\n    ],\n    \"override_rsa\": true\n}",
+									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"quorum\": 2,\n    \"public_keys\": [\n        {{e2e-user1-public-key-all}},\n        {{e2e-user2-public-key-all}}\n    ],\n    \"override_rsa\": true\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -685,9 +685,9 @@
 											"    pm.response.to.have.status(200);\r",
 											"\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.collectionVariables.set(\"user2-backups\", JSON.stringify(jsonData.backups));\r",
-											"    pm.collectionVariables.set(\"user2-backup1-value\", jsonData.backups[0].encrypted_value);\r",
-											"    pm.collectionVariables.set(\"user2-backup2-value\", jsonData.backups[1].encrypted_value);    \r",
+											"    pm.environment.set(\"e2e-user2-backups\", JSON.stringify(jsonData.backups));\r",
+											"    pm.environment.set(\"e2e-user2-backup1-value\", jsonData.backups[0].encrypted_value);\r",
+											"    pm.environment.set(\"e2e-user2-backup2-value\", jsonData.backups[1].encrypted_value);    \r",
 											"});\r",
 											""
 										],
@@ -700,7 +700,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"quorum\": 2,\n    \"public_keys\": [\n        {{user2-public-key-all}},\n        {{user1-public-key-all}}\n    ],\n    \"override_rsa\": true\n}",
+									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"quorum\": 2,\n    \"public_keys\": [\n        {{e2e-user2-public-key-all}},\n        {{e2e-user1-public-key-all}}\n    ],\n    \"override_rsa\": true\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -743,7 +743,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"backups\": {{user1-backups}}\n}",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{e2e-run-id}}\",\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"backups\": {{e2e-user1-backups}}\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -787,7 +787,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"backups\": {{user2-backups}}\n}",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{e2e-run-id}}\",\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"backups\": {{e2e-user2-backups}}\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -831,7 +831,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"backup\": {\n            \"owner_id\": \"e2e-alan-{{run-id}}\",\n            \"designated_id\": \"e2e-ada-{{run-id}}\",\n            \"designated_sequence_order\": 1,\n            \"encrypted_value\": \"{{user1-backup2-value}}\"\n    },\n    \"override_rsa\": true\n}",
+									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"backup\": {\n            \"owner_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"designated_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"designated_sequence_order\": 1,\n            \"encrypted_value\": \"{{e2e-user1-backup2-value}}\"\n    },\n    \"override_rsa\": true\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -875,7 +875,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"backup\": {\n            \"owner_id\": \"e2e-ada-{{run-id}}\",\n            \"designated_id\": \"e2e-alan-{{run-id}}\",\n            \"designated_sequence_order\": 2,\n            \"encrypted_value\": \"{{user2-backup2-value}}\"\n    },\n    \"override_rsa\": true\n}",
+									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"backup\": {\n            \"owner_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"designated_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"designated_sequence_order\": 2,\n            \"encrypted_value\": \"{{e2e-user2-backup2-value}}\"\n    },\n    \"override_rsa\": true\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -919,7 +919,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-alan-{{run-id}}\",\n            \"designated_id\": \"e2e-ada-{{run-id}}\",\n            \"verifier_id\": \"e2e-ada-{{run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{e2e-run-id}}\",\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"designated_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"verifier_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -963,7 +963,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-ada-{{run-id}}\",\n            \"designated_id\": \"e2e-alan-{{run-id}}\",\n            \"verifier_id\": \"e2e-alan-{{run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
+									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{e2e-run-id}}\",\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"designated_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"verifier_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1002,12 +1002,13 @@
 											"    var elgamalPublicKey = jsonData.elgamal_public_key;\r",
 											"    pm.expect(elgamalPublicKey).not.eq(undefined);\r",
 											"\r",
-											"    pm.collectionVariables.set(\"elgamal_public_key\", elgamalPublicKey);\r",
-											"    pm.collectionVariables.set(\"commitment_hash\", jsonData.commitment_hash);\r",
+											"    pm.environment.set(\"e2e-elgamal-public-key\", elgamalPublicKey);\r",
+											"    pm.environment.set(\"e2e-commitment-hash\", jsonData.commitment_hash);\r",
 											"});\r",
 											"\r",
 											"// print key ceremony name to test results (since it contains the run id, everything else can be inferred)\r",
-											"const keyName = 'e2e-key_ceremony_' + pm.variables.get('run-id');\r",
+											"const keyName = 'e2e-key_ceremony_' + pm.variables.get('e2e-run-id');\r",
+											"console.log('key_name', keyName);\r",
 											"tests[keyName] = keyName;\r",
 											""
 										],
@@ -1020,7 +1021,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"election_public_keys\":[\n        \"{{user1-public-key-value}}\",\n        \"{{user2-public-key-value}}\"\n    ]\n}",
+									"raw": "{\n    \"election_public_keys\":[\n        \"{{e2e-user1-public-key-value}}\",\n        \"{{e2e-user2-public-key-value}}\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1028,7 +1029,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/publish?key_name=e2e-key_ceremony_{{run-id}}",
+									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/publish?key_name=e2e-key_ceremony_{{e2e-run-id}}",
 									"host": [
 										"{{mediator-url}}"
 									],
@@ -1042,7 +1043,7 @@
 									"query": [
 										{
 											"key": "key_name",
-											"value": "e2e-key_ceremony_{{run-id}}"
+											"value": "e2e-key_ceremony_{{e2e-run-id}}"
 										}
 									]
 								}
@@ -1107,7 +1108,7 @@
 											"    var jsonData = pm.response.json();\r",
 											"    const manifestHash = jsonData.manifest_hash;\r",
 											"    console.log('manifest_hash', manifestHash);\r",
-											"    pm.collectionVariables.set(\"manifest_hash\", manifestHash);\r",
+											"    pm.environment.set(\"e2e-manifest-hash\", manifestHash);\r",
 											"});\r",
 											"\r",
 											""
@@ -1153,8 +1154,8 @@
 											"    pm.response.to.have.status(200);\r",
 											"\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.collectionVariables.set(\"crypto_base_hash\", jsonData.context.crypto_base_hash);\r",
-											"    pm.collectionVariables.set(\"crypto_extended_base_hash\", jsonData.context.crypto_extended_base_hash);\r",
+											"    pm.environment.set(\"e2e-crypto-base-hash\", jsonData.context.crypto_base_hash);\r",
+											"    pm.environment.set(\"e2e-crypto-extended-base-hash\", jsonData.context.crypto_extended_base_hash);\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -1166,7 +1167,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"manifest_hash\": \"{{manifest_hash}}\",\n    \"elgamal_public_key\": \"{{elgamal_public_key}}\",\n    \"commitment_hash\": \"{{commitment_hash}}\",\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"raw": "{\n    \"manifest_hash\": \"{{e2e-manifest-hash}}\",\n    \"elgamal_public_key\": \"{{e2e-elgamal-public-key}}\",\n    \"commitment_hash\": \"{{e2e-commitment-hash}}\",\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1197,7 +1198,13 @@
 										"exec": [
 											"pm.test(\"Status code is 200\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
-											"});"
+											"});\r",
+											"\r",
+											"// print election id to test results\r",
+											"const electionId = 'e2e-election-' + pm.variables.get('e2e-run-id');\r",
+											"console.log('election_id', electionId);\r",
+											"tests[electionId] = electionId;\r",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1208,7 +1215,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"election_id\": \"e2e-election-{{run-id}}\",\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"context\": {\n        \"commitment_hash\": \"{{commitment_hash}}\",\n        \"crypto_base_hash\": \"{{crypto_base_hash}}\",\n        \"crypto_extended_base_hash\": \"{{crypto_extended_base_hash}}\",\n        \"elgamal_public_key\": \"{{elgamal_public_key}}\",\n        \"manifest_hash\": \"{{manifest_hash}}\",\n        \"number_of_guardians\": 2,\n        \"quorum\": 2\n    }\n}",
+									"raw": "{\n    \"election_id\": \"e2e-election-{{e2e-run-id}}\",\n    \"key_name\": \"e2e-key_ceremony_{{e2e-run-id}}\",\n    \"context\": {\n        \"commitment_hash\": \"{{e2e-commitment-hash}}\",\n        \"crypto_base_hash\": \"{{e2e-crypto-base-hash}}\",\n        \"crypto_extended_base_hash\": \"{{e2e-crypto-extended-base-hash}}\",\n        \"elgamal_public_key\": \"{{e2e-elgamal-public-key}}\",\n        \"manifest_hash\": \"{{e2e-manifest-hash}}\",\n        \"number_of_guardians\": 2,\n        \"quorum\": 2\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1236,11 +1243,7 @@
 					"item": []
 				},
 				{
-					"name": "6. Upload Ballots Copy",
-					"item": []
-				},
-				{
-					"name": "7. Tally",
+					"name": "6. Tally",
 					"item": []
 				}
 			]
@@ -1251,7 +1254,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "{{token}}",
+				"value": "{{e2e-token}}",
 				"type": "string"
 			}
 		]
@@ -1274,76 +1277,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "run-id",
-			"value": ""
-		},
-		{
-			"key": "user1-public-key-value",
-			"value": ""
-		},
-		{
-			"key": "user1-public-key-all",
-			"value": ""
-		},
-		{
-			"key": "user2-public-key-value",
-			"value": ""
-		},
-		{
-			"key": "user2-public-key-all",
-			"value": ""
-		},
-		{
-			"key": "user1-backups",
-			"value": ""
-		},
-		{
-			"key": "user1-backup1-value",
-			"value": ""
-		},
-		{
-			"key": "user1-backup2-value",
-			"value": ""
-		},
-		{
-			"key": "user2-backups",
-			"value": ""
-		},
-		{
-			"key": "user2-backup1-value",
-			"value": ""
-		},
-		{
-			"key": "user2-backup2-value",
-			"value": ""
-		},
-		{
-			"key": "elgamal_public_key",
-			"value": ""
-		},
-		{
-			"key": "commitment_hash",
-			"value": ""
-		},
-		{
-			"key": "manifest-hash",
-			"value": ""
-		},
-		{
-			"key": "manifest_hash",
-			"value": ""
-		},
-		{
-			"key": "crypto_base_hash",
-			"value": ""
-		},
-		{
-			"key": "crypto_extended_base_hash",
-			"value": ""
 		}
 	]
 }
