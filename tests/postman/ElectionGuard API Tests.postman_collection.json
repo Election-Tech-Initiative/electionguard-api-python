@@ -1048,19 +1048,199 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "3.20 Close Key Ceremony",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/close?key_name=key_ceremony_1",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"key",
+										"ceremony",
+										"close"
+									],
+									"query": [
+										{
+											"key": "key_name",
+											"value": "key_ceremony_1"
+										}
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
 				{
-					"name": "5. Election Setup",
+					"name": "4. Election Setup",
+					"item": [
+						{
+							"name": "4.1 Create Manifest",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 202\", function () {\r",
+											"    pm.response.to.have.status(202);\r",
+											"\r",
+											"    var jsonData = pm.response.json();\r",
+											"    const manifestHash = jsonData.manifest_hash;\r",
+											"    console.log('manifest_hash', manifestHash);\r",
+											"    pm.collectionVariables.set(\"manifest_hash\", manifestHash);\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"manifest\": {\n    \"ballot_styles\": [\n      {\n        \"geopolitical_unit_ids\": [\"hamilton-county\", \"congress-district-7\"],\n        \"object_id\": \"congress-district-7-hamilton-county\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-7\",\n          \"lacroix-township-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-7-lacroix\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-7\",\n          \"lacroix-township-precinct-1\",\n          \"lacroix-exeter-utility-district\"\n        ],\n        \"object_id\": \"congress-district-7-lacroix-exeter\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-7\",\n          \"arlington-township-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-7-arlington\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-7\",\n          \"arlington-township-precinct-1\",\n          \"pismo-beach-school-district-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-7-arlington-pismo-beach\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-7\",\n          \"arlington-township-precinct-1\",\n          \"somerset-school-district-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-7-arlington-somerset\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\"hamilton-county\", \"congress-district-5\"],\n        \"object_id\": \"congress-district-5-hamilton-county\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-5\",\n          \"lacroix-township-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-5-lacroix\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-5\",\n          \"harris-township\"\n        ],\n        \"object_id\": \"congress-district-5-harris\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-5\",\n          \"arlington-township-precinct-1\",\n          \"pismo-beach-school-district-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-5-arlington-pismo-beach\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-5\",\n          \"arlington-township-precinct-1\",\n          \"somerset-school-district-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-5-arlington-somerset\"\n      }\n    ],\n    \"candidates\": [\n      {\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Joseph Barchi and Joseph Hallaren\" }\n          ]\n        },\n        \"object_id\": \"barchi-hallaren\",\n        \"party_id\": \"whig\"\n      },\n      {\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Adam Cramer and Greg Vuocolo\" }\n          ]\n        },\n        \"object_id\": \"cramer-vuocolo\",\n        \"party_id\": \"federalist\"\n      },\n      {\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Daniel Court and Amy Blumhardt\" }\n          ]\n        },\n        \"object_id\": \"court-blumhardt\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Alvin Boone and James Lian\" }]\n        },\n        \"object_id\": \"boone-lian\",\n        \"party_id\": \"liberty\"\n      },\n      {\n        \"name\": {\n          \"text\": [\n            {\n              \"language\": \"en\",\n              \"value\": \"Ashley Hildebrand-McDougall and James Garritty\"\n            }\n          ]\n        },\n        \"object_id\": \"hildebrand-garritty\",\n        \"party_id\": \"constitution\"\n      },\n      {\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Martin Patterson and Clay Lariviere\" }\n          ]\n        },\n        \"object_id\": \"patterson-lariviere\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Charlene Franz\" }] },\n        \"object_id\": \"franz\",\n        \"party_id\": \"federalist\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Gerald Harris\" }] },\n        \"object_id\": \"harris\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Linda Bargmann\" }] },\n        \"object_id\": \"bargmann\",\n        \"party_id\": \"constitution\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Barbara Abcock\" }] },\n        \"object_id\": \"abcock\",\n        \"party_id\": \"liberty\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Carrie Steel-Loy\" }] },\n        \"object_id\": \"steel-loy\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Frederick Sharp\" }] },\n        \"object_id\": \"sharp\",\n        \"party_id\": \"constitution\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Alex Wallace\" }] },\n        \"object_id\": \"wallace\",\n        \"party_id\": \"independent\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Barbara Williams\" }] },\n        \"object_id\": \"williams\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Althea Sharp\" }] },\n        \"object_id\": \"sharp-althea\",\n        \"party_id\": \"whig\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Douglas Alpern\" }] },\n        \"object_id\": \"alpern\",\n        \"party_id\": \"federalist\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Ann Windbeck\" }] },\n        \"object_id\": \"windbeck\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Mike Greher\" }] },\n        \"object_id\": \"greher\",\n        \"party_id\": \"constitution\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Patricia Alexander\" }]\n        },\n        \"object_id\": \"alexander\",\n        \"party_id\": \"whig\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Kenneth Mitchell\" }] },\n        \"object_id\": \"mitchell\",\n        \"party_id\": \"federalist\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Stan Lee\" }] },\n        \"object_id\": \"lee\",\n        \"party_id\": \"independent\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Henry Ash\" }] },\n        \"object_id\": \"ash\",\n        \"party_id\": \"liberty\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Karen Kennedy\" }] },\n        \"object_id\": \"kennedy\",\n        \"party_id\": \"independent\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Van Jackson\" }] },\n        \"object_id\": \"jackson\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Debbie Brown\" }] },\n        \"object_id\": \"brown\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Joseph Teller\" }] },\n        \"object_id\": \"teller\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Greg Ward\" }] },\n        \"object_id\": \"ward\",\n        \"party_id\": \"independent\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Lou Murphy\" }] },\n        \"object_id\": \"murphy\",\n        \"party_id\": \"federalist\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Jane Newman\" }] },\n        \"object_id\": \"newman\",\n        \"party_id\": \"whig\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Jack Callanann\" }] },\n        \"object_id\": \"callanann\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Esther York\" }] },\n        \"object_id\": \"york\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Glenn Chandler\" }] },\n        \"object_id\": \"chandler\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Andrea Solis\" }] },\n        \"object_id\": \"solis\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Amos Keller\" }] },\n        \"object_id\": \"keller\",\n        \"party_id\": \"constitution\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Davitra Rangel\" }] },\n        \"object_id\": \"rangel\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Camille Argent\" }] },\n        \"object_id\": \"argent\",\n        \"party_id\": \"liberty\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Chloe Witherspoon-Smithson\" }]\n        },\n        \"object_id\": \"witherspoon-smithson\",\n        \"party_id\": \"independent\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Clayton Bainbridge\" }]\n        },\n        \"object_id\": \"bainbridge\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Charlene Hennessey\" }]\n        },\n        \"object_id\": \"hennessey\",\n        \"party_id\": \"whig\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Eric Savoy\" }] },\n        \"object_id\": \"savoy\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Susan Tawa\" }] },\n        \"object_id\": \"tawa\",\n        \"party_id\": \"constitution\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Mary Tawa\" }] },\n        \"object_id\": \"tawa-mary\",\n        \"party_id\": \"independent\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Valarie Altman\" }] },\n        \"object_id\": \"altman\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Helen Moore\" }] },\n        \"object_id\": \"moore\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"John White\" }] },\n        \"object_id\": \"white\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"John Smallberries\" }]\n        },\n        \"object_id\": \"smallberries\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"John Warfin\" }] },\n        \"object_id\": \"warfin\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Chris Norberg\" }] },\n        \"object_id\": \"norberg\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Abigail Parks\" }] },\n        \"object_id\": \"parks\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Harmony Savannah\" }] },\n        \"object_id\": \"savannah\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Buffy Summers\" }] },\n        \"object_id\": \"summers\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Cordelia Chase\" }] },\n        \"object_id\": \"chase\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Daniel Osborne\" }] },\n        \"object_id\": \"osborne\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Willow Rosenberg\" }] },\n        \"object_id\": \"rosenberg\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Anthony Stewart Head\" }]\n        },\n        \"object_id\": \"head\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"James Marsters\" }] },\n        \"object_id\": \"marsters\"\n      },\n      {\n        \"isWriteIn\": true,\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Write In Candidate\" },\n            { \"language\": \"es\", \"value\": \"Escribir en la candidata\" }\n          ]\n        },\n        \"object_id\": \"write-in-1\"\n      },\n      {\n        \"isWriteIn\": true,\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Write In Candidate\" },\n            { \"language\": \"es\", \"value\": \"Escribir en la candidata\" }\n          ]\n        },\n        \"object_id\": \"write-in-2\"\n      },\n      {\n        \"isWriteIn\": true,\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Write In Candidate\" },\n            { \"language\": \"es\", \"value\": \"Escribir en la candidata\" }\n          ]\n        },\n        \"object_id\": \"write-in-3\"\n      },\n      {\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Retain\" },\n            { \"language\": \"es\", \"value\": \"Conservar\" }\n          ]\n        },\n        \"object_id\": \"ozark-chief-justice-retain-demergue-affirmative\"\n      },\n      {\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Reject\" },\n            { \"language\": \"es\", \"value\": \"Rechazar\" }\n          ]\n        },\n        \"object_id\": \"ozark-chief-justice-retain-demergue-negative\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Yes\" }] },\n        \"object_id\": \"exeter-utility-district-referendum-affirmative\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"No\" }] },\n        \"object_id\": \"exeter-utility-district-referendum-negative\"\n      }\n    ],\n    \"contact_information\": {\n      \"address_line\": [\"1234 Paul Revere Run\", \"Hamilton, Ozark 99999\"],\n      \"email\": [\n        { \"annotation\": \"press\", \"value\": \"inquiries@hamilton.state.gov\" },\n        { \"annotation\": \"federal\", \"value\": \"commissioner@hamilton.state.gov\" }\n      ],\n      \"name\": \"Hamilton State Election Commission\",\n      \"phone\": [\n        { \"annotation\": \"domestic\", \"value\": \"123-456-7890\" },\n        { \"annotation\": \"international\", \"value\": \"+1-123-456-7890\" }\n      ]\n    },\n    \"contests\": [\n      {\n        \"@type\": \"CandidateContest\",\n        \"ballot_selections\": [\n          {\n            \"candidate_id\": \"barchi-hallaren\",\n            \"object_id\": \"barchi-hallaren-selection\",\n            \"sequence_order\": 0\n          },\n          {\n            \"candidate_id\": \"cramer-vuocolo\",\n            \"object_id\": \"cramer-vuocolo-selection\",\n            \"sequence_order\": 1\n          }\n        ],\n        \"ballot_subtitle\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Vote for one\" },\n            { \"language\": \"es\", \"value\": \"Votar por uno\" }\n          ]\n        },\n        \"ballot_title\": {\n          \"text\": [\n            {\n              \"language\": \"en\",\n              \"value\": \"President and Vice President of the United States\"\n            },\n            {\n              \"language\": \"es\",\n              \"value\": \"Presidente y Vicepresidente de los Estados Unidos\"\n            }\n          ]\n        },\n        \"electoral_district_id\": \"hamilton-county\",\n        \"name\": \"President and Vice President of the United States\",\n        \"number_elected\": 1,\n        \"object_id\": \"president-vice-president-contest\",\n        \"sequence_order\": 0,\n        \"vote_variation\": \"one_of_m\",\n        \"votes_allowed\": 1\n      }\n    ],\n    \"election_scope_id\": \"hamilton-county-general-election\",\n    \"end_date\": \"2020-03-01T20:00:00-05:00\",\n    \"geopolitical_units\": [\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Samuel Adams Way\", \"Hamilton, Ozark 99999\"],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@hamiltoncounty.gov\"\n            }\n          ],\n          \"name\": \"Hamilton County Clerk\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Hamilton County\",\n        \"object_id\": \"hamilton-county\",\n        \"type\": \"county\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Somerville Gateway\", \"Medford, Ozark 999999\"],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@congressional-district-5.gov\"\n            }\n          ],\n          \"name\": \"Medford Town Hall\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Congressional District 5\",\n        \"object_id\": \"congress-district-5\",\n        \"type\": \"congressional\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\n            \"1234 Somerville Gateway\",\n            \"Arlington, Ozark 999999\"\n          ],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@congressional-district-7.gov\"\n            }\n          ],\n          \"name\": \"Arlington Town Hall\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Congressional District 7\",\n        \"object_id\": \"congress-district-7\",\n        \"type\": \"congressional\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Thorton Drive\", \"LaCroix, Ozark 99999\"],\n          \"email\": [\n            { \"annotation\": \"inquiries\", \"value\": \"inquiries@lacrox.gov\" }\n          ],\n          \"name\": \"LaCroix Town Hall\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"LaCroix Township Precinct 1\",\n        \"object_id\": \"lacroix-township-precinct-1\",\n        \"type\": \"precinct\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Watt Drive\", \"LaCroix, Ozark 99999\"],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@exeter-utility.com\"\n            }\n          ],\n          \"name\": \"Exeter Utility District coordinator\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Exeter Utility District\",\n        \"object_id\": \"lacroix-exeter-utility-district\",\n        \"type\": \"utility\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Pahk Avenue\", \"Arlinton, Ozark 99999\"],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@arlington-township.gov\"\n            }\n          ],\n          \"name\": \"Arlington Town Hall\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Arlington Township Precinct 1\",\n        \"object_id\": \"arlington-township-precinct-1\",\n        \"type\": \"precinct\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\n            \"1234 Pismo Beach Elementary\",\n            \"Arlington, Ozark 99999\"\n          ],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@pismo-beach-school.edu\"\n            }\n          ],\n          \"name\": \"Pismo Beah Elementary\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Pismo Beach School District Precinct 1\",\n        \"object_id\": \"pismo-beach-school-district-precinct-1\",\n        \"type\": \"school\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Somerset Avenue\", \"Arlinton, Ozark 99999\"],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@somerset-elementary.edu\"\n            }\n          ],\n          \"name\": \"Someset Elementary\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Somerset School District\",\n        \"object_id\": \"somerset-school-district-precinct-1\",\n        \"type\": \"school\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Pahk Avenue\", \"Harris, Ozark 99999\"],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@harris-township.gov\"\n            }\n          ],\n          \"name\": \"harris Town Hall\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Harris Township\",\n        \"object_id\": \"harris-township\",\n        \"type\": \"township\"\n      }\n    ],\n    \"name\": {\n      \"text\": [\n        { \"language\": \"en\", \"value\": \"Hamiltion County General Election\" },\n        {\n          \"language\": \"es\",\n          \"value\": \"Elecci\\u00f3n general del condado de Hamilton\"\n        }\n      ]\n    },\n    \"parties\": [\n      {\n        \"abbreviation\": \"WHI\",\n        \"color\": \"AAAAAA\",\n        \"logo_uri\": \"http://some/path/to/whig.svg\",\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Whig Party\" }] },\n        \"object_id\": \"whig\"\n      },\n      {\n        \"abbreviation\": \"FED\",\n        \"color\": \"BBBBBB\",\n        \"logo_uri\": \"http://some/path/to/federalist.svg\",\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Federalist Party\" }] },\n        \"object_id\": \"federalist\"\n      },\n      {\n        \"abbreviation\": \"PPL\",\n        \"color\": \"CCCCCC\",\n        \"logo_uri\": \"http://some/path/to/people-s.svg\",\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"People's Party\" }] },\n        \"object_id\": \"peoples\"\n      },\n      {\n        \"abbreviation\": \"LIB\",\n        \"color\": \"DDDDDD\",\n        \"logo_uri\": \"http://some/path/to/liberty.svg\",\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Liberty Party\" }] },\n        \"object_id\": \"liberty\"\n      },\n      {\n        \"abbreviation\": \"CONST\",\n        \"color\": \"EEEEEE\",\n        \"logo_uri\": \"http://some/path/to/democratic-repulbican.svg\",\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Constitution Party\" }]\n        },\n        \"object_id\": \"constitution\"\n      },\n      {\n        \"abbreviation\": \"LBR\",\n        \"color\": \"FFFFFF\",\n        \"logo_uri\": \"http://some/path/to/laobr.svg\",\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Labor Party\" }] },\n        \"object_id\": \"labor\"\n      },\n      {\n        \"abbreviation\": \"IND\",\n        \"color\": \"000000\",\n        \"logo_uri\": \"http://some/path/to/independent.svg\",\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Independent\" }] },\n        \"object_id\": \"independent\"\n      }\n    ],\n    \"spec_version\": \"v0.95\",\n    \"start_date\": \"2020-03-01T08:00:00-05:00\",\n    \"type\": \"general\"\n  }\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/manifest",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"manifest"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4.2 Build Election Context",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.collectionVariables.set(\"crypto_base_hash\", jsonData.context.crypto_base_hash);\r",
+											"    pm.collectionVariables.set(\"crypto_extended_base_hash\", jsonData.context.crypto_extended_base_hash);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"manifest_hash\": \"{{manifest_hash}}\",\n    \"elgamal_public_key\": \"{{elgamal_public_key}}\",\n    \"commitment_hash\": \"{{commitment_hash}}\",\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/election/context",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"election",
+										"context"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4.3 Create Election",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"election_id\": \"e2e-election-{{run-id}}\",\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"context\": {\n        \"commitment_hash\": \"{{commitment_hash}}\",\n        \"crypto_base_hash\": \"{{crypto_base_hash}}\",\n        \"crypto_extended_base_hash\": \"{{crypto_extended_base_hash}}\",\n        \"elgamal_public_key\": \"{{elgamal_public_key}}\",\n        \"manifest_hash\": \"{{manifest_hash}}\",\n        \"number_of_guardians\": 2,\n        \"quorum\": 2\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/election",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"election"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "5. Upload Ballots",
 					"item": []
 				},
 				{
-					"name": "3. Create Joint Key",
+					"name": "6. Upload Ballots Copy",
 					"item": []
 				},
 				{
-					"name": "New Folder",
+					"name": "7. Tally",
 					"item": []
 				}
 			]
@@ -1147,6 +1327,22 @@
 		},
 		{
 			"key": "commitment_hash",
+			"value": ""
+		},
+		{
+			"key": "manifest-hash",
+			"value": ""
+		},
+		{
+			"key": "manifest_hash",
+			"value": ""
+		},
+		{
+			"key": "crypto_base_hash",
+			"value": ""
+		},
+		{
+			"key": "crypto_extended_base_hash",
 			"value": ""
 		}
 	]
