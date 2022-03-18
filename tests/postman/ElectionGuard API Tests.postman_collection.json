@@ -216,7 +216,7 @@
 									"script": {
 										"exec": [
 											"const keyName = 'e2e-key_ceremony_' + pm.variables.get('e2e-run-id');\r",
-											"pm.environment.set('key-name', keyName);"
+											"pm.environment.set('e2e-key-name', keyName);"
 										],
 										"type": "text/javascript"
 									}
@@ -1039,7 +1039,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/publish?key_name=e2e-key_ceremony_{{e2e-run-id}}",
+									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/publish?key_name={{e2e-key-name}}",
 									"host": [
 										"{{mediator-url}}"
 									],
@@ -1053,7 +1053,7 @@
 									"query": [
 										{
 											"key": "key_name",
-											"value": "e2e-key_ceremony_{{e2e-run-id}}"
+											"value": "{{e2e-key-name}}"
 										}
 									]
 								}
@@ -1211,7 +1211,7 @@
 											"});\r",
 											"\r",
 											"// print election id to test results\r",
-											"const electionId = pm.variables.get('election-id');\r",
+											"const electionId = pm.variables.get('e2e-election-id');\r",
 											"console.log('election_id', electionId);\r",
 											"tests[electionId] = electionId;\r",
 											""
@@ -1277,7 +1277,7 @@
 											"});",
 											"",
 											"pm.test(\"Ballots are returned in the same order as the request\", function () {",
-											"    const requestJson = JSON.parse(pm.request.body.toString())",
+											"    const requestJson = JSON.parse(pm.request.body.raw)",
 											"    const responseJson = pm.response.json();",
 											"    pm.expect(responseJson.encrypted_ballots.length).to.eql(requestJson.ballots.length)",
 											"    for (let i = 0; i < requestJson.ballots.length; i++) {",
@@ -1287,27 +1287,18 @@
 											"    }",
 											"});",
 											"",
-											"pm.test(\"Ballots use proper tracking hashes\", function () {",
-											"    const requestJson = JSON.parse(pm.request.body.toString())",
+											"pm.test(\"Ballots use proper code seed hashes\", function () {",
+											"    const requestJson = JSON.parse(pm.request.body.raw);",
 											"    const responseJson = pm.response.json();",
-											"    latest_hash = requestJson.seed_hash",
+											"    latest_hash = requestJson.seed_hash;",
 											"",
 											"    for (const ballot of responseJson.encrypted_ballots) {",
-											"        pm.expect(ballot.previous_tracking_hash).to.eql(latest_hash)",
-											"        latest_hash = ballot.tracking_hash",
+											"        pm.expect(ballot.code_seed).to.eql(latest_hash);",
+											"        latest_hash = ballot.crypto_hash;",
 											"    }",
-											"    pm.expect(responseJson.next_seed_hash).to.eql(latest_hash)",
+											"    pm.expect(responseJson.next_seed_hash).to.eql(latest_hash);",
 											"});",
-											"",
-											"pm.test(\"Ballots use the provided nonce\", function () {",
-											"    const requestJson = JSON.parse(pm.request.body.toString())",
-											"    const responseJson = pm.response.json();",
-											"    const nonce = requestJson.nonce",
-											"",
-											"    for (const ballot of responseJson.encrypted_ballots) {",
-											"        pm.expect(ballot.nonce).to.eql(nonce)",
-											"    }",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1342,6 +1333,19 @@
 						},
 						{
 							"name": "5.2 Cast Ballots",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 202\", function () {\r",
+											"    pm.response.to.have.status(202);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
