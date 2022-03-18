@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a66fde13-7db1-4f06-b3ba-3b4b97e4aebb",
+		"_postman_id": "d2ae1f31-ce90-444e-accd-a41eca854ce7",
 		"name": "ElectionGuard API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -227,7 +227,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"{{key-name}}\",\n    \"number_of_guardians\": 2,\n    \"quorum\": 2,\n    \"guardian_ids\": [\n        \"e2e-ada-{{e2e-run-id}}\",\n        \"e2e-alan-{{e2e-run-id}}\"\n    ]\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"number_of_guardians\": 2,\n    \"quorum\": 2,\n    \"guardian_ids\": [\n        \"e2e-ada-{{e2e-run-id}}\",\n        \"e2e-alan-{{e2e-run-id}}\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -270,7 +270,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"{{key-name}}\",\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"name\": \"Ada Lovelace\",\n    \"sequence_order\": 1,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"name\": \"Ada Lovelace\",\n    \"sequence_order\": 1,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -312,7 +312,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"{{key-name}}\",\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"name\": \"Alan Turing\",\n    \"sequence_order\": 2,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"name\": \"Alan Turing\",\n    \"sequence_order\": 2,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -527,7 +527,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/open?key_name={{key-name}}",
+									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/open?key_name={{e2e-key-name}}",
 									"host": [
 										"{{mediator-url}}"
 									],
@@ -541,7 +541,7 @@
 									"query": [
 										{
 											"key": "key_name",
-											"value": "{{key-name}}"
+											"value": "{{e2e-key-name}}"
 										}
 									]
 								}
@@ -569,7 +569,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"{{key-name}}\",\n    \"public_keys\": {{e2e-user1-public-key-all}}\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"public_keys\": {{e2e-user1-public-key-all}}\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -613,7 +613,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"{{key-name}}\",\n    \"public_keys\": {{e2e-user2-public-key-all}}\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"public_keys\": {{e2e-user2-public-key-all}}\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -753,7 +753,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"{{key-name}}\",\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"backups\": {{e2e-user1-backups}}\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"backups\": {{e2e-user1-backups}}\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -797,7 +797,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"{{key-name}}\",\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"backups\": {{e2e-user2-backups}}\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"backups\": {{e2e-user2-backups}}\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -929,7 +929,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"{{key-name}}\",\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"designated_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"verifier_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"designated_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"verifier_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -973,7 +973,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"{{key-name}}\",\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"designated_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"verifier_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"designated_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"verifier_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1079,7 +1079,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/close?key_name={{key-name}}",
+									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/close?key_name={{e2e-key-name}}",
 									"host": [
 										"{{mediator-url}}"
 									],
@@ -1093,7 +1093,7 @@
 									"query": [
 										{
 											"key": "key_name",
-											"value": "{{key-name}}"
+											"value": "{{e2e-key-name}}"
 										}
 									]
 								}
@@ -1224,7 +1224,7 @@
 									"script": {
 										"exec": [
 											"const electionId = \"e2e-election-\" + pm.variables.get(\"e2e-run-id\");\r",
-											"pm.environment.set(\"election-id\", electionId);"
+											"pm.environment.set(\"e2e-election-id\", electionId);"
 										],
 										"type": "text/javascript"
 									}
@@ -1235,7 +1235,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"election_id\": \"{{election-id}}\",\n    \"key_name\": \"e2e-key_ceremony_{{e2e-run-id}}\",\n    \"context\": {\n        \"commitment_hash\": \"{{e2e-commitment-hash}}\",\n        \"crypto_base_hash\": \"{{e2e-crypto-base-hash}}\",\n        \"crypto_extended_base_hash\": \"{{e2e-crypto-extended-base-hash}}\",\n        \"elgamal_public_key\": \"{{e2e-elgamal-public-key}}\",\n        \"manifest_hash\": \"{{e2e-manifest-hash}}\",\n        \"number_of_guardians\": 2,\n        \"quorum\": 2\n    }\n}",
+									"raw": "{\n    \"election_id\": \"{{e2e-election-id}}\",\n    \"key_name\": \"e2e-key_ceremony_{{e2e-run-id}}\",\n    \"context\": {\n        \"commitment_hash\": \"{{e2e-commitment-hash}}\",\n        \"crypto_base_hash\": \"{{e2e-crypto-base-hash}}\",\n        \"crypto_extended_base_hash\": \"{{e2e-crypto-extended-base-hash}}\",\n        \"elgamal_public_key\": \"{{e2e-elgamal-public-key}}\",\n        \"manifest_hash\": \"{{e2e-manifest-hash}}\",\n        \"number_of_guardians\": 2,\n        \"quorum\": 2\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1318,7 +1318,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"election_id\": \"{{election-id}}\",\n  \"seed_hash\": \"B52C5D5946B74F45001E90F5D9BED765C52921F0ED11A5F430F50CDF82EE4756\",\n  \"ballots\": [\n    {\n      \"object_id\": \"ballot-1663ab54-e95f-11eb-bd0c-acde48001123\",\n      \"style_id\": \"congress-district-7-lacroix\",\n      \"contests\": [\n        {\n          \"object_id\": \"president-vice-president-contest\",\n          \"ballot_selections\": [\n            {\n              \"is_placeholder_selection\": false,\n              \"object_id\": \"barchi-hallaren-selection\",\n              \"vote\": 1\n            },\n            {\n              \"is_placeholder_selection\": false,\n              \"object_id\": \"cramer-vuocolo-selection\",\n              \"vote\": 0\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"object_id\": \"ballot-1663ab54-e95f-11eb-bd0c-acde48001123\",\n      \"style_id\": \"congress-district-7-lacroix\",\n      \"contests\": [\n        {\n          \"object_id\": \"president-vice-president-contest\",\n          \"ballot_selections\": [\n            {\n              \"is_placeholder_selection\": false,\n              \"object_id\": \"barchi-hallaren-selection\",\n              \"vote\": 0\n            },\n            {\n              \"is_placeholder_selection\": false,\n              \"object_id\": \"cramer-vuocolo-selection\",\n              \"vote\": 1\n            }\n          ]\n        }\n      ]\n    }    \n  ]\n}\n",
+									"raw": "{\n  \"election_id\": \"{{e2e-election-id}}\",\n  \"seed_hash\": \"B52C5D5946B74F45001E90F5D9BED765C52921F0ED11A5F430F50CDF82EE4756\",\n  \"ballots\": [\n    {\n      \"object_id\": \"ballot-1663ab54-e95f-11eb-bd0c-acde48001123\",\n      \"style_id\": \"congress-district-7-lacroix\",\n      \"contests\": [\n        {\n          \"object_id\": \"president-vice-president-contest\",\n          \"ballot_selections\": [\n            {\n              \"is_placeholder_selection\": false,\n              \"object_id\": \"barchi-hallaren-selection\",\n              \"vote\": 1\n            },\n            {\n              \"is_placeholder_selection\": false,\n              \"object_id\": \"cramer-vuocolo-selection\",\n              \"vote\": 0\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"object_id\": \"ballot-1663ab54-e95f-11eb-bd0c-acde48001123\",\n      \"style_id\": \"congress-district-7-lacroix\",\n      \"contests\": [\n        {\n          \"object_id\": \"president-vice-president-contest\",\n          \"ballot_selections\": [\n            {\n              \"is_placeholder_selection\": false,\n              \"object_id\": \"barchi-hallaren-selection\",\n              \"vote\": 0\n            },\n            {\n              \"is_placeholder_selection\": false,\n              \"object_id\": \"cramer-vuocolo-selection\",\n              \"vote\": 1\n            }\n          ]\n        }\n      ]\n    }    \n  ]\n}\n",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1347,7 +1347,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"election_id\": \"{{election-id}}\",\n    \"ballots\": {{e2e-encrypted-ballots}},\n    \"next_seed_hash\": \"1AAF734CC79D02CA0C2F1FEF318FD7529853DDD57FA43823B48CAB6E3C3D7B29\"\n}\n",
+									"raw": "{\n    \"election_id\": \"{{e2e-election-id}}\",\n    \"ballots\": {{e2e-encrypted-ballots}},\n    \"next_seed_hash\": \"1AAF734CC79D02CA0C2F1FEF318FD7529853DDD57FA43823B48CAB6E3C3D7B29\"\n}\n",
 									"options": {
 										"raw": {
 											"language": "json"
