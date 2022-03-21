@@ -94,9 +94,11 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"const runId = Math.floor(Math.random() * 100000);\r",
-											"pm.environment.set(\"e2e-run-id\", runId.toString());\r",
-											""
+											"const runId = Math.floor(Math.random() * 100000).toString();\r",
+											"pm.environment.set(\"e2e-run-id\", runId);\r",
+											"\r",
+											"const user1Id = \"e2e-ada-\" + runId;\r",
+											"pm.environment.set('e2e-user1-id', user1Id);"
 										],
 										"type": "text/javascript"
 									}
@@ -119,7 +121,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"username\": \"e2e-ada-{{e2e-run-id}}\",\n    \"first_name\": \"Ada\",\n    \"last_name\": \"Lovelace\",\n    \"email\": \"ada.lovelace.{{e2e-run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
+									"raw": "{\n    \"username\": \"{{e2e-user1-id}}\",\n    \"first_name\": \"Ada\",\n    \"last_name\": \"Lovelace\",\n    \"email\": \"ada.lovelace.{{e2e-run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -147,7 +149,9 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											""
+											"const runId = pm.variables.get('e2e-run-id');\r",
+											"const user2Id = \"e2e-alan-\" + runId;\r",
+											"pm.environment.set('e2e-user2-id', user2Id);"
 										],
 										"type": "text/javascript"
 									}
@@ -170,7 +174,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"username\": \"e2e-alan-{{e2e-run-id}}\",\n    \"first_name\": \"Alan\",\n    \"last_name\": \"Turing\",\n    \"email\": \"alan.turing.{{e2e-run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
+									"raw": "{\n    \"username\": \"{{e2e-user2-id}}\",\n    \"first_name\": \"Alan\",\n    \"last_name\": \"Turing\",\n    \"email\": \"alan.turing.{{e2e-run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -215,7 +219,8 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"const keyName = 'e2e-key_ceremony_' + pm.variables.get('e2e-run-id');\r",
+											"const runId = pm.variables.get('e2e-run-id');\r",
+											"const keyName = 'e2e-key_ceremony_' + runId;\r",
 											"pm.environment.set('e2e-key-name', keyName);"
 										],
 										"type": "text/javascript"
@@ -1210,7 +1215,7 @@
 											"    pm.response.to.have.status(200);\r",
 											"});\r",
 											"\r",
-											"// print election id to test results\r",
+											"// print election id to test results, ensure truthy\r",
 											"const electionId = pm.variables.get('e2e-election-id');\r",
 											"console.log('election_id', electionId);\r",
 											"tests[electionId] = electionId;\r",
@@ -1377,7 +1382,364 @@
 				},
 				{
 					"name": "6. Tally",
-					"item": []
+					"item": [
+						{
+							"name": "6.1 Start Tally",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const tallyName = 'e2e-tally-' + pm.environment.get('e2e-run-id');\r",
+											"pm.environment.set('e2e-tally-name', tallyName);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// print tally name to test results, ensure truthy\r",
+											"const tallyId = pm.variables.get('e2e-e2e-tally-name');\r",
+											"console.log('tally_name', tallyId);\r",
+											"tests[tallyId] = tallyId;\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/tally?election_id={{e2e-election-id}}&tally_name={{e2e-tally-name}}",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally"
+									],
+									"query": [
+										{
+											"key": "election_id",
+											"value": "{{e2e-election-id}}"
+										},
+										{
+											"key": "tally_name",
+											"value": "{{e2e-tally-name}}"
+										}
+									]
+								},
+								"description": "Start a tally by passing in a batch of ballots.  This will return a tally that can be passed back in to accumulate further ballots."
+							},
+							"response": []
+						},
+						{
+							"name": "6.1 Get Tally",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    const encryptedTally = JSON.stringify(pm.response.json());\r",
+											"    pm.environment.set('e2e-encrypted-tally', encryptedTally)\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/tally?election_id={{e2e-election-id}}&tally_name={{e2e-tally-name}}",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally"
+									],
+									"query": [
+										{
+											"key": "election_id",
+											"value": "{{e2e-election-id}}"
+										},
+										{
+											"key": "tally_name",
+											"value": "{{e2e-tally-name}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "6.2 Get User1 Decryption Share",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    const response = pm.response.json();\r",
+											"    const shares = JSON.stringify(response.shares[0]);\r",
+											"    pm.environment.set('e2e-encrypted-tally-user1', shares);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"guardian_id\": \"{{e2e-user1-id}}\",\n  \"context\": {\n    \"number_of_guardians\": 2,\n    \"quorum\": 2,\n    \"elgamal_public_key\": \"{{e2e-elgamal-public-key}}\",\n    \"commitment_hash\": \"{{e2e-commitment-hash}}\",\n    \"manifest_hash\": \"{{e2e-manifest-hash}}\",\n    \"crypto_base_hash\": \"{{e2e-crypto-base-hash}}\",\n    \"crypto_extended_base_hash\": \"{{e2e-crypto-extended-base-hash}}\"\n  },\n  \"encrypted_tally\": {{e2e-encrypted-tally}}\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{guardian-url}}/api/{{version}}/tally/decrypt-share",
+									"host": [
+										"{{guardian-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally",
+										"decrypt-share"
+									]
+								},
+								"description": "Compute the decryption share of a tally for a specific guardian."
+							},
+							"response": []
+						},
+						{
+							"name": "6.3 Save User1 Decryption Share",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"share\": {{e2e-encrypted-tally-user1}}\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/tally/decrypt/submit-share",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally",
+										"decrypt",
+										"submit-share"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "6.4 Get User2 Decryption Share",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    const response = pm.response.json();\r",
+											"    const shares = JSON.stringify(response.shares[0]);\r",
+											"    pm.environment.set('e2e-encrypted-tally-user2', shares);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"guardian_id\": \"{{e2e-user2-id}}\",\n  \"context\": {\n    \"number_of_guardians\": 2,\n    \"quorum\": 2,\n    \"elgamal_public_key\": \"{{e2e-elgamal-public-key}}\",\n    \"commitment_hash\": \"{{e2e-commitment-hash}}\",\n    \"manifest_hash\": \"{{e2e-manifest-hash}}\",\n    \"crypto_base_hash\": \"{{e2e-crypto-base-hash}}\",\n    \"crypto_extended_base_hash\": \"{{e2e-crypto-extended-base-hash}}\"\n  },\n  \"encrypted_tally\": {{e2e-encrypted-tally}}\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{guardian-url}}/api/{{version}}/tally/decrypt-share",
+									"host": [
+										"{{guardian-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally",
+										"decrypt-share"
+									]
+								},
+								"description": "Compute the decryption share of a tally for a specific guardian."
+							},
+							"response": []
+						},
+						{
+							"name": "6.5 Save User2 Decryption Share",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"share\": {{e2e-encrypted-tally-user2}}\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/tally/decrypt/submit-share",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally",
+										"decrypt",
+										"submit-share"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Decrypt Tally",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"election_id\": \"{{e2e-election-id}}\",\n    \"tally_name\": \"{{e2e-tally-name}}\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/tally/decrypt?restart=true",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally",
+										"decrypt"
+									],
+									"query": [
+										{
+											"key": "restart",
+											"value": "true"
+										}
+									]
+								},
+								"description": "Compute the decryption share of a tally for a specific guardian."
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		}
