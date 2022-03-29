@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "6909f57a-7b81-4378-9548-140b6135d969",
+		"_postman_id": "d2ae1f31-ce90-444e-accd-a41eca854ce7",
 		"name": "ElectionGuard API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -21,7 +21,7 @@
 											"pm.test(\"Status code is 200\", function () {",
 											"    pm.response.to.have.status(200);",
 											"    var jsonData = pm.response.json();",
-											"    pm.environment.set(\"token\", jsonData.access_token);",
+											"    pm.environment.set(\"e2e-token\", jsonData.access_token);",
 											"});",
 											""
 										],
@@ -94,9 +94,11 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"const runId = Math.floor(Math.random() * 100000);\r",
-											"pm.collectionVariables.set(\"run-id\", runId.toString());\r",
-											""
+											"const runId = Math.floor(Math.random() * 100000).toString();\r",
+											"pm.environment.set(\"e2e-run-id\", runId);\r",
+											"\r",
+											"const user1Id = \"e2e-ada-\" + runId;\r",
+											"pm.environment.set('e2e-user1-id', user1Id);"
 										],
 										"type": "text/javascript"
 									}
@@ -119,7 +121,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"username\": \"e2e-ada-{{run-id}}\",\n    \"first_name\": \"Ada\",\n    \"last_name\": \"Lovelace\",\n    \"email\": \"ada.lovelace.{{run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
+									"raw": "{\n    \"username\": \"{{e2e-user1-id}}\",\n    \"first_name\": \"Ada\",\n    \"last_name\": \"Lovelace\",\n    \"email\": \"ada.lovelace.{{e2e-run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -147,7 +149,9 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											""
+											"const runId = pm.variables.get('e2e-run-id');\r",
+											"const user2Id = \"e2e-alan-\" + runId;\r",
+											"pm.environment.set('e2e-user2-id', user2Id);"
 										],
 										"type": "text/javascript"
 									}
@@ -170,7 +174,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"username\": \"e2e-alan-{{run-id}}\",\n    \"first_name\": \"Alan\",\n    \"last_name\": \"Turing\",\n    \"email\": \"alan.turing.{{run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
+									"raw": "{\n    \"username\": \"{{e2e-user2-id}}\",\n    \"first_name\": \"Alan\",\n    \"last_name\": \"Turing\",\n    \"email\": \"alan.turing.{{e2e-run-id}}@uk.gov\",\n    \"scopes\": [\n        \"guardian\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -210,6 +214,17 @@
 										],
 										"type": "text/javascript"
 									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const runId = pm.variables.get('e2e-run-id');\r",
+											"const keyName = 'e2e-key_ceremony_' + runId;\r",
+											"pm.environment.set('e2e-key-name', keyName);"
+										],
+										"type": "text/javascript"
+									}
 								}
 							],
 							"request": {
@@ -217,7 +232,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"number_of_guardians\": 2,\n    \"quorum\": 2,\n    \"guardian_ids\": [\n        \"e2e-ada-{{run-id}}\",\n        \"e2e-alan-{{run-id}}\"\n    ]\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"number_of_guardians\": 2,\n    \"quorum\": 2,\n    \"guardian_ids\": [\n        \"e2e-ada-{{e2e-run-id}}\",\n        \"e2e-alan-{{e2e-run-id}}\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -260,7 +275,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"name\": \"Ada Lovelace\",\n    \"sequence_order\": 1,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"name\": \"Ada Lovelace\",\n    \"sequence_order\": 1,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -302,7 +317,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"name\": \"Alan Turing\",\n    \"sequence_order\": 2,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"name\": \"Alan Turing\",\n    \"sequence_order\": 2,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -344,7 +359,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"name\": \"Ada Lovelace\",\n    \"sequence_order\": 1,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"name\": \"Ada Lovelace\",\n    \"sequence_order\": 1,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -387,7 +402,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"name\": \"Alan Turing\",\n    \"sequence_order\": 2,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"name\": \"Alan Turing\",\n    \"sequence_order\": 2,\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -420,8 +435,8 @@
 											"    pm.response.to.have.status(200);\r",
 											"\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.collectionVariables.set(\"user1-public-key-value\", jsonData.public_keys.election.key);\r",
-											"    pm.collectionVariables.set(\"user1-public-key-all\", JSON.stringify(jsonData.public_keys));\r",
+											"    pm.environment.set(\"e2e-user1-public-key-value\", jsonData.public_keys.election.key);\r",
+											"    pm.environment.set(\"e2e-user1-public-key-all\", JSON.stringify(jsonData.public_keys));\r",
 											"});\r",
 											""
 										],
@@ -433,7 +448,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{guardian-url}}/api/{{version}}/guardian/public-keys?guardian_id=e2e-ada-{{run-id}}",
+									"raw": "{{guardian-url}}/api/{{version}}/guardian/public-keys?guardian_id=e2e-ada-{{e2e-run-id}}",
 									"host": [
 										"{{guardian-url}}"
 									],
@@ -446,7 +461,7 @@
 									"query": [
 										{
 											"key": "guardian_id",
-											"value": "e2e-ada-{{run-id}}"
+											"value": "e2e-ada-{{e2e-run-id}}"
 										}
 									]
 								}
@@ -464,8 +479,8 @@
 											"    pm.response.to.have.status(200);\r",
 											"\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.collectionVariables.set(\"user2-public-key-value\", jsonData.public_keys.election.key);\r",
-											"    pm.collectionVariables.set(\"user2-public-key-all\", JSON.stringify(jsonData.public_keys));\r",
+											"    pm.environment.set(\"e2e-user2-public-key-value\", jsonData.public_keys.election.key);\r",
+											"    pm.environment.set(\"e2e-user2-public-key-all\", JSON.stringify(jsonData.public_keys));\r",
 											"});\r",
 											""
 										],
@@ -477,7 +492,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{guardian-url}}/api/{{version}}/guardian/public-keys?guardian_id=e2e-alan-{{run-id}}",
+									"raw": "{{guardian-url}}/api/{{version}}/guardian/public-keys?guardian_id=e2e-alan-{{e2e-run-id}}",
 									"host": [
 										"{{guardian-url}}"
 									],
@@ -490,7 +505,7 @@
 									"query": [
 										{
 											"key": "guardian_id",
-											"value": "e2e-alan-{{run-id}}"
+											"value": "e2e-alan-{{e2e-run-id}}"
 										}
 									]
 								}
@@ -517,7 +532,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/open?key_name=e2e-key_ceremony_{{run-id}}",
+									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/open?key_name={{e2e-key-name}}",
 									"host": [
 										"{{mediator-url}}"
 									],
@@ -531,7 +546,7 @@
 									"query": [
 										{
 											"key": "key_name",
-											"value": "e2e-key_ceremony_{{run-id}}"
+											"value": "{{e2e-key-name}}"
 										}
 									]
 								}
@@ -559,7 +574,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"public_keys\": {{user1-public-key-all}}\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"public_keys\": {{e2e-user1-public-key-all}}\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -603,7 +618,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"public_keys\": {{user2-public-key-all}}\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"public_keys\": {{e2e-user2-public-key-all}}\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -637,9 +652,9 @@
 											"    pm.response.to.have.status(200);\r",
 											"\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.collectionVariables.set(\"user1-backups\", JSON.stringify(jsonData.backups));\r",
-											"    pm.collectionVariables.set(\"user1-backup1-value\", jsonData.backups[0].encrypted_value);\r",
-											"    pm.collectionVariables.set(\"user1-backup2-value\", jsonData.backups[1].encrypted_value);    \r",
+											"    pm.environment.set(\"e2e-user1-backups\", JSON.stringify(jsonData.backups));\r",
+											"    pm.environment.set(\"e2e-user1-backup1-value\", jsonData.backups[0].encrypted_value);\r",
+											"    pm.environment.set(\"e2e-user1-backup2-value\", jsonData.backups[1].encrypted_value);    \r",
 											"});\r",
 											""
 										],
@@ -652,7 +667,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"quorum\": 2,\n    \"public_keys\": [\n        {{user1-public-key-all}},\n        {{user2-public-key-all}}\n    ],\n    \"override_rsa\": true\n}",
+									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"quorum\": 2,\n    \"public_keys\": [\n        {{e2e-user1-public-key-all}},\n        {{e2e-user2-public-key-all}}\n    ],\n    \"override_rsa\": true\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -685,9 +700,9 @@
 											"    pm.response.to.have.status(200);\r",
 											"\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.collectionVariables.set(\"user2-backups\", JSON.stringify(jsonData.backups));\r",
-											"    pm.collectionVariables.set(\"user2-backup1-value\", jsonData.backups[0].encrypted_value);\r",
-											"    pm.collectionVariables.set(\"user2-backup2-value\", jsonData.backups[1].encrypted_value);    \r",
+											"    pm.environment.set(\"e2e-user2-backups\", JSON.stringify(jsonData.backups));\r",
+											"    pm.environment.set(\"e2e-user2-backup1-value\", jsonData.backups[0].encrypted_value);\r",
+											"    pm.environment.set(\"e2e-user2-backup2-value\", jsonData.backups[1].encrypted_value);    \r",
 											"});\r",
 											""
 										],
@@ -700,7 +715,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"quorum\": 2,\n    \"public_keys\": [\n        {{user2-public-key-all}},\n        {{user1-public-key-all}}\n    ],\n    \"override_rsa\": true\n}",
+									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"quorum\": 2,\n    \"public_keys\": [\n        {{e2e-user2-public-key-all}},\n        {{e2e-user1-public-key-all}}\n    ],\n    \"override_rsa\": true\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -743,7 +758,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"backups\": {{user1-backups}}\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"backups\": {{e2e-user1-backups}}\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -787,7 +802,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"backups\": {{user2-backups}}\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"backups\": {{e2e-user2-backups}}\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -831,7 +846,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"backup\": {\n            \"owner_id\": \"e2e-alan-{{run-id}}\",\n            \"designated_id\": \"e2e-ada-{{run-id}}\",\n            \"designated_sequence_order\": 1,\n            \"encrypted_value\": \"{{user1-backup2-value}}\"\n    },\n    \"override_rsa\": true\n}",
+									"raw": "{\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"backup\": {\n            \"owner_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"designated_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"designated_sequence_order\": 1,\n            \"encrypted_value\": \"{{e2e-user1-backup2-value}}\"\n    },\n    \"override_rsa\": true\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -875,7 +890,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"backup\": {\n            \"owner_id\": \"e2e-ada-{{run-id}}\",\n            \"designated_id\": \"e2e-alan-{{run-id}}\",\n            \"designated_sequence_order\": 2,\n            \"encrypted_value\": \"{{user2-backup2-value}}\"\n    },\n    \"override_rsa\": true\n}",
+									"raw": "{\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"backup\": {\n            \"owner_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"designated_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"designated_sequence_order\": 2,\n            \"encrypted_value\": \"{{e2e-user2-backup2-value}}\"\n    },\n    \"override_rsa\": true\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -919,7 +934,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-ada-{{run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-alan-{{run-id}}\",\n            \"designated_id\": \"e2e-ada-{{run-id}}\",\n            \"verifier_id\": \"e2e-ada-{{run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"guardian_id\": \"e2e-ada-{{e2e-run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"designated_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"verifier_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -963,7 +978,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key_name\": \"e2e-key_ceremony_{{run-id}}\",\n    \"guardian_id\": \"e2e-alan-{{run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-ada-{{run-id}}\",\n            \"designated_id\": \"e2e-alan-{{run-id}}\",\n            \"verifier_id\": \"e2e-alan-{{run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
+									"raw": "{\n    \"key_name\": \"{{e2e-key-name}}\",\n    \"guardian_id\": \"e2e-alan-{{e2e-run-id}}\",\n    \"verifications\": [\n        {\n            \"owner_id\": \"e2e-ada-{{e2e-run-id}}\",\n            \"designated_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"verifier_id\": \"e2e-alan-{{e2e-run-id}}\",\n            \"verified\": true\n        }\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1002,12 +1017,13 @@
 											"    var elgamalPublicKey = jsonData.elgamal_public_key;\r",
 											"    pm.expect(elgamalPublicKey).not.eq(undefined);\r",
 											"\r",
-											"    pm.collectionVariables.set(\"elgamal_public_key\", elgamalPublicKey);\r",
-											"    pm.collectionVariables.set(\"commitment_hash\", jsonData.commitment_hash);\r",
+											"    pm.environment.set(\"e2e-elgamal-public-key\", elgamalPublicKey);\r",
+											"    pm.environment.set(\"e2e-commitment-hash\", jsonData.commitment_hash);\r",
 											"});\r",
 											"\r",
 											"// print key ceremony name to test results (since it contains the run id, everything else can be inferred)\r",
-											"const keyName = 'e2e-key_ceremony_' + pm.variables.get('run-id');\r",
+											"const keyName = 'e2e-key_ceremony_' + pm.variables.get('e2e-run-id');\r",
+											"console.log('key_name', keyName);\r",
 											"tests[keyName] = keyName;\r",
 											""
 										],
@@ -1020,7 +1036,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"election_public_keys\":[\n        \"{{user1-public-key-value}}\",\n        \"{{user2-public-key-value}}\"\n    ]\n}",
+									"raw": "{\n    \"election_public_keys\":[\n        \"{{e2e-user1-public-key-value}}\",\n        \"{{e2e-user2-public-key-value}}\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1028,7 +1044,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/publish?key_name=e2e-key_ceremony_{{run-id}}",
+									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/publish?key_name={{e2e-key-name}}",
 									"host": [
 										"{{mediator-url}}"
 									],
@@ -1042,7 +1058,47 @@
 									"query": [
 										{
 											"key": "key_name",
-											"value": "e2e-key_ceremony_{{run-id}}"
+											"value": "{{e2e-key-name}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.20 Close Key Ceremony",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/key/ceremony/close?key_name={{e2e-key-name}}",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"key",
+										"ceremony",
+										"close"
+									],
+									"query": [
+										{
+											"key": "key_name",
+											"value": "{{e2e-key-name}}"
 										}
 									]
 								}
@@ -1052,16 +1108,638 @@
 					]
 				},
 				{
-					"name": "5. Election Setup",
-					"item": []
+					"name": "4. Election Setup",
+					"item": [
+						{
+							"name": "4.1 Create Manifest",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 202\", function () {\r",
+											"    pm.response.to.have.status(202);\r",
+											"\r",
+											"    var jsonData = pm.response.json();\r",
+											"    const manifestHash = jsonData.manifest_hash;\r",
+											"    console.log('manifest_hash', manifestHash);\r",
+											"    pm.environment.set(\"e2e-manifest-hash\", manifestHash);\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"manifest\": {\n    \"ballot_styles\": [\n      {\n        \"geopolitical_unit_ids\": [\"hamilton-county\", \"congress-district-7\"],\n        \"object_id\": \"congress-district-7-hamilton-county\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-7\",\n          \"lacroix-township-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-7-lacroix\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-7\",\n          \"lacroix-township-precinct-1\",\n          \"lacroix-exeter-utility-district\"\n        ],\n        \"object_id\": \"congress-district-7-lacroix-exeter\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-7\",\n          \"arlington-township-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-7-arlington\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-7\",\n          \"arlington-township-precinct-1\",\n          \"pismo-beach-school-district-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-7-arlington-pismo-beach\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-7\",\n          \"arlington-township-precinct-1\",\n          \"somerset-school-district-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-7-arlington-somerset\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\"hamilton-county\", \"congress-district-5\"],\n        \"object_id\": \"congress-district-5-hamilton-county\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-5\",\n          \"lacroix-township-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-5-lacroix\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-5\",\n          \"harris-township\"\n        ],\n        \"object_id\": \"congress-district-5-harris\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-5\",\n          \"arlington-township-precinct-1\",\n          \"pismo-beach-school-district-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-5-arlington-pismo-beach\"\n      },\n      {\n        \"geopolitical_unit_ids\": [\n          \"hamilton-county\",\n          \"congress-district-5\",\n          \"arlington-township-precinct-1\",\n          \"somerset-school-district-precinct-1\"\n        ],\n        \"object_id\": \"congress-district-5-arlington-somerset\"\n      }\n    ],\n    \"candidates\": [\n      {\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Joseph Barchi and Joseph Hallaren\" }\n          ]\n        },\n        \"object_id\": \"barchi-hallaren\",\n        \"party_id\": \"whig\"\n      },\n      {\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Adam Cramer and Greg Vuocolo\" }\n          ]\n        },\n        \"object_id\": \"cramer-vuocolo\",\n        \"party_id\": \"federalist\"\n      },\n      {\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Daniel Court and Amy Blumhardt\" }\n          ]\n        },\n        \"object_id\": \"court-blumhardt\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Alvin Boone and James Lian\" }]\n        },\n        \"object_id\": \"boone-lian\",\n        \"party_id\": \"liberty\"\n      },\n      {\n        \"name\": {\n          \"text\": [\n            {\n              \"language\": \"en\",\n              \"value\": \"Ashley Hildebrand-McDougall and James Garritty\"\n            }\n          ]\n        },\n        \"object_id\": \"hildebrand-garritty\",\n        \"party_id\": \"constitution\"\n      },\n      {\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Martin Patterson and Clay Lariviere\" }\n          ]\n        },\n        \"object_id\": \"patterson-lariviere\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Charlene Franz\" }] },\n        \"object_id\": \"franz\",\n        \"party_id\": \"federalist\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Gerald Harris\" }] },\n        \"object_id\": \"harris\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Linda Bargmann\" }] },\n        \"object_id\": \"bargmann\",\n        \"party_id\": \"constitution\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Barbara Abcock\" }] },\n        \"object_id\": \"abcock\",\n        \"party_id\": \"liberty\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Carrie Steel-Loy\" }] },\n        \"object_id\": \"steel-loy\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Frederick Sharp\" }] },\n        \"object_id\": \"sharp\",\n        \"party_id\": \"constitution\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Alex Wallace\" }] },\n        \"object_id\": \"wallace\",\n        \"party_id\": \"independent\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Barbara Williams\" }] },\n        \"object_id\": \"williams\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Althea Sharp\" }] },\n        \"object_id\": \"sharp-althea\",\n        \"party_id\": \"whig\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Douglas Alpern\" }] },\n        \"object_id\": \"alpern\",\n        \"party_id\": \"federalist\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Ann Windbeck\" }] },\n        \"object_id\": \"windbeck\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Mike Greher\" }] },\n        \"object_id\": \"greher\",\n        \"party_id\": \"constitution\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Patricia Alexander\" }]\n        },\n        \"object_id\": \"alexander\",\n        \"party_id\": \"whig\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Kenneth Mitchell\" }] },\n        \"object_id\": \"mitchell\",\n        \"party_id\": \"federalist\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Stan Lee\" }] },\n        \"object_id\": \"lee\",\n        \"party_id\": \"independent\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Henry Ash\" }] },\n        \"object_id\": \"ash\",\n        \"party_id\": \"liberty\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Karen Kennedy\" }] },\n        \"object_id\": \"kennedy\",\n        \"party_id\": \"independent\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Van Jackson\" }] },\n        \"object_id\": \"jackson\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Debbie Brown\" }] },\n        \"object_id\": \"brown\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Joseph Teller\" }] },\n        \"object_id\": \"teller\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Greg Ward\" }] },\n        \"object_id\": \"ward\",\n        \"party_id\": \"independent\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Lou Murphy\" }] },\n        \"object_id\": \"murphy\",\n        \"party_id\": \"federalist\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Jane Newman\" }] },\n        \"object_id\": \"newman\",\n        \"party_id\": \"whig\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Jack Callanann\" }] },\n        \"object_id\": \"callanann\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Esther York\" }] },\n        \"object_id\": \"york\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Glenn Chandler\" }] },\n        \"object_id\": \"chandler\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Andrea Solis\" }] },\n        \"object_id\": \"solis\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Amos Keller\" }] },\n        \"object_id\": \"keller\",\n        \"party_id\": \"constitution\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Davitra Rangel\" }] },\n        \"object_id\": \"rangel\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Camille Argent\" }] },\n        \"object_id\": \"argent\",\n        \"party_id\": \"liberty\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Chloe Witherspoon-Smithson\" }]\n        },\n        \"object_id\": \"witherspoon-smithson\",\n        \"party_id\": \"independent\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Clayton Bainbridge\" }]\n        },\n        \"object_id\": \"bainbridge\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Charlene Hennessey\" }]\n        },\n        \"object_id\": \"hennessey\",\n        \"party_id\": \"whig\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Eric Savoy\" }] },\n        \"object_id\": \"savoy\",\n        \"party_id\": \"labor\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Susan Tawa\" }] },\n        \"object_id\": \"tawa\",\n        \"party_id\": \"constitution\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Mary Tawa\" }] },\n        \"object_id\": \"tawa-mary\",\n        \"party_id\": \"independent\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Valarie Altman\" }] },\n        \"object_id\": \"altman\",\n        \"party_id\": \"peoples\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Helen Moore\" }] },\n        \"object_id\": \"moore\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"John White\" }] },\n        \"object_id\": \"white\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"John Smallberries\" }]\n        },\n        \"object_id\": \"smallberries\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"John Warfin\" }] },\n        \"object_id\": \"warfin\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Chris Norberg\" }] },\n        \"object_id\": \"norberg\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Abigail Parks\" }] },\n        \"object_id\": \"parks\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Harmony Savannah\" }] },\n        \"object_id\": \"savannah\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Buffy Summers\" }] },\n        \"object_id\": \"summers\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Cordelia Chase\" }] },\n        \"object_id\": \"chase\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Daniel Osborne\" }] },\n        \"object_id\": \"osborne\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Willow Rosenberg\" }] },\n        \"object_id\": \"rosenberg\"\n      },\n      {\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Anthony Stewart Head\" }]\n        },\n        \"object_id\": \"head\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"James Marsters\" }] },\n        \"object_id\": \"marsters\"\n      },\n      {\n        \"isWriteIn\": true,\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Write In Candidate\" },\n            { \"language\": \"es\", \"value\": \"Escribir en la candidata\" }\n          ]\n        },\n        \"object_id\": \"write-in-1\"\n      },\n      {\n        \"isWriteIn\": true,\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Write In Candidate\" },\n            { \"language\": \"es\", \"value\": \"Escribir en la candidata\" }\n          ]\n        },\n        \"object_id\": \"write-in-2\"\n      },\n      {\n        \"isWriteIn\": true,\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Write In Candidate\" },\n            { \"language\": \"es\", \"value\": \"Escribir en la candidata\" }\n          ]\n        },\n        \"object_id\": \"write-in-3\"\n      },\n      {\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Retain\" },\n            { \"language\": \"es\", \"value\": \"Conservar\" }\n          ]\n        },\n        \"object_id\": \"ozark-chief-justice-retain-demergue-affirmative\"\n      },\n      {\n        \"name\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Reject\" },\n            { \"language\": \"es\", \"value\": \"Rechazar\" }\n          ]\n        },\n        \"object_id\": \"ozark-chief-justice-retain-demergue-negative\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Yes\" }] },\n        \"object_id\": \"exeter-utility-district-referendum-affirmative\"\n      },\n      {\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"No\" }] },\n        \"object_id\": \"exeter-utility-district-referendum-negative\"\n      }\n    ],\n    \"contact_information\": {\n      \"address_line\": [\"1234 Paul Revere Run\", \"Hamilton, Ozark 99999\"],\n      \"email\": [\n        { \"annotation\": \"press\", \"value\": \"inquiries@hamilton.state.gov\" },\n        { \"annotation\": \"federal\", \"value\": \"commissioner@hamilton.state.gov\" }\n      ],\n      \"name\": \"Hamilton State Election Commission\",\n      \"phone\": [\n        { \"annotation\": \"domestic\", \"value\": \"123-456-7890\" },\n        { \"annotation\": \"international\", \"value\": \"+1-123-456-7890\" }\n      ]\n    },\n    \"contests\": [\n      {\n        \"@type\": \"CandidateContest\",\n        \"ballot_selections\": [\n          {\n            \"candidate_id\": \"barchi-hallaren\",\n            \"object_id\": \"barchi-hallaren-selection\",\n            \"sequence_order\": 0\n          },\n          {\n            \"candidate_id\": \"cramer-vuocolo\",\n            \"object_id\": \"cramer-vuocolo-selection\",\n            \"sequence_order\": 1\n          }\n        ],\n        \"ballot_subtitle\": {\n          \"text\": [\n            { \"language\": \"en\", \"value\": \"Vote for one\" },\n            { \"language\": \"es\", \"value\": \"Votar por uno\" }\n          ]\n        },\n        \"ballot_title\": {\n          \"text\": [\n            {\n              \"language\": \"en\",\n              \"value\": \"President and Vice President of the United States\"\n            },\n            {\n              \"language\": \"es\",\n              \"value\": \"Presidente y Vicepresidente de los Estados Unidos\"\n            }\n          ]\n        },\n        \"electoral_district_id\": \"hamilton-county\",\n        \"name\": \"President and Vice President of the United States\",\n        \"number_elected\": 1,\n        \"object_id\": \"president-vice-president-contest\",\n        \"sequence_order\": 0,\n        \"vote_variation\": \"one_of_m\",\n        \"votes_allowed\": 1\n      }\n    ],\n    \"election_scope_id\": \"hamilton-county-general-election\",\n    \"end_date\": \"2020-03-01T20:00:00-05:00\",\n    \"geopolitical_units\": [\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Samuel Adams Way\", \"Hamilton, Ozark 99999\"],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@hamiltoncounty.gov\"\n            }\n          ],\n          \"name\": \"Hamilton County Clerk\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Hamilton County\",\n        \"object_id\": \"hamilton-county\",\n        \"type\": \"county\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Somerville Gateway\", \"Medford, Ozark 999999\"],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@congressional-district-5.gov\"\n            }\n          ],\n          \"name\": \"Medford Town Hall\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Congressional District 5\",\n        \"object_id\": \"congress-district-5\",\n        \"type\": \"congressional\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\n            \"1234 Somerville Gateway\",\n            \"Arlington, Ozark 999999\"\n          ],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@congressional-district-7.gov\"\n            }\n          ],\n          \"name\": \"Arlington Town Hall\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Congressional District 7\",\n        \"object_id\": \"congress-district-7\",\n        \"type\": \"congressional\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Thorton Drive\", \"LaCroix, Ozark 99999\"],\n          \"email\": [\n            { \"annotation\": \"inquiries\", \"value\": \"inquiries@lacrox.gov\" }\n          ],\n          \"name\": \"LaCroix Town Hall\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"LaCroix Township Precinct 1\",\n        \"object_id\": \"lacroix-township-precinct-1\",\n        \"type\": \"precinct\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Watt Drive\", \"LaCroix, Ozark 99999\"],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@exeter-utility.com\"\n            }\n          ],\n          \"name\": \"Exeter Utility District coordinator\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Exeter Utility District\",\n        \"object_id\": \"lacroix-exeter-utility-district\",\n        \"type\": \"utility\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Pahk Avenue\", \"Arlinton, Ozark 99999\"],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@arlington-township.gov\"\n            }\n          ],\n          \"name\": \"Arlington Town Hall\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Arlington Township Precinct 1\",\n        \"object_id\": \"arlington-township-precinct-1\",\n        \"type\": \"precinct\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\n            \"1234 Pismo Beach Elementary\",\n            \"Arlington, Ozark 99999\"\n          ],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@pismo-beach-school.edu\"\n            }\n          ],\n          \"name\": \"Pismo Beah Elementary\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Pismo Beach School District Precinct 1\",\n        \"object_id\": \"pismo-beach-school-district-precinct-1\",\n        \"type\": \"school\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Somerset Avenue\", \"Arlinton, Ozark 99999\"],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@somerset-elementary.edu\"\n            }\n          ],\n          \"name\": \"Someset Elementary\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Somerset School District\",\n        \"object_id\": \"somerset-school-district-precinct-1\",\n        \"type\": \"school\"\n      },\n      {\n        \"contact_information\": {\n          \"address_line\": [\"1234 Pahk Avenue\", \"Harris, Ozark 99999\"],\n          \"email\": [\n            {\n              \"annotation\": \"inquiries\",\n              \"value\": \"inquiries@harris-township.gov\"\n            }\n          ],\n          \"name\": \"harris Town Hall\",\n          \"phone\": [{ \"annotation\": \"domestic\", \"value\": \"123-456-7890\" }]\n        },\n        \"name\": \"Harris Township\",\n        \"object_id\": \"harris-township\",\n        \"type\": \"township\"\n      }\n    ],\n    \"name\": {\n      \"text\": [\n        { \"language\": \"en\", \"value\": \"Hamiltion County General Election\" },\n        {\n          \"language\": \"es\",\n          \"value\": \"Elecci\\u00f3n general del condado de Hamilton\"\n        }\n      ]\n    },\n    \"parties\": [\n      {\n        \"abbreviation\": \"WHI\",\n        \"color\": \"AAAAAA\",\n        \"logo_uri\": \"http://some/path/to/whig.svg\",\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Whig Party\" }] },\n        \"object_id\": \"whig\"\n      },\n      {\n        \"abbreviation\": \"FED\",\n        \"color\": \"BBBBBB\",\n        \"logo_uri\": \"http://some/path/to/federalist.svg\",\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Federalist Party\" }] },\n        \"object_id\": \"federalist\"\n      },\n      {\n        \"abbreviation\": \"PPL\",\n        \"color\": \"CCCCCC\",\n        \"logo_uri\": \"http://some/path/to/people-s.svg\",\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"People's Party\" }] },\n        \"object_id\": \"peoples\"\n      },\n      {\n        \"abbreviation\": \"LIB\",\n        \"color\": \"DDDDDD\",\n        \"logo_uri\": \"http://some/path/to/liberty.svg\",\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Liberty Party\" }] },\n        \"object_id\": \"liberty\"\n      },\n      {\n        \"abbreviation\": \"CONST\",\n        \"color\": \"EEEEEE\",\n        \"logo_uri\": \"http://some/path/to/democratic-repulbican.svg\",\n        \"name\": {\n          \"text\": [{ \"language\": \"en\", \"value\": \"Constitution Party\" }]\n        },\n        \"object_id\": \"constitution\"\n      },\n      {\n        \"abbreviation\": \"LBR\",\n        \"color\": \"FFFFFF\",\n        \"logo_uri\": \"http://some/path/to/laobr.svg\",\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Labor Party\" }] },\n        \"object_id\": \"labor\"\n      },\n      {\n        \"abbreviation\": \"IND\",\n        \"color\": \"000000\",\n        \"logo_uri\": \"http://some/path/to/independent.svg\",\n        \"name\": { \"text\": [{ \"language\": \"en\", \"value\": \"Independent\" }] },\n        \"object_id\": \"independent\"\n      }\n    ],\n    \"spec_version\": \"v0.95\",\n    \"start_date\": \"2020-03-01T08:00:00-05:00\",\n    \"type\": \"general\"\n  }\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/manifest",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"manifest"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4.2 Build Election Context",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.environment.set(\"e2e-crypto-base-hash\", jsonData.context.crypto_base_hash);\r",
+											"    pm.environment.set(\"e2e-crypto-extended-base-hash\", jsonData.context.crypto_extended_base_hash);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"manifest_hash\": \"{{e2e-manifest-hash}}\",\n    \"elgamal_public_key\": \"{{e2e-elgamal-public-key}}\",\n    \"commitment_hash\": \"{{e2e-commitment-hash}}\",\n    \"number_of_guardians\": 2,\n    \"quorum\": 2\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/election/context",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"election",
+										"context"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4.3 Create Election",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// print election id to test results, ensure truthy\r",
+											"const electionId = pm.variables.get('e2e-election-id');\r",
+											"console.log('election_id', electionId);\r",
+											"tests[electionId] = electionId;\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const electionId = \"e2e-election-\" + pm.variables.get(\"e2e-run-id\");\r",
+											"pm.environment.set(\"e2e-election-id\", electionId);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"election_id\": \"{{e2e-election-id}}\",\n    \"key_name\": \"e2e-key_ceremony_{{e2e-run-id}}\",\n    \"context\": {\n        \"commitment_hash\": \"{{e2e-commitment-hash}}\",\n        \"crypto_base_hash\": \"{{e2e-crypto-base-hash}}\",\n        \"crypto_extended_base_hash\": \"{{e2e-crypto-extended-base-hash}}\",\n        \"elgamal_public_key\": \"{{e2e-elgamal-public-key}}\",\n        \"manifest_hash\": \"{{e2e-manifest-hash}}\",\n        \"number_of_guardians\": 2,\n        \"quorum\": 2\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/election",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"election"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				},
 				{
-					"name": "3. Create Joint Key",
-					"item": []
+					"name": "5. Upload Ballots",
+					"item": [
+						{
+							"name": "5.1 Encrypt Ballots",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"",
+											"    var jsonData = pm.response.json();",
+											"    const encryptedBallots = JSON.stringify(jsonData.encrypted_ballots);",
+											"    pm.environment.set('e2e-encrypted-ballots', encryptedBallots);",
+											"});",
+											"",
+											"pm.test(\"Ballots are returned in the same order as the request\", function () {",
+											"    const requestJson = JSON.parse(pm.request.body.raw)",
+											"    const responseJson = pm.response.json();",
+											"    pm.expect(responseJson.encrypted_ballots.length).to.eql(requestJson.ballots.length)",
+											"    for (let i = 0; i < requestJson.ballots.length; i++) {",
+											"        requestBallot = requestJson.ballots[i]",
+											"        responseBallot = responseJson.encrypted_ballots[i]",
+											"        pm.expect(responseBallot.object_id).to.eql(requestBallot.object_id)",
+											"    }",
+											"});",
+											"",
+											"pm.test(\"Ballots use proper code seed hashes\", function () {",
+											"    const requestJson = JSON.parse(pm.request.body.raw);",
+											"    const responseJson = pm.response.json();",
+											"    latest_hash = requestJson.seed_hash;",
+											"",
+											"    for (const ballot of responseJson.encrypted_ballots) {",
+											"        pm.expect(ballot.code_seed).to.eql(latest_hash);",
+											"        latest_hash = ballot.crypto_hash;",
+											"    }",
+											"    pm.expect(responseJson.next_seed_hash).to.eql(latest_hash);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"election_id\": \"{{e2e-election-id}}\",\n  \"seed_hash\": \"B52C5D5946B74F45001E90F5D9BED765C52921F0ED11A5F430F50CDF82EE4756\",\n  \"ballots\": [\n    {\n      \"object_id\": \"ballot-1663ab54-e95f-11eb-bd0c-acde48001123\",\n      \"style_id\": \"congress-district-7-lacroix\",\n      \"contests\": [\n        {\n          \"object_id\": \"president-vice-president-contest\",\n          \"ballot_selections\": [\n            {\n              \"is_placeholder_selection\": false,\n              \"object_id\": \"barchi-hallaren-selection\",\n              \"vote\": 1\n            },\n            {\n              \"is_placeholder_selection\": false,\n              \"object_id\": \"cramer-vuocolo-selection\",\n              \"vote\": 0\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"object_id\": \"ballot-1663ab54-e95f-11eb-bd0c-acde48001123\",\n      \"style_id\": \"congress-district-7-lacroix\",\n      \"contests\": [\n        {\n          \"object_id\": \"president-vice-president-contest\",\n          \"ballot_selections\": [\n            {\n              \"is_placeholder_selection\": false,\n              \"object_id\": \"barchi-hallaren-selection\",\n              \"vote\": 0\n            },\n            {\n              \"is_placeholder_selection\": false,\n              \"object_id\": \"cramer-vuocolo-selection\",\n              \"vote\": 1\n            }\n          ]\n        }\n      ]\n    }    \n  ]\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/ballot/encrypt",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"ballot",
+										"encrypt"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "5.2 Cast Ballots",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 202\", function () {\r",
+											"    pm.response.to.have.status(202);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"election_id\": \"{{e2e-election-id}}\",\n    \"ballots\": {{e2e-encrypted-ballots}},\n    \"next_seed_hash\": \"1AAF734CC79D02CA0C2F1FEF318FD7529853DDD57FA43823B48CAB6E3C3D7B29\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/ballot/cast",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"ballot",
+										"cast"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				},
 				{
-					"name": "New Folder",
-					"item": []
+					"name": "6. Tally",
+					"item": [
+						{
+							"name": "6.1 Start Tally",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const tallyName = 'e2e-tally-' + pm.environment.get('e2e-run-id');\r",
+											"pm.environment.set('e2e-tally-name', tallyName);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// print tally name to test results, ensure truthy\r",
+											"const tallyId = pm.variables.get('e2e-e2e-tally-name');\r",
+											"console.log('tally_name', tallyId);\r",
+											"tests[tallyId] = tallyId;\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/tally?election_id={{e2e-election-id}}&tally_name={{e2e-tally-name}}",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally"
+									],
+									"query": [
+										{
+											"key": "election_id",
+											"value": "{{e2e-election-id}}"
+										},
+										{
+											"key": "tally_name",
+											"value": "{{e2e-tally-name}}"
+										}
+									]
+								},
+								"description": "Start a tally by passing in a batch of ballots.  This will return a tally that can be passed back in to accumulate further ballots."
+							},
+							"response": []
+						},
+						{
+							"name": "6.1 Get Tally",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    const encryptedTally = JSON.stringify(pm.response.json());\r",
+											"    pm.environment.set('e2e-encrypted-tally', encryptedTally)\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/tally?election_id={{e2e-election-id}}&tally_name={{e2e-tally-name}}",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally"
+									],
+									"query": [
+										{
+											"key": "election_id",
+											"value": "{{e2e-election-id}}"
+										},
+										{
+											"key": "tally_name",
+											"value": "{{e2e-tally-name}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "6.2 Get User1 Decryption Share",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    const response = pm.response.json();\r",
+											"    const shares = JSON.stringify(response.shares[0]);\r",
+											"    pm.environment.set('e2e-encrypted-tally-user1', shares);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"guardian_id\": \"{{e2e-user1-id}}\",\n  \"context\": {\n    \"number_of_guardians\": 2,\n    \"quorum\": 2,\n    \"elgamal_public_key\": \"{{e2e-elgamal-public-key}}\",\n    \"commitment_hash\": \"{{e2e-commitment-hash}}\",\n    \"manifest_hash\": \"{{e2e-manifest-hash}}\",\n    \"crypto_base_hash\": \"{{e2e-crypto-base-hash}}\",\n    \"crypto_extended_base_hash\": \"{{e2e-crypto-extended-base-hash}}\"\n  },\n  \"encrypted_tally\": {{e2e-encrypted-tally}}\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{guardian-url}}/api/{{version}}/tally/decrypt-share",
+									"host": [
+										"{{guardian-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally",
+										"decrypt-share"
+									]
+								},
+								"description": "Compute the decryption share of a tally for a specific guardian."
+							},
+							"response": []
+						},
+						{
+							"name": "6.3 Save User1 Decryption Share",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"share\": {{e2e-encrypted-tally-user1}}\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/tally/decrypt/submit-share",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally",
+										"decrypt",
+										"submit-share"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "6.4 Get User2 Decryption Share",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    const response = pm.response.json();\r",
+											"    const shares = JSON.stringify(response.shares[0]);\r",
+											"    pm.environment.set('e2e-encrypted-tally-user2', shares);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"guardian_id\": \"{{e2e-user2-id}}\",\n  \"context\": {\n    \"number_of_guardians\": 2,\n    \"quorum\": 2,\n    \"elgamal_public_key\": \"{{e2e-elgamal-public-key}}\",\n    \"commitment_hash\": \"{{e2e-commitment-hash}}\",\n    \"manifest_hash\": \"{{e2e-manifest-hash}}\",\n    \"crypto_base_hash\": \"{{e2e-crypto-base-hash}}\",\n    \"crypto_extended_base_hash\": \"{{e2e-crypto-extended-base-hash}}\"\n  },\n  \"encrypted_tally\": {{e2e-encrypted-tally}}\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{guardian-url}}/api/{{version}}/tally/decrypt-share",
+									"host": [
+										"{{guardian-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally",
+										"decrypt-share"
+									]
+								},
+								"description": "Compute the decryption share of a tally for a specific guardian."
+							},
+							"response": []
+						},
+						{
+							"name": "6.5 Save User2 Decryption Share",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"share\": {{e2e-encrypted-tally-user2}}\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/tally/decrypt/submit-share",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally",
+										"decrypt",
+										"submit-share"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Decrypt Tally",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"election_id\": \"{{e2e-election-id}}\",\n    \"tally_name\": \"{{e2e-tally-name}}\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mediator-url}}/api/{{version}}/tally/decrypt?restart=true",
+									"host": [
+										"{{mediator-url}}"
+									],
+									"path": [
+										"api",
+										"{{version}}",
+										"tally",
+										"decrypt"
+									],
+									"query": [
+										{
+											"key": "restart",
+											"value": "true"
+										}
+									]
+								},
+								"description": "Compute the decryption share of a tally for a specific guardian."
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		}
@@ -1071,7 +1749,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "{{token}}",
+				"value": "{{e2e-token}}",
 				"type": "string"
 			}
 		]
@@ -1094,60 +1772,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "run-id",
-			"value": ""
-		},
-		{
-			"key": "user1-public-key-value",
-			"value": ""
-		},
-		{
-			"key": "user1-public-key-all",
-			"value": ""
-		},
-		{
-			"key": "user2-public-key-value",
-			"value": ""
-		},
-		{
-			"key": "user2-public-key-all",
-			"value": ""
-		},
-		{
-			"key": "user1-backups",
-			"value": ""
-		},
-		{
-			"key": "user1-backup1-value",
-			"value": ""
-		},
-		{
-			"key": "user1-backup2-value",
-			"value": ""
-		},
-		{
-			"key": "user2-backups",
-			"value": ""
-		},
-		{
-			"key": "user2-backup1-value",
-			"value": ""
-		},
-		{
-			"key": "user2-backup2-value",
-			"value": ""
-		},
-		{
-			"key": "elgamal_public_key",
-			"value": ""
-		},
-		{
-			"key": "commitment_hash",
-			"value": ""
 		}
 	]
 }
