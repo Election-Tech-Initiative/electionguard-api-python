@@ -33,6 +33,12 @@ def encrypt_ballots(
     seed_hash = read_json_object(data.seed_hash, ElementModQ)
 
     ballots = [PlaintextBallot.from_json_object(ballot) for ballot in data.ballots]
+    
+    if not ballots:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot obtain ballots from the response",
+        )
 
     encrypted_ballots = []
     current_hash = seed_hash
