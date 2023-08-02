@@ -47,7 +47,8 @@ class Settings(BaseSettings):
     MESSAGEQUEUE_URI: str = "amqp://guest:guest@localhost:5672"
 
     AUTH_ALGORITHM = "HS256"
-    AUTH_SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+    # JWT secret that matches AUTH_ALGORITHM. Change this to a valid value.
+    AUTH_SECRET_KEY = "<this is a default value and should be changed>"
     AUTH_ACCESS_TOKEN_EXPIRE_MINUTES = 30
     DEFAULT_ADMIN_USERNAME = "default"
     DEFAULT_ADMIN_PASSWORD = "<this is a default value and should be changed>"
