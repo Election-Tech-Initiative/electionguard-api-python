@@ -28,7 +28,7 @@ mkdocs = "^1"
 mypy = "^0.782"
 pylint = "^2"
 pytest = "^6"
-requests = "^2.24.0"
+requests = "^2.31.0"
 
 [tool.black]
 target-version = ['py39']
